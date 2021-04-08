@@ -1,8 +1,12 @@
 package uk.co.kring;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 public class Main implements Runnable {
 
     private static int err, last, first;//primary error code
+    static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     public static void main(String[] args) {
         clearErrors();
@@ -27,16 +31,53 @@ public class Main implements Runnable {
         //s[s.length - 1] = "";
     }
 
+    public static String[] readline() {
+        final String para = "\u2029";
+        try {
+            boolean quote = false;
+            int j = 0;
+            String l = input.readLine();
+            l = l.replace("\\\"", para);
+            String[] args = l.split(l);
+            for(int i = 0; i < args.length; i++) {
+                if(args[i].startsWith("\"")) {
+                    quote = true;
+                    args[i] = args[i].substring(1);//remove quote
+                }
+                if(!quote) {
+                    j++;
+                    //args[j] = args[i].trim();
+                }
+                else {
+                    if(args[i].endsWith("\"")) {
+                        quote = false;
+                        args[i] = args[i].substring(0, args[i].length() - 1);//remove quote
+                    }
+                    args[j] += " " + args[i];
+                    args[i] = null;
+                    if(!quote) j = i;//restore parse
+                }
+            }
+            for(int i = 0; i < args.length; i++) {
+                args[i] = args[i].replace(para, "\"");//hack!
+            }
+            return args;
+        } catch (Exception e) {
+            setError(0);//Input
+            return new String[0];//blank
+        }
+    }
+
     public void run() {
 
     }
 
     static final String[] errorFact = {
-        "Non specific error"            //1
+        "Input"            //0
     };
 
     static final int[] errorCode = {//by lines of 4
-        2, 3, 5, 7,                     //1
+        2, 3, 5, 7,                     //0
         11, 13, 17, 19                  //4
     };
 
@@ -74,8 +115,9 @@ public class Main implements Runnable {
     }
 
     public static void printErr() {
+        final String errorWord = " error.";
         if(last != -1) {
-            System.err.println(ANSI_RED + errorFact[last]);
+            System.err.println(ANSI_RED + errorFact[last] + errorWord);
             String c = ANSI_YELLOW;
             if(errOver()) c = ANSI_RED;//many errors
             else {
@@ -86,7 +128,7 @@ public class Main implements Runnable {
             for(int i = 0; i < errorFact.length; i++) {
                 if(err == 1) break;
                 if(err % errorCode[i] == 0) {
-                    System.err.println(c + errorFact[i]);
+                    System.err.println(c + errorFact[i] +  errorWord);
                     err /= errorCode[i];
                 }
             }
