@@ -2,25 +2,32 @@ package uk.co.kring;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Stack;
 
 public class Main implements Runnable {
 
     private static int err, last, first;//primary error code
     static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+    static Stack<String[]> ret = new Stack();
 
     public static void main(String[] args) {
         clearErrors();
+        ret.push(args);
         for(int i = 0; i < args.length; i++) {
-            print(ANSI_GREEN + args[0]);
-            execute(args);
+            print(ANSI_GREEN + ret.peek()[0]);
+            execute();
             if(errOver()) break;//prime errors
         }
-        println();
-        printErr();
-        System.exit(first);//a nice ...
+        ret.pop();
+        if(ret.empty()) {
+            println();
+            printErr();
+            System.exit(first);//a nice ...
+        }
     }
 
-    public static void execute(String[] s) {
+    public static void execute() {
+        String[] s = ret.peek();
         if(s[0] == null) return;//no fail nulls
         String t = s[0];//save
         System.arraycopy(s, 1, s, 0, s.length - 1);
