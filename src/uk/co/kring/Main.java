@@ -2,7 +2,7 @@ package uk.co.kring;
 
 public class Main {
 
-    private static int err, last;//primary error code
+    private static int err, last, first;//primary error code
 
     public static void main(String[] args) {
         clearErrors();
@@ -13,7 +13,7 @@ public class Main {
         }
         println();
         printErr();
-        System.exit(err - 1);//a nice ...
+        System.exit(first);//a nice ...
     }
 
     public static void execute(String[] s) {
@@ -43,9 +43,11 @@ public class Main {
     static void clearErrors() {
         err = 1;
         last = -1;
+        first = 0;
     }
 
     public static void setError(int t) {
+        if(first < 1) first = errorCode[t];
         last = t;
         t = errorCode[t];//map
         if(err * t < 0 || t == 0) return;
@@ -70,7 +72,10 @@ public class Main {
         if(last >= 0) System.err.println(ANSI_RED + errorFact[last]);
         String c = ANSI_YELLOW;
         if(errOver()) c = ANSI_RED;//many errors
-        else err /= errorCode[last];//divide out last
+        else {
+            first = err;//return all if no over
+            err /= errorCode[last];//divide out last
+        }
         for(int i = 0; i < errorFact.length; i++) {
             if(err == 1) break;
             if(err % errorCode[i] == 0) {
