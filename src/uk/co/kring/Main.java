@@ -59,7 +59,7 @@ public class Main implements Runnable {
                 }
             }
             for(int i = 0; i < args.length; i++) {
-                args[i] = args[i].replace(para, "\"");//hack!
+                if(args[i] != null) args[i] = args[i].replace(para, "\"");//hack!
             }
             return args;
         } catch (Exception e) {
