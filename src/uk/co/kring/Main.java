@@ -3,21 +3,27 @@ package uk.co.kring;
 public class Main {
 
     public static void main(String[] args) {
+        int err = 1;
         for(int i = 0; i < args.length; i++) {
             print(ANSI_GREEN + args[0]);
-            execute(args);
+            int t = execute(args);
+            if(err * t < 0) break;//overflow of errors
+            if(t != 0) err *= t;//prime errors
         }
         println();
+        System.exit(err - 1);//a nice ...
     }
 
-    public static boolean execute(String[] s) {
-        if(s[0] == null) return true;//no fail nulls
+    public static int execute(String[] s) {
+        if(s[0] == null) return 1;//no fail nulls
         String t = s[0];//save
         System.arraycopy(s, 1, s, 0, s.length - 1);
         s[s.length - 1] = null;//shifted
         //TODO
 
-        return true;//default OK
+        //place
+        //s[s.length - 1] = "";
+        return 1;//default OK
     }
 
     public static final String ANSI_RESET = "\u001B[0m";
