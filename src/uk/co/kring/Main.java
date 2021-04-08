@@ -2,13 +2,13 @@ package uk.co.kring;
 
 public class Main {
 
+    private static int err;//primary error code
+
     public static void main(String[] args) {
-        int err = 1;
+        clearErrors();
         for(int i = 0; i < args.length; i++) {
             print(ANSI_GREEN + args[0]);
-            int t = execute(args);
-            if(err * t < 0) break;//overflow of errors
-            if(t != 0) err *= t;//prime errors
+            if(!setError(execute(args))) break;//prime errors
         }
         println();
         System.exit(err - 1);//a nice ...
@@ -24,6 +24,16 @@ public class Main {
         //place
         //s[s.length - 1] = "";
         return 1;//default OK
+    }
+
+    public static void clearErrors() {
+        err = 1;
+    }
+
+    public static boolean setError(int t) {
+        if(err * t < 0 || t == 0) return false;
+        err *= t;
+        return true;
     }
 
     public static final String ANSI_RESET = "\u001B[0m";
