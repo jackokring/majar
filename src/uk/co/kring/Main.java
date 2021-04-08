@@ -74,7 +74,7 @@ public class Main implements Runnable {
     }
 
     public static void printErr() {
-        if(last >= 0) {
+        if(last != -1) {
             System.err.println(ANSI_RED + errorFact[last]);
             String c = ANSI_YELLOW;
             if(errOver()) c = ANSI_RED;//many errors
@@ -92,6 +92,7 @@ public class Main implements Runnable {
             }
             System.err.println(ANSI_RESET);
         }
+        last = -1;//errors flushed
     }
 
     public static final String ANSI_RESET = "\u001B[0m";
