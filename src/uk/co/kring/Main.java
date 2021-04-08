@@ -1,6 +1,6 @@
 package uk.co.kring;
 
-public class Main {
+public class Main implements Runnable {
 
     private static int err, last, first;//primary error code
 
@@ -25,6 +25,10 @@ public class Main {
 
         //place
         //s[s.length - 1] = "";
+    }
+
+    public void run() {
+
     }
 
     static final String[] errorFact = {
@@ -65,25 +69,29 @@ public class Main {
     }
 
     static boolean errOver() {
+        if(last < 0) return false;
         return err * last < 0;
     }
 
     public static void printErr() {
-        if(last >= 0) System.err.println(ANSI_RED + errorFact[last]);
-        String c = ANSI_YELLOW;
-        if(errOver()) c = ANSI_RED;//many errors
-        else {
-            first = err;//return all if no over
-            err /= errorCode[last];//divide out last
-        }
-        for(int i = 0; i < errorFact.length; i++) {
-            if(err == 1) break;
-            if(err % errorCode[i] == 0) {
-                System.err.println(c + errorFact[i]);
-                err /= errorCode[i];
+        if(last >= 0) {
+            System.err.println(ANSI_RED + errorFact[last]);
+            String c = ANSI_YELLOW;
+            if(errOver()) c = ANSI_RED;//many errors
+            else {
+                first = err;//return all if no over
+                if(first == 1) first = 0;//no error
+                if(last != -1) err /= errorCode[last];//divide out last
             }
+            for(int i = 0; i < errorFact.length; i++) {
+                if(err == 1) break;
+                if(err % errorCode[i] == 0) {
+                    System.err.println(c + errorFact[i]);
+                    err /= errorCode[i];
+                }
+            }
+            System.err.println(ANSI_RESET);
         }
-        System.err.println(ANSI_RESET);
     }
 
     public static final String ANSI_RESET = "\u001B[0m";
