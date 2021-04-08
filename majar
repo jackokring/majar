@@ -1,0 +1,5 @@
+#!/bin/sh
+echo "Enter majar."
+#echo $(basename $0) $*
+#call majar with all arguments
+java ma.jar $(basename $0) $*
