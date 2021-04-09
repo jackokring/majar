@@ -1,10 +1,14 @@
 package uk.co.kring;
 
+import java.util.List;
+
 public class Multex implements Runnable {
 
     public void run() {
         //TODO replace this by found
-        Main.ret.push(this);//Threading ...
+        List<Symbol> s = Main.dict.get(firstString());
+        //specifics of multiple dicts?
+        Main.ret.push(s.get(0));//Threading ...
     }
 
     String[] basis;
