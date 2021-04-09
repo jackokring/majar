@@ -24,8 +24,7 @@ public class Main {
             intern(args);//first
         }
         ret.push(new Multex(args));
-        for(int i = 0; i < args.length; i++) {
-            print(ANSI_GREEN + ret.peek().firstString());
+        while(!ret.peek().ended()) {
             execute();
             if(errOver()) break;//prime errors
         }
@@ -42,6 +41,7 @@ public class Main {
     public static void execute() {
         Multex s = ret.peek();
         if(s.firstString() == null) return;//no fail null
+        print(ANSI_GREEN + s.firstString());
         s.run();
         s.shift();
     }
