@@ -7,8 +7,9 @@ public class Multex implements Runnable {
     public void run() {
         //TODO replace this by found
         List<Symbol> s = Main.dict.get(firstString());
+        //not null?
         //specifics of multiple dicts?
-        Main.ret.push(s.get(0));//Threading ...
+        Main.ret.push(new Multex(s.get(0)));//Threading ...
     }
 
     String[] basis;
@@ -16,6 +17,10 @@ public class Multex implements Runnable {
 
     public Multex(String[] s) {
         basis = s;
+    }
+
+    public Multex(Multex m) {//new idx
+        this(m.basis);
     }
 
     public String firstString() {
