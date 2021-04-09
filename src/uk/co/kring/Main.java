@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Stack;
 
-public class Main implements Runnable {
+public class Main {
 
     private static int err, last, first;//primary error code
     static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
@@ -38,12 +38,13 @@ public class Main implements Runnable {
         //s[s.length - 1] = "";
     }
 
-    public static String[] readline() {
-        final String para = "\u2029";
+    static final String para = "\\~";//quirk of the shell
+
+    public static String[] readline(BufferedReader in) {
         try {
             boolean quote = false;
             int j = 0;
-            String l = input.readLine();
+            String l = in.readLine();
             l = l.replace("\\\"", para);
             String[] args = l.split(l);
             for(int i = 0; i < args.length; i++) {
@@ -70,18 +71,16 @@ public class Main implements Runnable {
             }
             return args;
         } catch (Exception e) {
-            setError(0);//Input
+            setError(ERR_IO);//Input
             return new String[0];//blank
         }
-    }
-
-    public void run() {
-
     }
 
     static final String[] errorFact = {
         "Input"            //0
     };
+
+    public static final int ERR_IO = 0;
 
     static final int[] errorCode = {//by lines of 4
         2, 3, 5, 7,                     //0
@@ -122,9 +121,8 @@ public class Main implements Runnable {
     }
 
     public static void printErr() {
-        final String errorWord = " error.";
         if(last != -1) {
-            System.err.println(ANSI_RED + errorFact[last] + errorWord);
+            errorPlump(ANSI_RED, last);
             String c = ANSI_YELLOW;
             if(errOver()) c = ANSI_RED;//many errors
             else {
@@ -135,13 +133,21 @@ public class Main implements Runnable {
             for(int i = 0; i < errorFact.length; i++) {
                 if(err == 1) break;
                 if(err % errorCode[i] == 0) {
-                    System.err.println(c + errorFact[i] +  errorWord);
+                    errorPlump(c, i);
                     err /= errorCode[i];
                 }
             }
             System.err.println(ANSI_RESET);
         }
         last = -1;//errors flushed
+    }
+
+    static final String errorWord = " error.";
+
+    static void errorPlump(String prefix, int code) {
+        System.err.println(prefix +
+                "[" + errorCode[code] + "] " +
+                errorFact[code] + errorWord);
     }
 
     public static final String ANSI_RESET = "\u001B[0m";
