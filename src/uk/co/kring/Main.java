@@ -24,10 +24,7 @@ public class Main {
             intern(args);//first
         }
         ret.push(new Multex(args));
-        while(!ret.peek().ended()) {
-            execute();
-            if(errOver()) break;//prime errors
-        }
+        execute();
         ret.pop();
         if(ret.empty()) {
             println();
@@ -40,10 +37,13 @@ public class Main {
 
     public static void execute() {
         Multex s = ret.peek();
-        if(s.firstString() == null) return;//no fail null
-        print(ANSI_GREEN + s.firstString());
-        s.run();
-        s.shift();
+        while(!s.ended()) {
+            if(s.firstString() == null) return;//no fail null
+            print(ANSI_GREEN + s.firstString());
+            s.run();
+            s.shift();
+            if(errOver()) break;//prime errors
+        }
     }
 
     static final String para = "\\~";//quirk of the shell
