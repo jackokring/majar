@@ -8,16 +8,17 @@ public class Main {
 
     private static int err, last, first;//primary error code
     static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-    static Stack<String[]> ret = new Stack();
+    static Stack<Multex> ret = new Stack<>();
+    static Stack<Multex> dat = new Stack<>();
 
     public static void main(String[] args) {
         if(ret.empty()) {
             clearErrors();
             intern(args);//first
         }
-        ret.push(args);
+        ret.push(new Multex(args));
         for(int i = 0; i < args.length; i++) {
-            print(ANSI_GREEN + ret.peek()[0]);
+            print(ANSI_GREEN + ret.peek().firstString());
             execute();
             if(errOver()) break;//prime errors
         }
@@ -32,20 +33,15 @@ public class Main {
     //========================================== INTERPRETER
 
     public static void execute() {
-        String[] s = ret.peek();
-        if(s[0] == null) return;//no fail nulls
-        String t = s[0];//save
-        System.arraycopy(s, 1, s, 0, s.length - 1);
-        s[s.length - 1] = null;//shifted
-        //TODO
-
-        //place
-        //s[s.length - 1] = "";
+        Multex s = ret.peek();
+        if(s.firstString() == null) return;//no fail null
+        s.run();
+        s.shift();
     }
 
     static final String para = "\\~";//quirk of the shell
 
-    public static String[] readline(BufferedReader in) {
+    public static String[] readLine(BufferedReader in) {
         try {
             boolean quote = false;
             int j = 0;
