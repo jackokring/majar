@@ -14,11 +14,15 @@ public class Multex implements Runnable {
     }
 
     public String firstString() {
-        if(idx >= basis.length) return null;
+        if(ended()) return null;
         return basis[idx];
     }
 
     public void shift() {
         idx++;
+    }
+
+    public boolean ended() {
+        return idx >= basis.length;
     }
 }

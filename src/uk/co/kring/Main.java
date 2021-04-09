@@ -14,7 +14,7 @@ public class Main {
     static Stack<Multex> ret = new Stack<>();
     static Stack<Multex> dat = new Stack<>();
     static HashMap<String, List<Symbol>> dict =
-            new HashMap<String, List<Symbol>>();
+            new HashMap<>();
     static Book context;
     static Book current;
 
@@ -97,6 +97,21 @@ public class Main {
         for(int i = 0; i < s.length; i++) {
             s[i] = s[i].intern();//pointers??
         }
+    }
+
+    public static void dollar(String s) {
+        s = s.replace("\\$", para);
+        int i;
+        while((i = s.indexOf("$")) != -1) {
+            Multex m = dat.peek();
+            while(m.firstString() == null) {
+                m.shift();
+                if(m.ended()) m = dat.pop();
+            }
+            String j = m.firstString().replace("$", para);//recursive
+            s = s.substring(0, i) + j + s.substring(i + 1);
+        }
+        s = s.replace(para, "$");
     }
 
     //================================================== ERRORS
