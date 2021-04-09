@@ -11,7 +11,10 @@ public class Main {
     static Stack<String[]> ret = new Stack();
 
     public static void main(String[] args) {
-        if(ret.empty()) clearErrors();
+        if(ret.empty()) {
+            clearErrors();
+            intern(args);//first
+        }
         ret.push(args);
         for(int i = 0; i < args.length; i++) {
             print(ANSI_GREEN + ret.peek()[0]);
@@ -25,6 +28,8 @@ public class Main {
             System.exit(first);//a nice ...
         }
     }
+
+    //========================================== INTERPRETER
 
     public static void execute() {
         String[] s = ret.peek();
@@ -69,12 +74,23 @@ public class Main {
             for(int i = 0; i < args.length; i++) {
                 if(args[i] != null) args[i] = args[i].replace(para, "\"");//hack!
             }
+            intern(args);//pointers??
             return args;
         } catch (Exception e) {
             setError(ERR_IO);//Input
             return new String[0];//blank
         }
     }
+
+    //================================================== STRING UTIL
+
+    public static void intern(String[] s) {
+        for(int i = 0; i < s.length; i++) {
+            s[i] = s[i].intern();//pointers??
+        }
+    }
+
+    //================================================== ERRORS
 
     static final String[] errorFact = {
         "Input"            //0
