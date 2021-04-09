@@ -1,6 +1,7 @@
 package uk.co.kring;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.util.Stack;
 
@@ -76,6 +77,12 @@ public class Main {
             setError(ERR_IO);//Input
             return new String[0];//blank
         }
+    }
+
+    public static String[] readString(String in) {
+        BufferedReader br = new BufferedReader(
+                new InputStreamReader(new ByteArrayInputStream((in + "\n").getBytes())));
+        return readLine(br);
     }
 
     //================================================== STRING UTIL
