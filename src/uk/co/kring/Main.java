@@ -11,7 +11,7 @@ public class Main implements Runnable {
     static Stack<String[]> ret = new Stack();
 
     public static void main(String[] args) {
-        clearErrors();
+        if(ret.empty()) clearErrors();
         ret.push(args);
         for(int i = 0; i < args.length; i++) {
             print(ANSI_GREEN + ret.peek()[0]);
