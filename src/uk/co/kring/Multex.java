@@ -28,6 +28,13 @@ public class Multex implements Runnable {
         return basis[idx];
     }
 
+    public String nextString() {
+        if(ended()) return null;
+        Multex m = new Multex(this);
+        m.shift();
+        return m.firstString();
+    }
+
     public void shift() {
         idx++;
     }

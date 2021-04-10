@@ -119,26 +119,27 @@ public class Main {
         int i;
         while((i = s.indexOf("$")) != -1) {
 
-            String j = topMost(dat).replace("$", para);//recursive
+            String j = topMost(dat, false).replace("$", para);//recursive
             s = s.substring(0, i) + j + s.substring(i + 1);
         }
         return s.replace(para, "$");
     }
 
-    public static String topMost(Stack<Multex> sm) {
+    public static String topMost(Stack<Multex> sm, boolean next) {
         Multex m = sm.peek();
+        if(next) m.shift();
         while(m.firstString() == null) {
             m.shift();
             if(m.ended()) m = sm.pop();
         }
         String s = m.firstString();
-        m.shift();
+        if(!next) m.shift();
         return s;
     }
 
-    public static String parameter(Stack<Multex> sm) {
+    public static String parameter(Stack<Multex> sm, boolean next) {
         Multex m = sm.pop();
-        String s = topMost(sm);
+        String s = topMost(sm, next);
         sm.push(m);
         return s;
     }
