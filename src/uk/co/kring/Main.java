@@ -17,6 +17,7 @@ public class Main {
             new HashMap<>();
     static Book context;
     static Book current;
+    static boolean fast = false;
 
     //========================================== ENTRY / EXIT
 
@@ -51,12 +52,19 @@ public class Main {
         ret.push(s);
         while(!s.ended()) {
             if(s.firstString() == null) return;//no fail null
-            print(ANSI_GREEN + s.firstString());
+            if(!fast) {
+                print(ANSI_GREEN + s.firstString());
+                profile(s.firstString());
+            }
             s.run();
             s.shift();
             if(errOver()) break;//prime errors
         }
         ret.pop();
+    }
+
+    static void profile(String s) {
+        //TODO
     }
 
     static final String para = "\\~";//quirk of the shell
@@ -90,6 +98,7 @@ public class Main {
             for(int i = 0; i < args.length; i++) {
                 if(args[i] != null) args[i] = args[i].replace(para, "\"");//hack!
             }
+            if(quote) setError(ERR_QUOTE, args[j]);
             intern(args);//pointers??
             return new Multex(args);
         } catch (Exception e) {
@@ -154,12 +163,14 @@ public class Main {
     static final String[] errorFact = {
         "Input",           //0
         "Stack underflow", //1
-        "Stack overflow"   //2
+        "Stack overflow",  //2
+        "Closing \""       //3
     };
 
     public static final int ERR_IO = 0;
     public static final int ERR_UNDER = 1;
     public static final int ERR_OVER = 2;
+    public static final int ERR_QUOTE = 3;
 
     static final int[] errorCode = {//by lines of 4
         2, 3, 5, 7,                     //0
@@ -183,38 +194,41 @@ public class Main {
 
     public static void setError(int t, Object o) {
         String s;
+        long e = err;
         if(o == null) {
             s = "No further data";
         } else {
             s = classNamed(o);
         }
-        errorPlump(ANSI_RED, t, s);
-        if(first < 1) first = errorCode[t];
+        if(first < 1) first = t;
         last = t;
+        errorPlump(ANSI_RED, t, s);
         t = errorCode[t];//map
-        if(err * t < 0 || t == 0) throw new RuntimeException("MajarInternal");
-        err *= t;
-        mapErrors();
+        mapErrors(e * t);
     }
 
     public static String classNamed(Object o) {
         if(o instanceof String) return ANSI_RESET + o;
         if(o instanceof Symbol) return ANSI_BLUE + o.getClass().getName() + ": " + classNamed(((Symbol)o).named);
+        //TODO
+        //if(o instanceof Multex) return
         return ANSI_PURPLE + o.getClass().getName() + " [" + Integer.toHexString(o.hashCode()) + "]";
     }
 
-    static void mapErrors() {
+    static void mapErrors(long e) {
         for(int i = 0; i < errorComposites.length; i += 2) {
-            if(err % errorComposites[i] == 0) {
-                err /= errorComposites[i];
+            if(e % errorComposites[i] == 0) {
+                e /= errorComposites[i];
                 setError(errorComposites[i + 1]);//apply the composite and reduce
             }
         }
+        if(e > Integer.MAX_VALUE) throw new RuntimeException("MajarInternal");
+        err = (int)e;
     }
 
     static boolean errOver() {
         if(last < 0) return false;
-        return err * last < 0;
+        return ((long)err << 2) > Integer.MAX_VALUE;
     }
 
     public static void printErrorSummary() {
