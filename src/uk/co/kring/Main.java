@@ -31,7 +31,6 @@ public class Main {
                 print(ANSI_RED + ">" + ret.pop().firstString());
             }
         }
-        println();
         printErrorSummary();
         System.exit(first);//a nice ...
     }
@@ -237,6 +236,7 @@ public class Main {
 
     public static void setError(int t, Object o) {
         String s;
+        boolean combine = false;
         long e = err;
         if(o == null) {
             s = "No further data";
@@ -245,6 +245,13 @@ public class Main {
         }
         if(first < 1) first = t;
         last = t;
+        for(int i = 0; i < errorComposites.length; i+=2) {
+            if(t == errorComposites[i]) {
+                combine = true;
+                break;
+            }
+        }
+        if(!combine) System.err.println();//bang tidy!
         errorPlump(ANSI_RED, t, s);
         t = errorCode[t];//map
         mapErrors(e * t);
@@ -280,6 +287,7 @@ public class Main {
 
     public static void printErrorSummary() {
         if(last != -1) {
+            System.err.println();
             errorPlump(ANSI_RED, last, "Error summary follows:");
             String c = ANSI_YELLOW;
             if(errOver()) c = ANSI_RED;//many errors
@@ -295,7 +303,6 @@ public class Main {
                     err /= errorCode[i];
                 }
             }
-            System.err.println();
         }
         last = -1;//errors flushed
     }
