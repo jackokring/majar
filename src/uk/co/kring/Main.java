@@ -18,6 +18,8 @@ public class Main {
     static Book context;
     static Book current;
 
+    //========================================== ENTRY / EXIT
+
     public static void main(String[] args) {
         if(ret.empty()) {
             clearErrors();
@@ -29,6 +31,14 @@ public class Main {
             printErr();
             System.exit(first);//a nice ...
         }
+    }
+
+    public static void userAbort() {
+        userAbort(true);
+    }
+
+    public static void userAbort(boolean a) {
+        System.exit(a?1:0);//generate user abort exit code
     }
 
     //========================================== INTERPRETER
@@ -98,7 +108,7 @@ public class Main {
         }
     }
 
-    public static void dollar(String s) {
+    public static String dollar(String s) {
         s = s.replace("\\$", para);
         int i;
         while((i = s.indexOf("$")) != -1) {
@@ -106,7 +116,7 @@ public class Main {
             String j = topMost().replace("$", para);//recursive
             s = s.substring(0, i) + j + s.substring(i + 1);
         }
-        s = s.replace(para, "$");
+        return s.replace(para, "$");
     }
 
     public static String topMost() {
@@ -135,6 +145,7 @@ public class Main {
 
     static final int[] errorComposites = {
         //compositeErrorCode, errorFact : pair per reduction
+        561, 8
     };
 
     static void clearErrors() {
