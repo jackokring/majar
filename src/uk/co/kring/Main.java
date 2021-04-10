@@ -4,9 +4,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class Main {
 
@@ -66,6 +64,20 @@ public class Main {
 
     static void profile(String s) {
         //TODO
+    }
+
+    public void reg(Symbol s) {
+        List<Symbol> ls = dict.get(s.named);
+        if(ls == null) {
+            ls = new LinkedList<>();
+        }
+        for(Symbol i: ls) {
+            if(i.in == s.in) ls.remove(i);
+            break;
+        }
+        ls.add(s);//new
+        s.in.basis = Arrays.copyOf(s.in.basis, s.in.basis.length + 1);
+        s.in.basis[s.in.basis.length - 1] = s.named;
     }
 
     static final String para = "\\~";//quirk of the shell
