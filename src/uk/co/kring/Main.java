@@ -21,16 +21,22 @@ public class Main {
     //========================================== ENTRY / EXIT
 
     public static void main(String[] args) {
-        if(ret.empty()) {
-            clearErrors();
-            intern(args);//first
+        try {
+            if (ret.empty()) {
+                clearErrors();
+                intern(args);//first
+            }
+            execute(new Multex(args));
+        } catch(RuntimeException e) {
+            while(!ret.empty()) {
+                //trace
+                println();
+                print(ANSI_RED + ">" + ret.pop().firstString());
+            }
         }
-        execute(new Multex(args));
-        if(ret.empty()) {
-            println();
-            printErrorSummary();
-            System.exit(first);//a nice ...
-        }
+        println();
+        printErrorSummary();
+        System.exit(first);//a nice ...
     }
 
     public static void userAbort() {
@@ -187,7 +193,7 @@ public class Main {
         if(first < 1) first = errorCode[t];
         last = t;
         t = errorCode[t];//map
-        if(err * t < 0 || t == 0) return;
+        if(err * t < 0 || t == 0) throw new RuntimeException("MajarInternal");
         err *= t;
         mapErrors();
     }
