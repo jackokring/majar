@@ -11,8 +11,8 @@ public class Main {
 
     private static int err, last, first;//primary error code
     static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-    static Stack<Multex> ret = new Stack<>();
-    static Stack<Multex> dat = new Stack<>();
+    static Stack<Multex> ret = new PStack<>();
+    static Stack<Multex> dat = new PStack<>();
     static HashMap<String, List<Symbol>> dict =
             new HashMap<>();
     static Book context;
@@ -147,10 +147,14 @@ public class Main {
     //================================================== ERRORS
 
     static final String[] errorFact = {
-        "Input"            //0
+        "Input",           //0
+        "Stack underflow", //1
+        "Stack overflow"   //2
     };
 
     public static final int ERR_IO = 0;
+    public static final int ERR_UNDER = 1;
+    public static final int ERR_OVER = 2;
 
     static final int[] errorCode = {//by lines of 4
         2, 3, 5, 7,                     //0
