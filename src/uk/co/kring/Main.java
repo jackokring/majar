@@ -226,7 +226,7 @@ public class Main {
         if(o instanceof Symbol) return ANSI_BLUE + o.getClass().getName() + ": " + classNamed(((Symbol)o).named);
         //TODO
         //if(o instanceof Multex) return
-        return ANSI_PURPLE + o.getClass().getName() + " [" + Integer.toHexString(o.hashCode()) + "]";
+        return ANSI_PURPLE + o.getClass().getName() + "[" + Integer.toHexString(o.hashCode()) + "]";
     }
 
     static void mapErrors(long e) {
