@@ -276,6 +276,8 @@ public class Main {
         return ((long)err << 2) > Integer.MAX_VALUE;
     }
 
+    //========================================= PRINTING
+
     public static void printErrorSummary() {
         if(last != -1) {
             errorPlump(ANSI_RED, last, "Error summary follows:");
@@ -293,9 +295,13 @@ public class Main {
                     err /= errorCode[i];
                 }
             }
-            System.err.print(ANSI_RESET);
+            System.err.println();
         }
         last = -1;//errors flushed
+    }
+
+    public static void printProfile() {
+        //TODO
     }
 
     static final String errorWord = " error.";
