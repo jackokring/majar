@@ -9,7 +9,7 @@ public class Multex implements Runnable {
         List<Symbol> s = Main.dict.get(firstString());
         //not null?
         //specifics of multiple dicts?
-        Main.ret.push(new Multex(s.get(0)));//Threading ...
+        Main.execute(new Multex(s.get(0)));//Threading ...
     }
 
     String[] basis;

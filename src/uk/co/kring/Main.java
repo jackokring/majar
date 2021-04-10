@@ -23,9 +23,7 @@ public class Main {
             clearErrors();
             intern(args);//first
         }
-        ret.push(new Multex(args));
-        execute();
-        ret.pop();
+        execute(new Multex(args));
         if(ret.empty()) {
             println();
             printErr();
@@ -35,8 +33,8 @@ public class Main {
 
     //========================================== INTERPRETER
 
-    public static void execute() {
-        Multex s = ret.peek();
+    public static void execute(Multex s) {
+        ret.push(s);
         while(!s.ended()) {
             if(s.firstString() == null) return;//no fail null
             print(ANSI_GREEN + s.firstString());
@@ -44,6 +42,7 @@ public class Main {
             s.shift();
             if(errOver()) break;//prime errors
         }
+        ret.pop();
     }
 
     static final String para = "\\~";//quirk of the shell
@@ -103,15 +102,22 @@ public class Main {
         s = s.replace("\\$", para);
         int i;
         while((i = s.indexOf("$")) != -1) {
-            Multex m = dat.peek();
-            while(m.firstString() == null) {
-                m.shift();
-                if(m.ended()) m = dat.pop();
-            }
-            String j = m.firstString().replace("$", para);//recursive
+
+            String j = topMost().replace("$", para);//recursive
             s = s.substring(0, i) + j + s.substring(i + 1);
         }
         s = s.replace(para, "$");
+    }
+
+    public static String topMost() {
+        Multex m = dat.peek();
+        while(m.firstString() == null) {
+            m.shift();
+            if(m.ended()) m = dat.pop();
+        }
+        String s = m.firstString();
+        m.shift();
+        return s;
     }
 
     //================================================== ERRORS
