@@ -170,6 +170,28 @@ public class Main {
         sm.push(t);
     }
 
+    public static String join(String[] s) {
+        StringBuilder t = new StringBuilder();
+        boolean f = false;
+        for(String i: s) {
+            if(i == null) continue;
+            if(f) {
+                t.append(" ");
+            } else {
+                f = true;
+            }
+            if(i.contains(" ")) {
+                t.append("\"");
+                t.append(i);
+                t.append("\"");
+            } else {
+                t.append(i);
+            }
+        }
+        return t.toString();
+        //return String.join(" ", s);
+    }
+
     //========================================== CMD UTIL
 
     public static void silentExec(String s) {
@@ -213,10 +235,6 @@ public class Main {
         first = 0;
     }
 
-    public static void setError(int t) {
-        setError(t, null);
-    }
-
     public static void setError(int t, Object o) {
         String s;
         long e = err;
@@ -234,9 +252,10 @@ public class Main {
 
     public static String classNamed(Object o) {
         if(o instanceof String) return ANSI_RESET + o;
-        if(o instanceof Symbol) return ANSI_BLUE + o.getClass().getName() + ": " + classNamed(((Symbol)o).named);
+        if(o instanceof Symbol) return ANSI_BLUE + o.getClass().getName() +
+                "[" + classNamed(((Symbol)o).named) + "]";
         //TODO
-        //if(o instanceof Multex) return
+        if(o instanceof Multex) return classNamed(join(((Multex) o).basis));
         return ANSI_PURPLE + o.getClass().getName() + "[" + Integer.toHexString(o.hashCode()) + "]";
     }
 
@@ -244,7 +263,8 @@ public class Main {
         for(int i = 0; i < errorComposites.length; i += 2) {
             if(e % errorComposites[i] == 0) {
                 e /= errorComposites[i];
-                setError(errorComposites[i + 1]);//apply the composite and reduce
+                setError(errorComposites[i + 1], Integer.toString(errorComposites[i]));
+                //apply the composite and reduce
             }
         }
         if(e > Integer.MAX_VALUE) throw new RuntimeException("MajarInternal");
