@@ -89,7 +89,7 @@ public class Main {
             intern(args);//pointers??
             return args;
         } catch (Exception e) {
-            setError(ERR_IO);//Input
+            setError(ERR_IO, System.in);//Input
             return new String[0];//blank
         }
     }
@@ -169,12 +169,27 @@ public class Main {
     }
 
     public static void setError(int t) {
+        setError(t, null);
+    }
+
+    public static void setError(int t, Object o) {
+        String s;
+        if(o == null) {
+            s = "No further data";
+        } else {
+            s = classNamed(o) + " " + Integer.toHexString(o.hashCode());
+        }
+        errorPlump(ANSI_RED, t, s);
         if(first < 1) first = errorCode[t];
         last = t;
         t = errorCode[t];//map
         if(err * t < 0 || t == 0) return;
         err *= t;
         mapErrors();
+    }
+
+    public static String classNamed(Object o) {
+        return ANSI_PURPLE + o.getClass().getName();
     }
 
     static void mapErrors() {
@@ -193,7 +208,7 @@ public class Main {
 
     public static void printErr() {
         if(last != -1) {
-            errorPlump(ANSI_RED, last);
+            errorPlump(ANSI_RED, last, "Error summary follows:");
             String c = ANSI_YELLOW;
             if(errOver()) c = ANSI_RED;//many errors
             else {
@@ -204,7 +219,7 @@ public class Main {
             for(int i = 0; i < errorFact.length; i++) {
                 if(err == 1) break;
                 if(err % errorCode[i] == 0) {
-                    errorPlump(c, i);
+                    errorPlump(c, i, null);
                     err /= errorCode[i];
                 }
             }
@@ -215,10 +230,10 @@ public class Main {
 
     static final String errorWord = " error.";
 
-    static void errorPlump(String prefix, int code) {
+    static void errorPlump(String prefix, int code, String s) {
         System.err.println(prefix +
                 "[" + errorCode[code] + "] " +
-                errorFact[code] + errorWord);
+                errorFact[code] + errorWord + ": " + s);
     }
 
     public static final String ANSI_RESET = "\u001B[0m";
