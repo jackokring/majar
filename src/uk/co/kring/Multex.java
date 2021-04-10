@@ -5,11 +5,15 @@ import java.util.List;
 public class Multex implements Runnable {
 
     public void run() {
-        //TODO replace this by found
         List<Symbol> s = Main.dict.get(firstString());
-        //not null?
-        //specifics of multiple dicts?
-        Main.execute(new Multex(s.get(0)));//Threading ...
+        if(s != null) for(Symbol i: s) {
+            if(i.in == Main.context) {
+                Main.execute(new Multex(i));//Threading ...
+                return;
+            }
+        }
+        //TODO replace this by not-found etc
+
     }
 
     String[] basis;
@@ -22,6 +26,7 @@ public class Multex implements Runnable {
 
     public Multex(Multex m) {//new idx
         this(m.basis);
+        idx = 0;//duplicate work? no error
     }
 
     public String firstString() {
