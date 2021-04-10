@@ -223,7 +223,7 @@ public class Main {
                     err /= errorCode[i];
                 }
             }
-            System.err.println(ANSI_RESET);
+            System.err.print(ANSI_RESET);
         }
         last = -1;//errors flushed
     }
