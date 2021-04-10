@@ -28,7 +28,7 @@ public class Main {
         execute(new Multex(args));
         if(ret.empty()) {
             println();
-            printErr();
+            printErrorSummary();
             System.exit(first);//a nice ...
         }
     }
@@ -206,7 +206,7 @@ public class Main {
         return err * last < 0;
     }
 
-    public static void printErr() {
+    public static void printErrorSummary() {
         if(last != -1) {
             errorPlump(ANSI_RED, last, "Error summary follows:");
             String c = ANSI_YELLOW;
@@ -214,7 +214,7 @@ public class Main {
             else {
                 first = err;//return all if no over
                 if(first == 1) first = 0;//no error
-                if(last != -1) err /= errorCode[last];//divide out last
+                //keep first in summary
             }
             for(int i = 0; i < errorFact.length; i++) {
                 if(err == 1) break;
