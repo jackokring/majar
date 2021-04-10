@@ -2,6 +2,7 @@ package uk.co.kring;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
@@ -158,19 +159,32 @@ public class Main {
         sm.push(t);
     }
 
+    //========================================== CMD UTIL
+
+    public static void silentExec(String s) {
+        try {
+            int x = Runtime.getRuntime().exec(s).waitFor();
+            if(x != 0) setError(ERR_PROCESS, s);
+        } catch(Exception e) {
+            setError(ERR_PROCESS, s);
+        }
+    }
+
     //================================================== ERRORS
 
     static final String[] errorFact = {
         "Input",           //0
         "Stack underflow", //1
         "Stack overflow",  //2
-        "Closing \""       //3
+        "Closing \"",      //3
+        "External process" //4
     };
 
     public static final int ERR_IO = 0;
     public static final int ERR_UNDER = 1;
     public static final int ERR_OVER = 2;
     public static final int ERR_QUOTE = 3;
+    public static final int ERR_PROCESS = 4;
 
     static final int[] errorCode = {//by lines of 4
         2, 3, 5, 7,                     //0
