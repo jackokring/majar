@@ -13,9 +13,10 @@ public class Multex implements Runnable {
     }
 
     String[] basis;
-    int idx = 0;
+    int idx;
 
     public Multex(String[] s) {
+        idx = 0;
         basis = s;
     }
 
@@ -26,13 +27,6 @@ public class Multex implements Runnable {
     public String firstString() {
         if(ended()) return null;
         return basis[idx];
-    }
-
-    public String nextString() {
-        if(ended()) return null;
-        Multex m = new Multex(this);
-        m.shift();
-        return m.firstString();
     }
 
     public void shift() {

@@ -22,10 +22,8 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            if (ret.empty()) {
-                clearErrors();
-                intern(args);//first
-            }
+            clearErrors();
+            intern(args);//first
             execute(new Multex(args));
         } catch(RuntimeException e) {
             while(!ret.empty()) {
@@ -63,7 +61,7 @@ public class Main {
 
     static final String para = "\\~";//quirk of the shell
 
-    public static String[] readLine(BufferedReader in) {
+    public static Multex readLine(BufferedReader in) {
         try {
             boolean quote = false;
             int j = 0;
@@ -93,14 +91,14 @@ public class Main {
                 if(args[i] != null) args[i] = args[i].replace(para, "\"");//hack!
             }
             intern(args);//pointers??
-            return args;
+            return new Multex(args);
         } catch (Exception e) {
             setError(ERR_IO, System.in);//Input
-            return new String[0];//blank
+            return new Multex(new String[0]);//blank
         }
     }
 
-    public static String[] readString(String in) {
+    public static Multex readString(String in) {
         BufferedReader br = new BufferedReader(
                 new InputStreamReader(new ByteArrayInputStream((in + "\n").getBytes())));
         return readLine(br);
