@@ -177,7 +177,7 @@ public class Main {
         if(o == null) {
             s = "No further data";
         } else {
-            s = classNamed(o) + " " + Integer.toHexString(o.hashCode());
+            s = classNamed(o);
         }
         errorPlump(ANSI_RED, t, s);
         if(first < 1) first = errorCode[t];
@@ -189,7 +189,9 @@ public class Main {
     }
 
     public static String classNamed(Object o) {
-        return ANSI_PURPLE + o.getClass().getName();
+        if(o instanceof String) return ANSI_RESET + o;
+        if(o instanceof Symbol) return ANSI_BLUE + o.getClass().getName() + ": " + classNamed(((Symbol)o).named);
+        return ANSI_PURPLE + o.getClass().getName() + " [" + Integer.toHexString(o.hashCode()) + "]";
     }
 
     static void mapErrors() {
