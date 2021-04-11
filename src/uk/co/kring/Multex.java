@@ -9,7 +9,9 @@ public class Multex implements Runnable {
         if(m != null) {
             Main.execute(new Multex(m));//Threading ...
             m.idx++;//Simple profiling
+            return;
         }
+        Main.setError(Main.ERR_FIND, firstString());//as null return from find is a feature
     }
 
     String[] basis;
