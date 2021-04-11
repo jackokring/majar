@@ -6,14 +6,23 @@ public class Multex implements Runnable {
 
     public void run() {
         List<Symbol> s = Main.dict.get(firstString());
-        if(s != null) for(Symbol i: s) {
-            if(i.in == Main.context) {
-                Main.execute(new Multex(i));//Threading ...
-                return;
+        Book c;
+        if(s != null) {
+            for(Symbol i: s) {
+                c = Main.context;
+                do {
+                    if (i.in == c) {
+                        Main.execute(new Multex(i));//Threading ...
+                        return;
+                    }
+                    c = c.in;//next higher context
+                } while(c != null);
             }
+            Main.setError(Main.ERR_CONTEXT, Main.context);
         }
-        //TODO replace this by not-found etc
+        //TODO replace this by classLoader
 
+        Main.setError(Main.ERR_FIND, firstString());
     }
 
     String[] basis;

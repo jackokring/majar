@@ -13,8 +13,8 @@ public class Main {
     static Stack<Multex> dat = new PStack<>();
     static HashMap<String, List<Symbol>> dict =
             new HashMap<>();
-    static Book context;
-    static Book current;
+    static Book context = new Bible();
+    static Book current = context;
     static boolean fast = false;
 
     //========================================== ENTRY / EXIT
@@ -23,6 +23,7 @@ public class Main {
         try {
             clearErrors();
             intern(args);//first
+            reg(current);
             execute(new Multex(args));
         } catch(RuntimeException e) {
             while(!ret.empty()) {
@@ -64,13 +65,18 @@ public class Main {
         //TODO
     }
 
-    public void reg(Symbol s) {
+    public static void reg(Symbol s) {
         List<Symbol> ls = dict.get(s.named);
         if(ls == null) {
             ls = new LinkedList<>();
         }
         for(Symbol i: ls) {
-            if(i.in == s.in) ls.remove(i);
+            if(i.in == s.in) if(i.in instanceof Bible) {
+                setError(ERR_BIBLE, s);
+                return;//no can add
+            } else {
+                ls.remove(i);
+            }
             break;
         }
         ls.add(s);//new
@@ -119,6 +125,8 @@ public class Main {
     }
 
     public static Multex readString(String in) {
+        in = in.replace("\n", " ");
+        in = in.replace("\t", " ");
         BufferedReader br = new BufferedReader(
                 new InputStreamReader(new ByteArrayInputStream((in + "\n").getBytes())));
         return readLine(br);
@@ -209,7 +217,11 @@ public class Main {
         "Stack underflow", //1
         "Stack overflow",  //2
         "Closing \"",      //3
-        "External process" //4
+        "External process",//4
+        "Not found",       //5
+        "Protected f'ing bible",//6
+        "Raise you an irrefutable",//7
+        "Bad context"     //8
     };
 
     public static final int ERR_IO = 0;
@@ -217,6 +229,10 @@ public class Main {
     public static final int ERR_OVER = 2;
     public static final int ERR_QUOTE = 3;
     public static final int ERR_PROCESS = 4;
+    public static final int ERR_FIND = 5;
+    public static final int ERR_BIBLE = 6;
+    //7
+    public static final int ERR_CONTEXT = 8;
 
     static final int[] errorCode = {//by lines of 4
         2, 3, 5, 7,                     //0
@@ -225,7 +241,7 @@ public class Main {
 
     static final int[] errorComposites = {
         //compositeErrorCode, errorFact : pair per reduction
-        561, 8
+        17 * 17, 7
     };
 
     static void clearErrors() {
@@ -246,7 +262,7 @@ public class Main {
         if(first < 1) first = t;
         last = t;
         for(int i = 0; i < errorComposites.length; i+=2) {
-            if(t == errorComposites[i]) {
+            if(t == errorComposites[i + 1]) {
                 combine = true;
                 break;
             }
@@ -331,7 +347,7 @@ public class Main {
 
     public static void print(String s) {
         if(s == null) return;
-        System.out.print(s+" ");
+        System.out.print(s + " " + ANSI_RESET);
     }
 
     public static void println() {
