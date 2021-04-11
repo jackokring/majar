@@ -123,7 +123,6 @@ public class Main {
             }
         } catch(Exception e) {
             Main.setError(Main.ERR_PLUG, ANSI_BLUE + p);
-            return null;
         }
         Main.setError(Main.ERR_FIND, t);
         return null;//not found -- can't be
