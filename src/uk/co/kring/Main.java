@@ -105,10 +105,11 @@ public class Main {
         String name = Main.class.getPackage().getName() + ".plug." + t;
         try {
             Class<?> clazz = Class.forName(name);
-            Constructor<?> constructor = clazz.getConstructor(String.class);
-            Object instance = constructor.newInstance(t);
+            //Constructor<?> constructor = clazz.getConstructor(String.class);
+            Object instance = clazz.newInstance();
             if(instance instanceof Prim) {
                 if(!fast) print(ANSI_BLUE + t);
+                ((Prim) instance).named = t;//quick hack to put Prim on a default constructor
                 return (Multex)instance;
             }
         } catch(Exception e) {

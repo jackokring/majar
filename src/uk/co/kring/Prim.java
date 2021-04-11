@@ -11,4 +11,8 @@ public abstract class Prim extends Symbol {
     public Prim(String name) {
         super(name, ("Prim[" + name + "]").split("\n"));//get name
     }
+
+    public Prim() {
+        this(null);
+    }
 }
