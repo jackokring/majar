@@ -87,6 +87,7 @@ public class Main {
         ls.add(s);//new
         s.in.basis = Arrays.copyOf(s.in.basis, s.in.basis.length + 1);
         s.in.basis[s.in.basis.length - 1] = s.named;
+        s.in = current;
     }
 
     public static Multex find(String t) {
@@ -115,6 +116,7 @@ public class Main {
             if(instance instanceof Prim) {
                 if(!fast) print(ANSI_BLUE + p);
                 ((Prim) instance).named = t;//quick hack to put Prim on a default constructor
+                reg((Symbol) instance);
                 ((Prim) instance).in = context;//N.B. important to bring into context to RUN!!
                 //as a system definition, it by nature would be later available in the same context
                 //current therefore is for user definitions in majar and not Java
