@@ -3,6 +3,7 @@ package uk.co.kring;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
 import java.util.*;
 
 public class Main {
@@ -99,9 +100,20 @@ public class Main {
             }
             Main.setError(Main.ERR_CONTEXT, context);
         }
-        //TODO replace this by classLoader
-
-        Main.setError(Main.ERR_FIND, t);
+        //class loading bootstrap of Class named as method camelCase
+        t = t.substring(0, 1).toLowerCase(Locale.ROOT) + t.substring(1);//make run method!!
+        String name = Main.class.getPackage().getName() + ".plug." + t;
+        try {
+            Class<?> clazz = Class.forName(name);
+            Constructor<?> constructor = clazz.getConstructor(String.class);
+            Object instance = constructor.newInstance(t);
+            if(instance instanceof Prim) {
+                if(!fast) print(ANSI_BLUE + t);
+                return (Multex)instance;
+            }
+        } catch(Exception e) {
+            Main.setError(Main.ERR_FIND, t);
+        }
         return null;//not found -- can't be
     }
 
