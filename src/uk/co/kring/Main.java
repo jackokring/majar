@@ -105,15 +105,15 @@ public class Main {
             Main.setError(Main.ERR_CONTEXT, context);
         }
         //class loading bootstrap of Class named as method camelCase
-        t = t.substring(0, 1).toLowerCase(Locale.ROOT) + t.substring(1);//make run method!!
-        t = t.intern();//make findable
-        String name = Main.class.getPackage().getName() + ".plug." + t;
+        String p = t.substring(0, 1).toLowerCase(Locale.ROOT) + t.substring(1);//make run method!!
+        p = p.intern();//make findable
+        String name = Main.class.getPackage().getName() + ".plug." + p;
         try {
             Class<?> clazz = Class.forName(name);
             //Constructor<?> constructor = clazz.getConstructor(String.class);
             Object instance = clazz.newInstance();
             if(instance instanceof Prim) {
-                if(!fast) print(ANSI_BLUE + t);
+                if(!fast) print(ANSI_BLUE + p);
                 ((Prim) instance).named = t;//quick hack to put Prim on a default constructor
                 ((Prim) instance).in = context;//N.B. important to bring into context to RUN!!
                 //as a system definition, it by nature would be later available in the same context
@@ -122,8 +122,10 @@ public class Main {
                 return (Multex)instance;
             }
         } catch(Exception e) {
-            Main.setError(Main.ERR_FIND, t);
+            Main.setError(Main.ERR_FIND, ANSI_BLUE + p);
+            return null;
         }
+        Main.setError(Main.ERR_FIND, t);
         return null;//not found -- can't be
     }
 
