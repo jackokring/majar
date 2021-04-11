@@ -13,6 +13,7 @@ public class Multex implements Runnable {
                 do {
                     if (i.in == c) {
                         Main.execute(new Multex(i));//Threading ...
+                        i.idx++;//Simple profiling
                         return;
                     }
                     c = c.in;//next higher context

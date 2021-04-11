@@ -163,6 +163,15 @@ public class Main {
         return s;
     }
 
+    public static String literal() {
+        String s = topMost(ret, true);
+        if(!fast) {
+            print(ANSI_RED + s);
+            //profile(s);
+        }
+        return s;
+    }
+
     public static String parameter(Stack<Multex> sm, boolean next) {
         Multex m = sm.pop();
         String s = topMost(sm, next);
