@@ -172,6 +172,27 @@ public class Main {
         return s;
     }
 
+    public static Multex find(String t) {
+        List<Symbol> s = dict.get(t);
+        Book c;
+        if(s != null) {
+            for(Symbol i: s) {
+                c = context;
+                do {
+                    if (i.in == c) {
+                        return i;
+                    }
+                    c = c.in;//next higher context
+                } while(c != null);
+            }
+            Main.setError(Main.ERR_CONTEXT, context);
+        }
+        //TODO replace this by classLoader
+
+        Main.setError(Main.ERR_FIND, t);
+        return null;//not found -- can't be
+    }
+
     public static String parameter(Stack<Multex> sm, boolean next) {
         Multex m = sm.pop();
         String s = topMost(sm, next);

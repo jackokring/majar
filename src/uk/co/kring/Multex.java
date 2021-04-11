@@ -5,25 +5,11 @@ import java.util.List;
 public class Multex implements Runnable {
 
     public void run() {
-        List<Symbol> s = Main.dict.get(firstString());
-        Book c;
-        if(s != null) {
-            for(Symbol i: s) {
-                c = Main.context;
-                do {
-                    if (i.in == c) {
-                        Main.execute(new Multex(i));//Threading ...
-                        i.idx++;//Simple profiling
-                        return;
-                    }
-                    c = c.in;//next higher context
-                } while(c != null);
-            }
-            Main.setError(Main.ERR_CONTEXT, Main.context);
+        Multex m = Main.find(firstString());
+        if(m != null) {
+            Main.execute(new Multex(m));//Threading ...
+            m.idx++;//Simple profiling
         }
-        //TODO replace this by classLoader
-
-        Main.setError(Main.ERR_FIND, firstString());
     }
 
     String[] basis;
