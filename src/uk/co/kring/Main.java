@@ -116,8 +116,10 @@ public class Main {
             if(instance instanceof Prim) {
                 if(!fast) print(ANSI_BLUE + p);
                 ((Prim) instance).named = t;//quick hack to put Prim on a default constructor
+                Book b = current;
+                current = context;
                 reg((Symbol) instance);
-                ((Prim) instance).in = context;//N.B. important to bring into context to RUN!!
+                current = b;//N.B. important to bring into context to RUN!!
                 //as a system definition, it by nature would be later available in the same context
                 //current therefore is for user definitions in majar and not Java
                 //this has implications for multiple instances
