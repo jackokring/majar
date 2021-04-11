@@ -71,7 +71,7 @@ public class Main {
             ls = new LinkedList<>();
         }
         for(Symbol i: ls) {
-            if(i.in == s.in) if(i.in instanceof Bible) {
+            if(i.in == current) if(i.in instanceof Bible) {
                 setError(ERR_BIBLE, s);
                 return;//no can add
             } else {
@@ -82,6 +82,27 @@ public class Main {
         ls.add(s);//new
         s.in.basis = Arrays.copyOf(s.in.basis, s.in.basis.length + 1);
         s.in.basis[s.in.basis.length - 1] = s.named;
+    }
+
+    public static Multex find(String t) {
+        List<Symbol> s = dict.get(t);
+        Book c;
+        if(s != null) {
+            for(Symbol i: s) {
+                c = context;
+                do {
+                    if (i.in == c) {
+                        return i;
+                    }
+                    c = c.in;//next higher context
+                } while(c != null);
+            }
+            Main.setError(Main.ERR_CONTEXT, context);
+        }
+        //TODO replace this by classLoader
+
+        Main.setError(Main.ERR_FIND, t);
+        return null;//not found -- can't be
     }
 
     static final String para = "\\~";//quirk of the shell
@@ -170,27 +191,6 @@ public class Main {
             //profile(s);
         }
         return s;
-    }
-
-    public static Multex find(String t) {
-        List<Symbol> s = dict.get(t);
-        Book c;
-        if(s != null) {
-            for(Symbol i: s) {
-                c = context;
-                do {
-                    if (i.in == c) {
-                        return i;
-                    }
-                    c = c.in;//next higher context
-                } while(c != null);
-            }
-            Main.setError(Main.ERR_CONTEXT, context);
-        }
-        //TODO replace this by classLoader
-
-        Main.setError(Main.ERR_FIND, t);
-        return null;//not found -- can't be
     }
 
     public static String parameter(Stack<Multex> sm, boolean next) {
