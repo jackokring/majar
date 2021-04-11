@@ -122,7 +122,7 @@ public class Main {
                 return (Multex)instance;
             }
         } catch(Exception e) {
-            Main.setError(Main.ERR_PLUG, ANSI_BLUE + p);
+            Main.setError(Main.ERR_PLUG, ANSI_BLUE + p);//fake blue class
         }
         Main.setError(Main.ERR_FIND, t);
         return null;//not found -- can't be
