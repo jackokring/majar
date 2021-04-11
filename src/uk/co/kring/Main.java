@@ -106,6 +106,7 @@ public class Main {
         }
         //class loading bootstrap of Class named as method camelCase
         t = t.substring(0, 1).toLowerCase(Locale.ROOT) + t.substring(1);//make run method!!
+        t = t.intern();//make findable
         String name = Main.class.getPackage().getName() + ".plug." + t;
         try {
             Class<?> clazz = Class.forName(name);
@@ -114,6 +115,10 @@ public class Main {
             if(instance instanceof Prim) {
                 if(!fast) print(ANSI_BLUE + t);
                 ((Prim) instance).named = t;//quick hack to put Prim on a default constructor
+                ((Prim) instance).in = context;//N.B. important to bring into context to RUN!!
+                //as a system definition, it by nature would be later available in the same context
+                //current therefore is for user definitions in majar and not Java
+                //this has implications for multiple instances
                 return (Multex)instance;
             }
         } catch(Exception e) {
