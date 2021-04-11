@@ -105,7 +105,7 @@ public class Main {
             Main.setError(Main.ERR_CONTEXT, context);
         }
         //class loading bootstrap of Class named as method camelCase
-        String p = t.substring(0, 1).toLowerCase(Locale.ROOT) + t.substring(1);//make run method!!
+        String p = t.substring(0, 1).toUpperCase(Locale.ROOT) + t.substring(1);//make run method!!
         p = p.intern();//make findable
         String name = Main.class.getPackage().getName() + ".plug." + p;
         try {
@@ -122,7 +122,7 @@ public class Main {
                 return (Multex)instance;
             }
         } catch(Exception e) {
-            Main.setError(Main.ERR_FIND, ANSI_BLUE + p);
+            Main.setError(Main.ERR_PLUG, ANSI_BLUE + p);
             return null;
         }
         Main.setError(Main.ERR_FIND, t);
@@ -275,7 +275,8 @@ public class Main {
         "Not found",       //5
         "Protected f'ing bible",//6
         "Raise you an irrefutable",//7
-        "Bad context"     //8
+        "Bad context",     //8
+        "Missing plugin"  //9
     };
 
     public static final int ERR_IO = 0;
@@ -287,6 +288,7 @@ public class Main {
     public static final int ERR_BIBLE = 6;
     //7
     public static final int ERR_CONTEXT = 8;
+    public static final int ERR_PLUG = 9;
 
     static final int[] errorCode = {//by lines of 4
         2, 3, 5, 7,                     //0
