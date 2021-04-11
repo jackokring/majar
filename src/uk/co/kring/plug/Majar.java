@@ -1,4 +1,6 @@
-package uk.co.kring;
+package uk.co.kring.plug;
+
+import uk.co.kring.Prim;
 
 public class Majar extends Prim {
 
