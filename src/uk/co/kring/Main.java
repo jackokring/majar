@@ -67,6 +67,10 @@ public class Main {
     }
 
     public static void reg(Symbol s) {
+        if(s.named == null) {
+            setError(ERR_FIND, "No name given");
+            return;
+        }
         List<Symbol> ls = dict.get(s.named);
         if(ls == null) {
             ls = new LinkedList<>();
