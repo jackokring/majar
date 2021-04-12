@@ -1,0 +1,1 @@
+Suggest (Key)(PassedTenseVerb) as extending class names or (key)Of/On(Object).
