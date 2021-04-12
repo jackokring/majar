@@ -331,19 +331,14 @@ public class Main {
     }
 
     public static String classNamed(Object o) {
-        if(o instanceof String) {
-            if(o != null) {
-                return ANSI_STRING + o;
-            } else {
-                return ANSI_WARN + "No further data.";
-            }
-        }
+        if(o instanceof String) return (String)o;
         if(o instanceof Prim) return ANSI_PRIM + o.getClass().getName() +
                 "[" + classNamed(((Symbol)o).named) + ANSI_PRIM + "]";
+        if(o instanceof Book) return ANSI_BOOK + o.getClass().getName() +
+                "[" + classNamed(((Symbol)o).named) + ANSI_BOOK + "]";
         if(o instanceof Symbol) return ANSI_SYMBOL + o.getClass().getName() +
                 "[" + classNamed(((Symbol)o).named) + ANSI_SYMBOL + "]";
-        //TODO
-        if(o instanceof Multex) return classNamed(join(((Multex) o).basis));
+        if(o instanceof Multex) return ANSI_MULTEX + classNamed(join(((Multex) o).basis));
         return ANSI_CLASS + o.getClass().getName() + "[" +
                 Integer.toHexString(o.hashCode()) + "]";
     }
@@ -417,10 +412,11 @@ public class Main {
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
 
-    public static final String ANSI_STRING = ANSI_RESET;
     public static final String ANSI_SYMBOL = ANSI_BLUE;
     public static final String ANSI_PRIM = ANSI_YELLOW;
     public static final String ANSI_CLASS = ANSI_PURPLE;
+    public static final String ANSI_MULTEX = ANSI_GREEN;
+    public static final String ANSI_BOOK = ANSI_CYAN;
     public static final String ANSI_LIT = ANSI_RED;
     public static final String ANSI_ERR = ANSI_RED;
     public static final String ANSI_WARN = ANSI_YELLOW;
@@ -435,7 +431,7 @@ public class Main {
         if(s == null) return;
         String c = ANSI_SYMBOL;
         if(s instanceof Prim) c = ANSI_PRIM;
-        //TODO
+        if(s instanceof Book) c = ANSI_BOOK;
         System.out.print(c);
         if(s.named != null) System.out.print(s.named);
         System.out.print(" ");
