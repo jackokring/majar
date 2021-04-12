@@ -30,7 +30,7 @@ public class Main {
             while(!ret.empty()) {
                 //trace
                 println();
-                print(ANSI_RED + ">" + ret.pop().firstString());
+                print(ANSI_STOP + ">" + ret.pop().firstString());
             }
         }
         printErrorSummary();
@@ -52,7 +52,7 @@ public class Main {
         while(!s.ended()) {
             if(s.firstString() == null) return;//no fail null
             if(!fast) {
-                print(ANSI_GREEN + s.firstString());
+                print(ANSI_GO + s.firstString());
                 profile(s.firstString());
             }
             s.run();
@@ -114,7 +114,7 @@ public class Main {
             //Constructor<?> constructor = clazz.getConstructor(String.class);
             Object instance = clazz.newInstance();
             if(instance instanceof Prim) {
-                if(!fast) print(ANSI_BLUE + p);
+                if(!fast) print(ANSI_CLASS + p);
                 ((Prim) instance).named = t;//quick hack to put Prim on a default constructor
                 Book b = current;
                 current = context;
@@ -214,7 +214,7 @@ public class Main {
     public static String literal() {
         String s = topMost(ret, true);
         if(!fast) {
-            print(ANSI_RED + s);
+            print(ANSI_STOP + s);
             //profile(s);
         }
         return s;
@@ -327,18 +327,19 @@ public class Main {
             }
         }
         if(!combine) System.err.println();//bang tidy!
-        errorPlump(ANSI_RED, t, s);
+        errorPlump(ANSI_STOP, t, s);
         t = errorCode[t];//map
         mapErrors(e * t);
     }
 
     public static String classNamed(Object o) {
-        if(o instanceof String) return ANSI_RESET + o;
-        if(o instanceof Symbol) return ANSI_BLUE + o.getClass().getName() +
-                "[" + classNamed(((Symbol)o).named) + "]";
+        if(o instanceof String) return ANSI_STRING + o + ANSI_RESET;
+        if(o instanceof Symbol) return ANSI_SYMBOL + o.getClass().getName() +
+                "[" + classNamed(((Symbol)o).named) + "]" + ANSI_RESET;
         //TODO
         if(o instanceof Multex) return classNamed(join(((Multex) o).basis));
-        return ANSI_PURPLE + o.getClass().getName() + "[" + Integer.toHexString(o.hashCode()) + "]";
+        return ANSI_CLASS + o.getClass().getName() + "[" +
+                Integer.toHexString(o.hashCode()) + "]" + ANSI_RESET;
     }
 
     static void mapErrors(long e) {
@@ -363,9 +364,9 @@ public class Main {
     public static void printErrorSummary() {
         if(last != -1) {
             System.err.println();
-            errorPlump(ANSI_RED, last, "Error summary follows:");
-            String c = ANSI_YELLOW;
-            if(errOver()) c = ANSI_RED;//many errors
+            errorPlump(ANSI_STOP, last, "Error summary follows:");
+            String c = ANSI_WARN;
+            if(errOver()) c = ANSI_STOP;//many errors
             else {
                 first = err;//return all if no over
                 if(first == 1) first = 0;//no error
@@ -386,12 +387,18 @@ public class Main {
         //TODO
     }
 
-    static final String errorWord = " error.";
-
     static void errorPlump(String prefix, int code, String s) {
-        System.err.println(prefix +
-                "[" + errorCode[code] + "] " +
-                errorFact[code] + errorWord + ": " + s);
+        System.err.print(prefix);
+        System.err.print("[" + errorCode[code] + "] ");
+        System.err.print(errorFact[code]);
+
+        if(s != null) {
+            System.err.print(": ");
+            System.err.print(s);
+        } else {
+            System.err.print(".");
+        }
+        System.err.println(ANSI_RESET);
     }
 
     public static final String ANSI_RESET = "\u001B[0m";
@@ -404,9 +411,18 @@ public class Main {
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
 
+    public static final String ANSI_STRING = ANSI_RESET;
+    public static final String ANSI_SYMBOL = ANSI_BLUE;
+    public static final String ANSI_CLASS = ANSI_PURPLE;
+    public static final String ANSI_STOP = ANSI_RED;
+    public static final String ANSI_GO = ANSI_GREEN;
+    public static final String ANSI_WARN = ANSI_YELLOW;
+
+
     public static void print(String s) {
         if(s == null) return;
-        System.out.print(s + " " + ANSI_RESET);
+        System.out.print(s);
+        System.out.print(" ");
     }
 
     public static void println() {
