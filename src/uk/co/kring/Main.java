@@ -111,7 +111,6 @@ public class Main {
             //Constructor<?> constructor = clazz.getConstructor(String.class);
             Object instance = clazz.newInstance();
             if(instance instanceof Prim) {
-                if(!fast) print(ANSI_PRIM + p);
                 ((Prim) instance).named = t;//quick hack to put Prim on a default constructor
                 Book b = current;
                 current = context;
@@ -120,13 +119,16 @@ public class Main {
                 //as a system definition, it by nature would be later available in the same context
                 //current therefore is for user definitions in majar and not Java
                 //this has implications for multiple instances
+                if(!fast) printSymbolName((Symbol)instance);
                 return (Symbol)instance;
+            } else {
+                Main.setError(Main.ERR_PLUG, instance);//class
+                return null;
             }
         } catch(Exception e) {
-            Main.setError(Main.ERR_PLUG, ANSI_CLASS + p);//fake blue class
+            Main.setError(Main.ERR_FIND, t);
+            return null;
         }
-        Main.setError(Main.ERR_FIND, t);
-        return null;//not found -- can't be
     }
 
     static final String para = "\\~";//quirk of the shell
@@ -281,7 +283,7 @@ public class Main {
         "Protected f'ing bible. The bible book has reserved words in",//6
         "Raise you an irrefutable. Yes, the bible can't be revoked, but can be expanded",//7
         "Bad context. There is a definition but not in the context chain. Use context",     //8
-        "Missing plugin. The Java class to provide a word as a context plugin has not been written"  //9
+        "Missing plugin. The Java Prim class to provide a word as a context plugin has not been written"  //9
     };
 
     public static final int ERR_IO = 0;
