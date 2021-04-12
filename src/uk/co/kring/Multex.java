@@ -5,8 +5,12 @@ import java.util.List;
 public class Multex implements Runnable {
 
     public void run() {
-        Multex m = Main.find(firstString());
+        Symbol m = Main.find(firstString());
         if(m != null) {
+            if(!Main.fast) {
+                Main.printSymbolName(m);
+                Main.profile(m);
+            }
             Main.execute(new Multex(m));//Threading ...
             m.idx++;//Simple profiling
         }

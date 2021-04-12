@@ -29,7 +29,7 @@ public class Main {
             while(!ret.empty()) {
                 //trace
                 println();
-                print(ANSI_STOP + ">" + ret.pop().firstString());
+                print(ANSI_ERR + ">" + ret.pop().firstString());
             }
         }
         printErrorSummary();
@@ -41,7 +41,7 @@ public class Main {
     }
 
     public static void userAbort(boolean a) {
-        print(ANSI_ABORT + "User aborted process.");
+        print(ANSI_WARN + "User aborted process.");
         println();
         System.exit(a?1:0);//generate user abort exit code
     }
@@ -52,10 +52,6 @@ public class Main {
         ret.push(s);
         while(!s.ended()) {
             if(s.firstString() == null) return;//no fail null
-            if(!fast) {
-                print(ANSI_GO + s.firstString());
-                profile(s.firstString());
-            }
             s.run();
             s.shift();
             if(errOver()) break;//prime errors
@@ -63,7 +59,7 @@ public class Main {
         ret.pop();
     }
 
-    static void profile(String s) {
+    public static void profile(Symbol s) {
         //TODO
     }
 
@@ -91,7 +87,7 @@ public class Main {
         s.in = current;
     }
 
-    public static Multex find(String t) {
+    public static Symbol find(String t) {
         List<Symbol> s = dict.get(t);
         Book c;
         if(s != null) {
@@ -124,7 +120,7 @@ public class Main {
                 //as a system definition, it by nature would be later available in the same context
                 //current therefore is for user definitions in majar and not Java
                 //this has implications for multiple instances
-                return (Multex)instance;
+                return (Symbol)instance;
             }
         } catch(Exception e) {
             Main.setError(Main.ERR_PLUG, ANSI_BLUE + p);//fake blue class
@@ -221,8 +217,7 @@ public class Main {
     public static String literal() {
         String s = topMost(ret, true);
         if(!fast) {
-            print(ANSI_STOP + s);
-            //profile(s);
+            printSymbolName(s);
         }
         return s;
     }
@@ -330,7 +325,7 @@ public class Main {
             }
         }
         if(!combine) System.err.println();//bang tidy!
-        errorPlump(ANSI_STOP, t, s);
+        errorPlump(ANSI_ERR, t, s);
         t = errorCode[t];//map
         mapErrors(e * t);
     }
@@ -343,6 +338,8 @@ public class Main {
                 return ANSI_WARN + "No further data.";
             }
         }
+        if(o instanceof Prim) return ANSI_PRIM + o.getClass().getName() +
+                "[" + classNamed(((Symbol)o).named) + ANSI_PRIM + "]";
         if(o instanceof Symbol) return ANSI_SYMBOL + o.getClass().getName() +
                 "[" + classNamed(((Symbol)o).named) + ANSI_SYMBOL + "]";
         //TODO
@@ -373,9 +370,9 @@ public class Main {
     public static void printErrorSummary() {
         if(last != -1) {
             System.err.println();
-            errorPlump(ANSI_STOP, last, "Error summary follows:");
+            errorPlump(ANSI_ERR, last, "Error summary follows:");
             String c = ANSI_WARN;
-            if(errOver()) c = ANSI_STOP;//many errors
+            if(errOver()) c = ANSI_ERR;//many errors
             else {
                 first = err;//return all if no over
                 if(first == 1) first = 0;//no error
@@ -422,14 +419,31 @@ public class Main {
 
     public static final String ANSI_STRING = ANSI_RESET;
     public static final String ANSI_SYMBOL = ANSI_BLUE;
+    public static final String ANSI_PRIM = ANSI_YELLOW;
     public static final String ANSI_CLASS = ANSI_PURPLE;
-    public static final String ANSI_STOP = ANSI_RED;
-    public static final String ANSI_GO = ANSI_GREEN;
+    public static final String ANSI_LIT = ANSI_RED;
+    public static final String ANSI_ERR = ANSI_RED;
     public static final String ANSI_WARN = ANSI_YELLOW;
-    public static final String ANSI_ABORT = ANSI_CYAN;
 
     public static void print(String s) {
         if(s == null) return;
+        System.out.print(s);
+        System.out.print(" ");
+    }
+
+    public static void printSymbolName(Symbol s) {
+        if(s == null) return;
+        String c = ANSI_SYMBOL;
+        if(s instanceof Prim) c = ANSI_PRIM;
+        //TODO
+        System.out.print(c);
+        if(s.named != null) System.out.print(s.named);
+        System.out.print(" ");
+    }
+
+    public static void printSymbolName(String s) {
+        if(s == null) return;
+        System.out.print(ANSI_LIT);
         System.out.print(s);
         System.out.print(" ");
     }
