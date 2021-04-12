@@ -3,7 +3,6 @@ package uk.co.kring;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
 import java.util.*;
 
 public class Main {
