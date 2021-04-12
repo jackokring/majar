@@ -278,16 +278,16 @@ public class Main {
     //================================================== ERRORS
 
     static final String[] errorFact = {
-        "Input",           //0
-        "Stack underflow", //1
-        "Stack overflow",  //2
-        "Closing \"",      //3
-        "External process",//4
-        "Not found",       //5
-        "Protected f'ing bible",//6
-        "Raise you an irrefutable",//7
-        "Bad context",     //8
-        "Missing plugin"  //9
+        "Input or output problem. Was the process interrupted? OK",           //0
+        "Stack underflow. Not enough data was provided to some word", //1
+        "Out of memory. Maybe the stack overflowed",  //2
+        "Closing \" missing. Check your code",      //3
+        "External process error.",//4
+        "Word not found. The word is not defined and in a book",       //5
+        "Protected f'ing bible. The bible book has reserved words in",//6
+        "Raise you an irrefutable. Yes, the bible can't be revoked, but can be expanded",//7
+        "Bad context. There is a definition but not in the context chain. Use context",     //8
+        "Missing plugin. The Java class to provide a word as a context plugin has not been written"  //9
     };
 
     public static final int ERR_IO = 0;
@@ -311,7 +311,7 @@ public class Main {
         17 * 17, 7
     };
 
-    static void clearErrors() {
+    public static void clearErrors() {
         err = 1;
         last = -1;
         first = 0;
@@ -321,11 +321,7 @@ public class Main {
         String s;
         boolean combine = false;
         long e = err;
-        if(o == null) {
-            s = "No further data";
-        } else {
-            s = classNamed(o);
-        }
+        s = classNamed(o);
         if(first < 1) first = t;
         last = t;
         for(int i = 0; i < errorComposites.length; i+=2) {
@@ -341,13 +337,19 @@ public class Main {
     }
 
     public static String classNamed(Object o) {
-        if(o instanceof String) return ANSI_STRING + o + ANSI_RESET;
+        if(o instanceof String) {
+            if(o != null) {
+                return ANSI_STRING + o;
+            } else {
+                return ANSI_WARN + "No further data.";
+            }
+        }
         if(o instanceof Symbol) return ANSI_SYMBOL + o.getClass().getName() +
-                "[" + classNamed(((Symbol)o).named) + "]" + ANSI_RESET;
+                "[" + classNamed(((Symbol)o).named) + ANSI_SYMBOL + "]";
         //TODO
         if(o instanceof Multex) return classNamed(join(((Multex) o).basis));
         return ANSI_CLASS + o.getClass().getName() + "[" +
-                Integer.toHexString(o.hashCode()) + "]" + ANSI_RESET;
+                Integer.toHexString(o.hashCode()) + "]";
     }
 
     static void mapErrors(long e) {
