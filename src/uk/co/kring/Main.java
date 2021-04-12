@@ -111,7 +111,7 @@ public class Main {
             //Constructor<?> constructor = clazz.getConstructor(String.class);
             Object instance = clazz.newInstance();
             if(instance instanceof Prim) {
-                if(!fast) print(ANSI_CLASS + p);
+                if(!fast) print(ANSI_PRIM + p);
                 ((Prim) instance).named = t;//quick hack to put Prim on a default constructor
                 Book b = current;
                 current = context;
@@ -123,7 +123,7 @@ public class Main {
                 return (Symbol)instance;
             }
         } catch(Exception e) {
-            Main.setError(Main.ERR_PLUG, ANSI_BLUE + p);//fake blue class
+            Main.setError(Main.ERR_PLUG, ANSI_CLASS + p);//fake blue class
         }
         Main.setError(Main.ERR_FIND, t);
         return null;//not found -- can't be
