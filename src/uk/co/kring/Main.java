@@ -283,7 +283,9 @@ public class Main {
         "Protected f'ing bible. The bible book has reserved words in",//6
         "Raise you an irrefutable. Yes, the bible can't be revoked, but can be expanded",//7
         "Bad context. There is a definition but not in the context chain. Use context",     //8
-        "Missing plugin. The Java Prim class to provide a word as a context plugin has not been written"  //9
+        "Bad plugin. The Java class to provide a word as a context plugin is not a class extending Prim",  //9
+        "No! You can't alter the bible in that way. Consider forking and editing the Java Bible class build method",     //10
+        ""
     };
 
     public static final int ERR_IO = 0;
@@ -296,15 +298,22 @@ public class Main {
     //7
     public static final int ERR_CONTEXT = 8;
     public static final int ERR_PLUG = 9;
+    //10
 
     static final int[] errorCode = {//by lines of 4
         2, 3, 5, 7,                     //0
-        11, 13, 17, 19                  //4
+        11, 13, 17, 19,                 //4
+        23, 29, 31, 37,                 //8
+        41, 43, 47, 53,                 //12
+        59, 61, 67, 71,                 //16
+        73, 79, 83, 89,                 //20
+        97                              //24
     };
 
     static final int[] errorComposites = {
         //compositeErrorCode, errorFact : pair per reduction
-        17 * 17, 7
+        17 * 17, 7, //raise
+        17 * 19, 10, //inform of the possibility of forking
     };
 
     public static void clearErrors() {
