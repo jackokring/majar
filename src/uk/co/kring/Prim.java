@@ -9,7 +9,7 @@ public abstract class Prim extends Symbol {
     public abstract void def();
 
     public Prim(String name) {
-        super(name, ("Prim[" + name + "]").split("\n"));//get name
+        super(name, Main.singleton("Prim[" + name + "]"));//get name
     }
 
     public Prim() {

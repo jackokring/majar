@@ -42,6 +42,8 @@ public class Main {
     }
 
     public static void userAbort(boolean a) {
+        print(ANSI_ABORT + "User aborted process.");
+        println();
         System.exit(a?1:0);//generate user abort exit code
     }
 
@@ -186,6 +188,12 @@ public class Main {
         for(int i = 0; i < s.length; i++) {
             s[i] = s[i].intern();//pointers??
         }
+    }
+
+    public static String[] singleton(String s) {
+        String[] sa = new String[1];
+        sa[0] = s.intern();
+        return sa;
     }
 
     public static String dollar(String s) {
@@ -417,7 +425,7 @@ public class Main {
     public static final String ANSI_STOP = ANSI_RED;
     public static final String ANSI_GO = ANSI_GREEN;
     public static final String ANSI_WARN = ANSI_YELLOW;
-
+    public static final String ANSI_ABORT = ANSI_CYAN;
 
     public static void print(String s) {
         if(s == null) return;
