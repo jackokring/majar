@@ -133,7 +133,7 @@ public class Main {
 
     static final String para = "\\~";//quirk of the shell
 
-    public static Multex readLine(BufferedReader in) {
+    public static Multex readReader(BufferedReader in) {
         try {
             boolean quote = false;
             int j = 0;
@@ -148,8 +148,7 @@ public class Main {
                 if(!quote) {
                     j++;
                     //args[j] = args[i].trim();
-                }
-                else {
+                } else {
                     if(args[i].endsWith("\"")) {
                         quote = false;
                         args[i] = args[i].substring(0, args[i].length() - 1);//remove quote
@@ -176,7 +175,7 @@ public class Main {
         in = in.replace("\t", " ");
         BufferedReader br = new BufferedReader(
                 new InputStreamReader(new ByteArrayInputStream((in + "\n").getBytes())));
-        return readLine(br);
+        return readReader(br);
     }
 
     //================================================== STRING UTIL
@@ -250,7 +249,7 @@ public class Main {
             }
             if(i.contains(" ")) {
                 t.append("\"");
-                t.append(i);
+                t.append(i.replace("\"", "\\\""));//input form
                 t.append("\"");
             } else {
                 t.append(i);
@@ -326,7 +325,6 @@ public class Main {
         String s;
         boolean combine = false;
         long e = err;
-        s = classNamed(o);
         if(first < 1) first = t;
         last = t;
         for(int i = 0; i < errorComposites.length; i+=2) {
@@ -336,20 +334,20 @@ public class Main {
             }
         }
         if(!combine) System.err.println();//bang tidy!
-        errorPlump(ANSI_ERR, t, s);
+        errorPlump(ANSI_ERR, t, o);
         t = errorCode[t];//map
         mapErrors(e * t);
     }
 
-    public static String classNamed(Object o) {
+    public static String withinError(Object o) {
         if(o instanceof String) return (String)o;
         if(o instanceof Prim) return ANSI_PRIM + o.getClass().getName() +
-                "[" + classNamed(((Symbol)o).named) + ANSI_PRIM + "]";
+                "[" + withinError(((Symbol)o).named) + ANSI_PRIM + "]";
         if(o instanceof Book) return ANSI_BOOK + o.getClass().getName() +
-                "[" + classNamed(((Symbol)o).named) + ANSI_BOOK + "]";
+                "[" + withinError(((Symbol)o).named) + ANSI_BOOK + "]";
         if(o instanceof Symbol) return ANSI_SYMBOL + o.getClass().getName() +
-                "[" + classNamed(((Symbol)o).named) + ANSI_SYMBOL + "]";
-        if(o instanceof Multex) return ANSI_MULTEX + classNamed(join(((Multex) o).basis));
+                "[" + withinError(((Symbol)o).named) + ANSI_SYMBOL + "]";
+        if(o instanceof Multex) return ANSI_MULTEX + withinError(join(((Multex) o).basis));
         return ANSI_CLASS + o.getClass().getName() + "[" +
                 Integer.toHexString(o.hashCode()) + "]";
     }
@@ -399,14 +397,13 @@ public class Main {
         //TODO
     }
 
-    static void errorPlump(String prefix, int code, String s) {
+    static void errorPlump(String prefix, int code, Object o) {
         System.err.print(prefix);
         System.err.print("[" + errorCode[code] + "] ");
         System.err.print(errorFact[code]);
-
-        if(s != null) {
+        if(o != null) {
             System.err.print(": ");
-            System.err.print(s);
+            System.err.print(withinError(o));
         } else {
             System.err.print(".");
         }
@@ -435,7 +432,6 @@ public class Main {
     public static void print(String s) {
         if(s == null) return;
         System.out.print(s);
-        System.out.print(" ");
     }
 
     public static void printSymbolName(Symbol s) {
@@ -443,15 +439,17 @@ public class Main {
         String c = ANSI_SYMBOL;
         if(s instanceof Prim) c = ANSI_PRIM;
         if(s instanceof Book) c = ANSI_BOOK;
-        System.out.print(c);
-        if(s.named != null) System.out.print(s.named);
-        System.out.print(" ");
+        if(s.named != null) {
+            System.out.print(c);
+            System.out.print(s.named);
+            System.out.print(" ");
+        }
     }
 
     public static void printSymbolName(String s) {
         if(s == null) return;
         System.out.print(ANSI_LIT);
-        System.out.print(s);
+        System.out.print(join(singleton(s)));//Mutex entry form
         System.out.print(" ");
     }
 

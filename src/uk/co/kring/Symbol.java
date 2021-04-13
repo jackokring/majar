@@ -19,6 +19,6 @@ public class Symbol extends Multex {
     public Symbol(Multex m) {
         super(m.basis);
         in = Main.current;
-        named = ("Symbol[" + Integer.toHexString(m.hashCode()) + "]").intern();
+        named = ("Symbol#" + Integer.toHexString(m.hashCode())).intern();
     }
 }
