@@ -9,7 +9,7 @@ principal. StreamOfBulk kind of implies many bulks and a class Bulk, which
 is not the case. I call this an "adjective functional" where the Stream
 nature is considered useful.
 
-BulkStream extends implements Stream, Iterable
+BulkStream implements Stream, Iterable
 =
 
 To support Iterator via yield() and allow mass data actions in parallel
