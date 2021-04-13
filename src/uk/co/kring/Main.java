@@ -26,10 +26,8 @@ public class Main {
             reg(current);
             execute(new Multex(args));
         } catch(RuntimeException e) {
-            while(!ret.empty()) {
-                //trace
-                println();
-                print(ANSI_ERR + ">" + ret.pop().firstString());
+            if(!ret.empty()) {
+                stackTrace(ret);//destructive print
             }
         }
         printErrorSummary();
@@ -65,7 +63,7 @@ public class Main {
 
     public static void reg(Symbol s) {
         if(s.named == null) {
-            setError(ERR_FIND, "No name given");
+            setError(ERR_NAME, s);
             return;
         }
         List<Symbol> ls = dict.get(s.named);
@@ -141,22 +139,24 @@ public class Main {
             l = l.replace("\\\"", para);
             String[] args = l.split(l);
             for(int i = 0; i < args.length; i++) {
-                if(args[i].startsWith("\"")) {
-                    quote = true;
-                    args[i] = args[i].substring(1);//remove quote
-                }
                 if(!quote) {
-                    j++;
-                    //args[j] = args[i].trim();
-                } else {
+                    if(args[i].startsWith("\"")) {
+                        quote = true;
+                        args[i] = args[i].substring(1);//remove quote
+                    } else {
+                        j++;//second or more concat
+                    }
+                }
+                if(quote) {//not quite an else
                     if(args[i].endsWith("\"")) {
                         quote = false;
                         args[i] = args[i].substring(0, args[i].length() - 1);//remove quote
                     }
-                    args[j] += " " + args[i];
-                    args[i] = null;
-                    if(!quote) j = i;//restore parse
                 }
+                if(args[i].contains("\"")) setError(ERR_ESCAPE, args[i].replace(para, "\\\""));
+                args[j] += " " + args[i];
+                args[i] = null;
+                if(!quote) j = i;//restore parse
             }
             for(int i = 0; i < args.length; i++) {
                 if(args[i] != null) args[i] = args[i].replace(para, "\"");//hack!
@@ -284,7 +284,8 @@ public class Main {
         "Bad context. There is a definition but not in the context chain. Use context",     //8
         "Bad plugin. The Java class to provide a word as a context plugin is not a class extending Prim",  //9
         "No! You can't alter the bible in that way. Consider forking and editing the Java Bible class build method",     //10
-        ""
+        "Quoted string formatted bad. Do not use \" in the middle of words and leave spaces",   //11
+        "Symbol with no name. A symbol must have a name to write it into a book",   //12
     };
 
     public static final int ERR_IO = 0;
@@ -298,6 +299,8 @@ public class Main {
     public static final int ERR_CONTEXT = 8;
     public static final int ERR_PLUG = 9;
     //10
+    public static final int ERR_ESCAPE = 11;
+    public static final int ERR_NAME = 12;
 
     static final int[] errorCode = {//by lines of 4
         2, 3, 5, 7,                     //0
@@ -323,17 +326,10 @@ public class Main {
 
     public static void setError(int t, Object o) {
         String s;
-        boolean combine = false;
         long e = err;
         if(first < 1) first = t;
         last = t;
-        for(int i = 0; i < errorComposites.length; i+=2) {
-            if(t == errorComposites[i + 1]) {
-                combine = true;
-                break;
-            }
-        }
-        if(!combine) System.err.println();//bang tidy!
+        System.err.println();//bang tidy!
         errorPlump(ANSI_ERR, t, o);
         t = errorCode[t];//map
         mapErrors(e * t);
@@ -408,6 +404,15 @@ public class Main {
             System.err.print(".");
         }
         System.err.println(ANSI_RESET);
+    }
+
+    public static void stackTrace(Stack<Multex> s) {
+        System.err.println();
+        while(!s.empty()) {
+            //trace
+            System.err.println(ANSI_ERR + "> " + s.pop().firstString());
+        }
+        System.err.println();
     }
 
     public static final String ANSI_RESET = "\u001B[0m";
