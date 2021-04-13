@@ -9,11 +9,11 @@ public abstract class Key {
 
     Key replacement;
 
-    public void load(Store store) {
+    void load(Store store) {
         //TODO
     }
 
-    public void save(Store store) throws IOException {
+    void save(Store store) throws IOException {
         if(store.isReferenced(this)) {
             store.outputStream().writeUTF(store.reference(this));
         } else {
@@ -31,7 +31,7 @@ public abstract class Key {
 
     public abstract Stream<? extends Key> find(Stream<? extends Key> s);
 
-    public Class<? extends Key> called() {
+    public Class<? extends Key> called() {//mangler?
         return this.getClass();
     }
 }
