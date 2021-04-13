@@ -1,9 +1,9 @@
 package uk.co.kring.keybase;
 
-import java.util.stream.Stream;
+import uk.co.kring.keybase.stream.BulkStream;
 
 public abstract class Base extends Key {
 
-    public abstract Stream<Datum> asStream();
+    public abstract BulkStream<Datum> asStream();
     //TODO
 }

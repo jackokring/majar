@@ -1,9 +1,10 @@
 package uk.co.kring.keybase;
 
+import uk.co.kring.keybase.stream.BulkStream;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 public abstract class Store extends Key {
 
@@ -19,7 +20,7 @@ public abstract class Store extends Key {
 
     abstract DataOutputStream outputStream();
 
-    public abstract Stream<? extends Key> load();
+    public abstract BulkStream<? extends Key> load();
 
-    public abstract void save(Stream<? extends Key> s);
+    public abstract void save(BulkStream<? extends Key> s);
 }
