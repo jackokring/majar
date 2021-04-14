@@ -471,14 +471,14 @@ public class Main {
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
 
-    public static final String ANSI_SYMBOL = ANSI_BLUE;
-    public static final String ANSI_PRIM = ANSI_YELLOW;
-    public static final String ANSI_CLASS = ANSI_PURPLE;
-    public static final String ANSI_MULTEX = ANSI_GREEN;
-    public static final String ANSI_BOOK = ANSI_CYAN;
-    public static final String ANSI_LIT = ANSI_RED;
-    public static final String ANSI_ERR = ANSI_RED;
-    public static final String ANSI_WARN = ANSI_YELLOW;
+    public static String ANSI_SYMBOL = ANSI_BLUE;
+    public static String ANSI_PRIM = ANSI_YELLOW;
+    public static String ANSI_CLASS = ANSI_PURPLE;
+    public static String ANSI_MULTEX = ANSI_GREEN;
+    public static String ANSI_BOOK = ANSI_CYAN;
+    public static String ANSI_LIT = ANSI_RED;
+    public static String ANSI_ERR = ANSI_RED;
+    public static String ANSI_WARN = ANSI_YELLOW;
 
     public static void print(String s) {
         if(s == null) return;
