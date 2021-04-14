@@ -17,7 +17,7 @@ public abstract class Key {
         if(store.isReferenced(this)) {
             store.outputStream().writeUTF(store.reference(this));
         } else {
-            store.outputStream().writeUTF(this.getClass().getName());
+            store.outputStream().writeUTF(this.getClass().getCanonicalName());
             save(store.outputStream());
             store.makeReference(this);
         }

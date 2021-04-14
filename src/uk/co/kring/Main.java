@@ -2,6 +2,7 @@ package uk.co.kring;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
@@ -13,7 +14,8 @@ public class Main {
     static Stack<Multex> dat = new PStack<>();
     static HashMap<String, List<Symbol>> dict =
             new HashMap<>();
-    static Book context = new Bible();
+    final static Book bible = new Bible();
+    static Book context = bible;
     static Book current = context;
     static boolean fast = false;
 
@@ -62,30 +64,66 @@ public class Main {
     }
 
     public static void reg(Symbol s) {
-        if(s.named == null) {
-            setError(ERR_NAME, s);
-            return;
-        }
-        List<Symbol> ls = dict.get(s.named);
-        if(ls == null) {
-            ls = new LinkedList<>();
-        }
-        for(Symbol i: ls) {
-            if(i.in == current) if(i.in instanceof Bible) {
-                setError(ERR_BIBLE, s);
-                return;//no can add
-            } else {
-                ls.remove(i);
-            }
-            break;
-        }
+        reg(s, current);
+    }
+
+    public static void reg(Symbol s, Book current) {
+        List<Symbol> ls = unReg(s, current);
+        if(ls == null) return;
         ls.add(s);//new
         s.in.basis = Arrays.copyOf(s.in.basis, s.in.basis.length + 1);
         s.in.basis[s.in.basis.length - 1] = s.named;
         s.in = current;
     }
 
+    public static List<Symbol> unReg(Symbol s, Book current) {
+        if(s.named == null) {
+            setError(ERR_NAME, s);
+            return null;
+        }
+        List<Symbol> ls = dict.get(s.named);
+        if(ls == null) {
+            ls = new LinkedList<>();
+        }
+        for(Symbol i: ls) {
+            if(i.in == current) {
+                if(i.in instanceof Bible) {
+                    setError(ERR_BIBLE, i);
+                    return null;
+                } else {
+                    if(i instanceof Book) {
+                        setError(ERR_BOOK, (Book)i);//error
+                        deleteBook((Book)i, current);
+                    } else {
+                        ls.remove(i);
+                    }
+                }
+            }
+            return ls;
+        }
+        return ls;
+    }
+
+    static void deleteBook(Book b, Book cur) {
+        setError(ERR_BOOK, b);
+        for(String i: b.basis) {
+            unReg(find(i), b);
+        }
+        if(b == current) {
+            setError(ERR_CUR_DEL, b);
+            current = bible;
+        }
+        if(b == context) {
+            setError(ERR_CON_DEL, b);
+            context = current;
+        }
+    }
+
     public static Symbol find(String t) {
+        return find(t, true);//default
+    }
+
+    public static Symbol find(String t, boolean error) {
         List<Symbol> s = dict.get(t);
         Book c;
         if(s != null) {
@@ -98,7 +136,7 @@ public class Main {
                     c = c.in;//next higher context
                 } while(c != null);
             }
-            Main.setError(Main.ERR_CONTEXT, context);
+            if(error) Main.setError(Main.ERR_CONTEXT, context);
         }
         //class loading bootstrap of Class named as method camelCase
         String p = t.substring(0, 1).toUpperCase(Locale.ROOT) + t.substring(1);//make run method!!
@@ -120,22 +158,24 @@ public class Main {
                 if(!fast) printSymbolName((Symbol)instance);
                 return (Symbol)instance;
             } else {
-                Main.setError(Main.ERR_PLUG, instance);//class
+                if(error) Main.setError(Main.ERR_PLUG, instance);//class always report bad Java?
                 return null;
             }
         } catch(Exception e) {
-            Main.setError(Main.ERR_FIND, t);
+            if(error) Main.setError(Main.ERR_FIND, t);
             return null;
         }
     }
 
     static final String para = "\\~";//quirk of the shell
 
-    public static Multex readReader(BufferedReader in) {
+    public static Multex readReader(InputStream in) {
         try {
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(in));
             boolean quote = false;
             int j = 0;
-            String l = in.readLine();
+            String l = br.readLine();
             l = l.replace("\\\"", para);
             String[] args = l.split(l);
             for(int i = 0; i < args.length; i++) {
@@ -165,7 +205,7 @@ public class Main {
             intern(args);//pointers??
             return new Multex(args);
         } catch (Exception e) {
-            setError(ERR_IO, System.in);//Input
+            setError(ERR_IO, in);//Input
             return new Multex(new String[0]);//blank
         }
     }
@@ -173,9 +213,7 @@ public class Main {
     public static Multex readString(String in) {
         in = in.replace("\n", " ");
         in = in.replace("\t", " ");
-        BufferedReader br = new BufferedReader(
-                new InputStreamReader(new ByteArrayInputStream((in + "\n").getBytes())));
-        return readReader(br);
+        return readReader(new ByteArrayInputStream((in + "\n").getBytes()));
     }
 
     //================================================== STRING UTIL
@@ -286,6 +324,10 @@ public class Main {
         "No! You can't alter the bible in that way. Consider forking and editing the Java Bible class build method",     //10
         "Quoted string formatted bad. Do not use \" in the middle of words and leave spaces",   //11
         "Symbol with no name. A symbol must have a name to write it into a book",   //12
+        "Overwritten book. All the words in it are now gone ",  //13
+        "Partial context deleted. Some books in the context chain no longer exist",  //14
+        "Current book deleted. Current book set to the bible",  //15
+        "Multiple books overwritten. A large deletion of books happened",  //16
     };
 
     public static final int ERR_IO = 0;
@@ -301,6 +343,10 @@ public class Main {
     //10
     public static final int ERR_ESCAPE = 11;
     public static final int ERR_NAME = 12;
+    public static final int ERR_BOOK = 13;
+    public static final int ERR_CON_DEL = 14;
+    public static final int ERR_CUR_DEL = 15;
+    public static final int ERR_BOOK_MULTIPLE = 16;
 
     static final int[] errorCode = {//by lines of 4
         2, 3, 5, 7,                     //0
@@ -316,6 +362,8 @@ public class Main {
         //compositeErrorCode, errorFact : pair per reduction
         17 * 17, 7, //raise
         17 * 19, 10, //inform of the possibility of forking
+        43 * 43, 16, //multi-book deletion
+        43 * 59, 16, //terminal response to multiple books
     };
 
     public static void clearErrors() {
