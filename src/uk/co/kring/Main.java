@@ -1,6 +1,7 @@
 package uk.co.kring;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class Main {
@@ -17,11 +18,13 @@ public class Main {
     static InputStream in = System.in;
     static PrintStream out = System.out;
     static PrintStream err = System.err;
+    static boolean html = false;
 
     //========================================== ENTRY / EXIT
 
     public static void main(String[] args) {
         try {
+            if(html) out.print("<span>");
             clearErrors();
             intern(args);//first
             reg(current);
@@ -32,7 +35,12 @@ public class Main {
             }
         }
         printErrorSummary();
-        System.exit(first);//a nice ...
+        if(html) {
+            out.print("</span>");
+            return;
+        } else {
+            System.exit(first);//a nice ...
+        }
     }
 
     public static void userAbort() {
@@ -42,7 +50,11 @@ public class Main {
     public static void userAbort(boolean a) {
         print(ANSI_WARN + "User aborted process.");
         println();
-        System.exit(a?0:1);//generate user abort exit code bash polarity
+        if (html) {
+            throw new RuntimeException("User abort.");
+        } else {
+            System.exit(a?0:1);//generate user abort exit code bash polarity
+        }
     }
 
     //========================================== INTERPRETER
@@ -480,6 +492,17 @@ public class Main {
     public static String ANSI_ERR = ANSI_RED;
     public static String ANSI_WARN = ANSI_YELLOW;
 
+    static String[] reflect = {
+        "SYMBOL",
+        "PRIM",
+        "CLASS",
+        "MULTEX",
+        "BOOK",
+        "LIT",
+        "ERR",
+        "WARN"
+    };
+
     public static void print(String s) {
         if(s == null) return;
         out.print(s);
@@ -544,5 +567,18 @@ public class Main {
         in = i;
         out = o;
         err = e;
+    }
+
+    static void setColorHTML() {
+        html = true;
+        for(String i: reflect) {
+            Class<?> c = Main.class;
+            try {
+                Field f = c.getField("ANSI_" + i);
+                f.set(c, "</span><span class=\"" + i + "\">");
+            } catch (Exception e) {
+                err.println("Can't set color field");
+            }
+        }
     }
 }
