@@ -567,7 +567,11 @@ public class Main {
     }
 
     public static void println() {
-        out.println(ANSI_RESET);
+        if(html) {
+            out.print("<br />");//quick!!
+        } else {
+            out.println(ANSI_RESET);
+        }
     }
 
     public static void setIO(InputStream i, PrintStream o) {
