@@ -127,15 +127,15 @@ public class Main {
         List<Symbol> s = dict.get(t);
         Book c;
         if(s != null) {
-            for(Symbol i: s) {
-                c = context;
-                do {
+            c = context;
+            do {
+                for(Symbol i: s) {
                     if (i.in == c) {
                         return i;
                     }
-                    c = c.in;//next higher context
-                } while(c != null);
-            }
+                }
+                c = c.in;//next higher context
+            } while(c != null);
             if(error) Main.setError(Main.ERR_CONTEXT, context);
         }
         //class loading bootstrap of Class named as method camelCase
@@ -460,7 +460,7 @@ public class Main {
             //trace
             System.err.println(ANSI_ERR + "> " + s.pop().firstString());
         }
-        System.err.println();
+        System.err.println(ANSI_RESET);
     }
 
     public static final String ANSI_RESET = "\u001B[0m";
@@ -493,17 +493,45 @@ public class Main {
         if(s instanceof Prim) c = ANSI_PRIM;
         if(s instanceof Book) c = ANSI_BOOK;
         if(s.named != null) {
-            System.out.print(c);
-            System.out.print(s.named);
-            System.out.print(" ");
+            print(c);
+            print(s.named);
+            print(" ");
+        }
+    }
+
+    public static void printSymbol(Symbol s) {
+        if(s == null) return;
+        if(s instanceof Prim) printSymbolName(s);
+        Book c = context;
+        if(s instanceof Book) {
+            context = (Book)s;//set self to view
+        }
+        for(String i: s.basis) {
+            Symbol x = find(i, false);
+            if(x != null) {
+                printSymbolName(x);
+            } else {
+                printSymbolName(i);//not found in context
+            }
+        }
+        context = c;
+        print(" ");
+    }
+
+    public static void list(Multex m) {
+        println();
+        if(m instanceof Symbol) {
+            printSymbol((Symbol)m);
+        } else {
+            printSymbolName(join(m.basis));//as multex
         }
     }
 
     public static void printSymbolName(String s) {
         if(s == null) return;
-        System.out.print(ANSI_LIT);
-        System.out.print(join(singleton(s)));//Mutex entry form
-        System.out.print(" ");
+        print(ANSI_LIT);
+        print(join(singleton(s)));//Mutex entry form
+        print(" ");
     }
 
     public static void println() {
