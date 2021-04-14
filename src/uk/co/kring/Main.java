@@ -26,7 +26,14 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            if(html) print("<span>");
+            if(html) {
+                print("<span>");
+                if(out != err) {
+                    putError(true);
+                    print("<span>");
+                    putError(false);
+                }
+            }
             clearErrors();
             intern(args);//first
             reg(current);
@@ -39,6 +46,11 @@ public class Main {
         printErrorSummary();
         if(html) {
             print("</span>");
+            if(out != err) {
+                putError(true);
+                print("</span>");
+                putError(false);
+            }
             return;
         } else {
             System.exit(first);//a nice ...
