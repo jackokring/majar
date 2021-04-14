@@ -3,6 +3,7 @@ package uk.co.kring;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -505,7 +506,17 @@ public class Main {
 
     public static void print(String s) {
         if(s == null) return;
-        out.print(s);
+        if(html) {
+            out.print(escapeHTML(s));//quick!!
+        } else {
+            out.print(s);
+        }
+    }
+
+    public static String escapeHTML(String str) {
+        return str.codePoints().mapToObj(c -> c > 127 || "\"'<>&".indexOf(c) != -1 ?
+                "&#" + c + ";" : new String(Character.toChars(c)))
+                .collect(Collectors.joining());
     }
 
     public static void printSymbolName(Symbol s) {
