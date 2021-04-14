@@ -19,13 +19,14 @@ public class Main {
     static InputStream in = System.in;
     static PrintStream out = System.out;
     static PrintStream err = System.err;
+    static PrintStream put = out;
     static boolean html = false;
 
     //========================================== ENTRY / EXIT
 
     public static void main(String[] args) {
         try {
-            if(html) out.print("<span>");
+            if(html) print("<span>");
             clearErrors();
             intern(args);//first
             reg(current);
@@ -37,7 +38,7 @@ public class Main {
         }
         printErrorSummary();
         if(html) {
-            out.print("</span>");
+            print("</span>");
             return;
         } else {
             System.exit(first);//a nice ...
@@ -426,9 +427,15 @@ public class Main {
 
     //========================================= PRINTING
 
+    static void putError(boolean error) {
+        if(error) put = err;
+        else put = out;
+    }
+
     public static void printErrorSummary() {
         if(last != -1) {
-            err.println();
+            putError(true);
+            println();
             errorPlump(ANSI_ERR, last, "Error summary follows:");
             String c = ANSI_WARN;
             if(errOver()) c = ANSI_ERR;//many errors
@@ -444,6 +451,7 @@ public class Main {
                     errorExit /= errorCode[i];
                 }
             }
+            putError(false);
         }
         last = -1;//errors flushed
     }
@@ -453,25 +461,28 @@ public class Main {
     }
 
     static void errorPlump(String prefix, int code, Object o) {
-        err.print(prefix);
-        err.print("[" + errorCode[code] + "] ");
-        err.print(errorFact[code]);
+        print(prefix);
+        print("[" + errorCode[code] + "] ");
+        print(errorFact[code]);
         if(o != null) {
-            err.print(": ");
-            err.print(withinError(o));
+            print(": ");
+            print(withinError(o));
         } else {
-            err.print(".");
+            print(".");
         }
-        err.println(ANSI_RESET);
+        println();
     }
 
     public static void stackTrace(Stack<Multex> s) {
-        err.println();
+        putError(true);
+        println();
         while(!s.empty()) {
             //trace
-            err.println(ANSI_ERR + "> " + s.pop().firstString());
+            print(ANSI_ERR + "> " + s.pop().firstString());
+            println();
         }
-        err.println(ANSI_RESET);
+        println();
+        putError(false);
     }
 
     public static final String ANSI_RESET = "\u001B[0m";
@@ -507,9 +518,9 @@ public class Main {
     public static void print(String s) {
         if(s == null) return;
         if(html) {
-            out.print(escapeHTML(s));//quick!!
+            put.print(escapeHTML(s));//quick!!
         } else {
-            out.print(s);
+            put.print(s);
         }
     }
 
@@ -568,9 +579,9 @@ public class Main {
 
     public static void println() {
         if(html) {
-            out.print("<br />");//quick!!
+            put.print("<br />");//quick!!
         } else {
-            out.println(ANSI_RESET);
+            put.println(ANSI_RESET);
         }
     }
 
