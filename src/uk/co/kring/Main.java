@@ -51,7 +51,6 @@ public class Main {
                 print("</span>");
                 putError(false);
             }
-            return;
         } else {
             System.exit(first);//a nice ...
         }
@@ -248,6 +247,12 @@ public class Main {
         }
     }
 
+    public static String escapeHTML(String s) {
+        return s.codePoints().mapToObj(c -> c > 127 || "\"'<>&".indexOf(c) != -1 ?
+                "&#" + c + ";" : new String(Character.toChars(c)))
+                .collect(Collectors.joining());
+    }
+
     public static String[] singleton(String s) {
         String[] sa = new String[1];
         sa[0] = s.intern();
@@ -280,7 +285,7 @@ public class Main {
     public static String literal() {
         String s = topMost(ret, true);
         if(!fast) {
-            printSymbolName(s);
+            printSymbolized(s);
         }
         return s;
     }
@@ -490,7 +495,7 @@ public class Main {
         println();
         while(!s.empty()) {
             //trace
-            print(ANSI_ERR + "> " + s.pop().firstString());
+            print(ANSI_ERR + "@ " + s.pop().firstString());
             println();
         }
         println();
@@ -527,19 +532,13 @@ public class Main {
         "WARN"
     };
 
-    public static void print(String s) {
+    static void print(String s) {
         if(s == null) return;
         if(html) {
-            put.print(escapeHTML(s));//quick!!
+            put.print(s);//quick!!
         } else {
             put.print(s);
         }
-    }
-
-    public static String escapeHTML(String str) {
-        return str.codePoints().mapToObj(c -> c > 127 || "\"'<>&".indexOf(c) != -1 ?
-                "&#" + c + ";" : new String(Character.toChars(c)))
-                .collect(Collectors.joining());
     }
 
     public static void printSymbolName(Symbol s) {
@@ -566,7 +565,7 @@ public class Main {
             if(x != null) {
                 printSymbolName(x);
             } else {
-                printSymbolName(i);//not found in context
+                printSymbolized(i);//not found in context
             }
         }
         context = c;
@@ -578,18 +577,18 @@ public class Main {
         if(m instanceof Symbol) {
             printSymbol((Symbol)m);
         } else {
-            printSymbolName(join(m.basis));//as multex
+            printSymbolized(join(m.basis));//as multex
         }
     }
 
-    public static void printSymbolName(String s) {
+    public static void printSymbolized(String s) {
         if(s == null) return;
         print(ANSI_LIT);
         print(join(singleton(s)));//Mutex entry form
         print(" ");
     }
 
-    public static void println() {
+    static void println() {
         if(html) {
             put.print("<br /></span><span>");//quick!!
         } else {
