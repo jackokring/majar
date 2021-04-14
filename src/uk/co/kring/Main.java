@@ -1,15 +1,11 @@
 package uk.co.kring;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 public class Main {
 
-    private static int err, last, first;//primary error code
-    static BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+    private static int errorExit, last, first;//primary error code
     static Stack<Multex> ret = new PStack<>();
     static Stack<Multex> dat = new PStack<>();
     static HashMap<String, List<Symbol>> dict =
@@ -18,6 +14,9 @@ public class Main {
     static Book context = bible;
     static Book current = context;
     static boolean fast = false;
+    static InputStream in = System.in;
+    static PrintStream out = System.out;
+    static PrintStream err = System.err;
 
     //========================================== ENTRY / EXIT
 
@@ -37,13 +36,13 @@ public class Main {
     }
 
     public static void userAbort() {
-        userAbort(true);
+        userAbort(false);
     }
 
     public static void userAbort(boolean a) {
         print(ANSI_WARN + "User aborted process.");
         println();
-        System.exit(a?1:0);//generate user abort exit code
+        System.exit(a?0:1);//generate user abort exit code bash polarity
     }
 
     //========================================== INTERPRETER
@@ -367,17 +366,17 @@ public class Main {
     };
 
     public static void clearErrors() {
-        err = 1;
+        errorExit = 1;
         last = -1;
         first = 0;
     }
 
     public static void setError(int t, Object o) {
         String s;
-        long e = err;
+        long e = errorExit;
         if(first < 1) first = t;
         last = t;
-        System.err.println();//bang tidy!
+        err.println();//bang tidy!
         errorPlump(ANSI_ERR, t, o);
         t = errorCode[t];//map
         mapErrors(e * t);
@@ -405,32 +404,32 @@ public class Main {
             }
         }
         if(e > Integer.MAX_VALUE) throw new RuntimeException("MajarInternal");
-        err = (int)e;
+        errorExit = (int)e;
     }
 
     static boolean errOver() {
         if(last < 0) return false;
-        return ((long)err << 2) > Integer.MAX_VALUE;
+        return ((long) errorExit << 2) > Integer.MAX_VALUE;
     }
 
     //========================================= PRINTING
 
     public static void printErrorSummary() {
         if(last != -1) {
-            System.err.println();
+            err.println();
             errorPlump(ANSI_ERR, last, "Error summary follows:");
             String c = ANSI_WARN;
             if(errOver()) c = ANSI_ERR;//many errors
             else {
-                first = err;//return all if no over
+                first = errorExit;//return all if no over
                 if(first == 1) first = 0;//no error
                 //keep first in summary
             }
             for(int i = 0; i < errorFact.length; i++) {
-                if(err == 1) break;
-                if(err % errorCode[i] == 0) {
+                if(errorExit == 1) break;
+                if(errorExit % errorCode[i] == 0) {
                     errorPlump(c, i, null);
-                    err /= errorCode[i];
+                    errorExit /= errorCode[i];
                 }
             }
         }
@@ -442,25 +441,25 @@ public class Main {
     }
 
     static void errorPlump(String prefix, int code, Object o) {
-        System.err.print(prefix);
-        System.err.print("[" + errorCode[code] + "] ");
-        System.err.print(errorFact[code]);
+        err.print(prefix);
+        err.print("[" + errorCode[code] + "] ");
+        err.print(errorFact[code]);
         if(o != null) {
-            System.err.print(": ");
-            System.err.print(withinError(o));
+            err.print(": ");
+            err.print(withinError(o));
         } else {
-            System.err.print(".");
+            err.print(".");
         }
-        System.err.println(ANSI_RESET);
+        err.println(ANSI_RESET);
     }
 
     public static void stackTrace(Stack<Multex> s) {
-        System.err.println();
+        err.println();
         while(!s.empty()) {
             //trace
-            System.err.println(ANSI_ERR + "> " + s.pop().firstString());
+            err.println(ANSI_ERR + "> " + s.pop().firstString());
         }
-        System.err.println(ANSI_RESET);
+        err.println(ANSI_RESET);
     }
 
     public static final String ANSI_RESET = "\u001B[0m";
@@ -484,7 +483,7 @@ public class Main {
 
     public static void print(String s) {
         if(s == null) return;
-        System.out.print(s);
+        out.print(s);
     }
 
     public static void printSymbolName(Symbol s) {
@@ -535,6 +534,16 @@ public class Main {
     }
 
     public static void println() {
-        System.out.println(ANSI_RESET);
+        out.println(ANSI_RESET);
+    }
+
+    public static void setIO(InputStream i, PrintStream o) {
+        setIO(i, o, o);
+    }
+
+    public static void setIO(InputStream i, PrintStream o, PrintStream e) {
+        in = i;
+        out = o;
+        err = e;
     }
 }
