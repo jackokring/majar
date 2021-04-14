@@ -591,7 +591,7 @@ public class Main {
 
     public static void println() {
         if(html) {
-            put.print("<br />");//quick!!
+            put.print("<br /></span><span>");//quick!!
         } else {
             put.println(ANSI_RESET);
         }
