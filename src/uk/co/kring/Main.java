@@ -91,11 +91,10 @@ public class Main {
                     return null;
                 } else {
                     if(i instanceof Book) {
-                        setError(ERR_BOOK, (Book)i);//error
-                        deleteBook((Book)i, current);
-                    } else {
-                        ls.remove(i);
+                        setError(ERR_BOOK, i);//error
+                        deleteBook((Book)i);
                     }
+                    ls.remove(i);
                 }
             }
             return ls;
@@ -103,7 +102,7 @@ public class Main {
         return ls;
     }
 
-    static void deleteBook(Book b, Book cur) {
+    static void deleteBook(Book b) {
         setError(ERR_BOOK, b);
         for(String i: b.basis) {
             unReg(find(i), b);
