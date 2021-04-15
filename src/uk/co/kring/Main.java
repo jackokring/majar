@@ -706,7 +706,7 @@ public class Main {
         return Main.class;
     }
 
-    public static PipedInputStream getPipeOutput(InputStream i, PrintStream e) throws IOException {
+    public static PipedInputStream setPipeIO(InputStream i, PrintStream e) throws IOException {
         //arrange a process pipeline
         err = e;
         //in
@@ -716,6 +716,14 @@ public class Main {
         PipedOutputStream oo = new PipedOutputStream(io);
         out = new PrintStream(oo);
         return io;
+    }
+
+    public static boolean copyInputToOutput(InputStream i, OutputStream o) throws IOException {
+        int t = -1;//end?
+        while(i.available() > 0) {
+            o.write(t = i.read());
+        }
+        return t != -1;//more
     }
 
     public static Class<Main> setHTML() {
