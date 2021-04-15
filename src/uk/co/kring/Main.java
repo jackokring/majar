@@ -185,7 +185,7 @@ public class Main {
     static Symbol find(String t, Book b) {
         Book c = switchContext(b);
         Symbol s = find(t, true);//default
-        switchContext(b);//restore
+        switchContext(c);//restore
         return s;
     }
 
@@ -441,7 +441,7 @@ public class Main {
     public static final int ERR_BOOK = 13;
     public static final int ERR_CON_DEL = 14;
     public static final int ERR_CUR_DEL = 15;
-    public static final int ERR_BOOK_MULTIPLE = 16;
+    //16;
     public static final int ERR_CON_BAD = 17;
 
     public static final int[] errorCode = {//by lines of 4
