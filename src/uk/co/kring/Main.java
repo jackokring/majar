@@ -706,7 +706,7 @@ public class Main {
         return Main.class;
     }
 
-    public static class PipeWriter extends PrintWriter {
+    static class PipeWriter extends PrintWriter {
 
         ByteArrayOutputStream s;
 
@@ -716,12 +716,12 @@ public class Main {
         }
     }
 
-    public static PipeWriter getWriter() {
+    public static PrintWriter getWriter() {
         return new PipeWriter(new ByteArrayOutputStream());
     }
 
-    public static InputStream collapseWriter(PipeWriter p) {
-        return new ByteArrayInputStream(p.s.toByteArray());
+    public static InputStream collapseWriter(PrintWriter p) {
+        return new ByteArrayInputStream(((PipeWriter)p).s.toByteArray());
     }
 
     public static boolean copyInputToOutput(InputStream i, OutputStream o) throws IOException {
