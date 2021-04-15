@@ -30,7 +30,7 @@ public class Main {
 
     //========================================== ENTRY / EXIT
 
-    public static void main(String[] args) {
+    public static synchronized void main(String[] args) {
         try {
             if(html) {
                 print("<span>");
@@ -716,6 +716,24 @@ public class Main {
         PipedOutputStream oo = new PipedOutputStream(io);
         out = new PrintStream(oo);
         return io;
+    }
+
+    public static class PipeWriter extends PrintWriter {
+
+        ByteArrayOutputStream s;
+
+        public PipeWriter(ByteArrayOutputStream b) {
+            super(b);
+            s = b;
+        }
+    }
+
+    public static PipeWriter getWriter() {
+        return new PipeWriter(new ByteArrayOutputStream());
+    }
+
+    public static InputStream collapseWriter(PipeWriter p) {
+        return new ByteArrayInputStream(p.s.toByteArray());
     }
 
     public static boolean copyInputToOutput(InputStream i, OutputStream o) throws IOException {
