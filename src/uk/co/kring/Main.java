@@ -706,18 +706,6 @@ public class Main {
         return Main.class;
     }
 
-    public static PipedInputStream setPipeIO(InputStream i, PrintStream e) throws IOException {
-        //arrange a process pipeline
-        err = e;
-        //in
-        in = i;
-        //out
-        PipedInputStream io = new PipedInputStream();
-        PipedOutputStream oo = new PipedOutputStream(io);
-        out = new PrintStream(oo);
-        return io;
-    }
-
     public static class PipeWriter extends PrintWriter {
 
         ByteArrayOutputStream s;
