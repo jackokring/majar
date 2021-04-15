@@ -7,7 +7,6 @@ public class Book extends Symbol {
     }
 
     public void run() {
-        Main.current = this;
+        Main.setCurrent(this);
     }
-
 }

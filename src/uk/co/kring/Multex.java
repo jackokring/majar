@@ -1,11 +1,9 @@
 package uk.co.kring;
 
-import java.util.List;
-
 public class Multex implements Runnable {
 
     public void run() {
-        Symbol m = Main.find(firstString());
+        Symbol m = Main.find(firstString(), executeIn);
         if(m != null) {
             if(!Main.runningFast()) {
                 Main.printSymbolName(m);
@@ -18,6 +16,7 @@ public class Multex implements Runnable {
 
     String[] basis;
     int idx;
+    Book executeIn;
 
     public Multex(String[] s) {
         idx = 0;

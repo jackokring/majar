@@ -15,8 +15,8 @@ public class Main {
     static HashMap<String, List<Symbol>> dict =
             new HashMap<>();
     final static Book bible = new Bible();
-    static Book context = bible;
-    static Book current = context;
+    private static Book context = bible;
+    private static Book current = context;
 
     private static boolean fast = false;
     private static boolean html = false;
@@ -75,6 +75,26 @@ public class Main {
         return fast;
     }
 
+    private static Book switchContext(Book b) {
+        if(b.in == null) {
+            if(!(b instanceof Bible)) {
+                setError(ERR_CON_BAD, b);
+                b = bible;
+            }
+        }
+        Book c = context;
+        context = b;
+        return c;
+    }
+
+    public static Book getCurrent() {
+        return current;
+    }
+
+    public static void setCurrent(Book b) {
+        current = b;
+    }
+
     public static void execute(Multex s) {
         ret.push(s);
         while(!s.ended()) {
@@ -97,10 +117,16 @@ public class Main {
     public static void reg(Symbol s, Book current) {
         List<Symbol> ls = unReg(s, current);
         if(ls == null) return;
-        ls.add(s);//new
+        s.executeIn = context;//keep context
         s.in.basis = Arrays.copyOf(s.in.basis, s.in.basis.length + 1);
         s.in.basis[s.in.basis.length - 1] = s.named;
         s.in = current;
+        if(s instanceof Book) {
+            context = (Book)s;//make context
+            s.executeIn = null;//clear recent cache
+            s.in.executeIn = (Book)s;//set containing book as last used in
+        }
+        ls.add(s);//new
     }
 
     public static List<Symbol> unReg(Symbol s, Book current) {
@@ -135,6 +161,7 @@ public class Main {
         for(String i: b.basis) {
             unReg(find(i), b);
         }
+        b.in = null;//hide context chain for future
         if(b == current) {
             setError(ERR_CUR_DEL, b);
             current = bible;
@@ -147,6 +174,13 @@ public class Main {
 
     public static Symbol find(String t) {
         return find(t, true);//default
+    }
+
+    public static Symbol find(String t, Book b) {
+        Book c = switchContext(b);
+        Symbol s = find(t, true);//default
+        switchContext(b);//restore
+        return s;
     }
 
     public static Symbol find(String t, boolean error) {
@@ -359,7 +393,8 @@ public class Main {
         "Overwritten book. All the words in it are now gone ",  //13
         "Partial context deleted. Some books in the context chain no longer exist",  //14
         "Current book deleted. Current book set to the bible",  //15
-        "Multiple books overwritten. A large deletion of books happened",  //16
+        "Multiple books deleted. A large deletion of books happened",  //16
+        "A bad execution context. The book was deleted. 'Tis but a crust",     //17
     };
 
     public static final int ERR_IO = 0;
@@ -379,6 +414,7 @@ public class Main {
     public static final int ERR_CON_DEL = 14;
     public static final int ERR_CUR_DEL = 15;
     public static final int ERR_BOOK_MULTIPLE = 16;
+    public static final int ERR_CON_BAD = 17;
 
     static final int[] errorCode = {//by lines of 4
         2, 3, 5, 7,                     //0
