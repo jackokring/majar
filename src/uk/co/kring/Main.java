@@ -597,9 +597,28 @@ public class Main {
         if(s instanceof Book) c = ANSI_BOOK;
         if(s.named != null) {
             print(c);
-            print(s.named);
+            printLiteral(s.named);
             print(" ");
         }
+    }
+
+    public static void printContext() {
+        print("[");
+        printSymbolName(current);
+        print("] ");
+        Book c = context;
+        do {
+            printSymbolName(c);
+            c = c.in;
+        } while(c.in != null);
+        print("[");
+        c = context;
+        while(c.executeIn != null) {
+            c = c.executeIn;
+            printSymbolName(c);
+        }
+        print("]");
+        println();
     }
 
     public static void printSymbol(Symbol s) {
