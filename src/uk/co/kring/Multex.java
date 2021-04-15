@@ -7,7 +7,7 @@ public class Multex implements Runnable {
     public void run() {
         Symbol m = Main.find(firstString());
         if(m != null) {
-            if(!Main.fast) {
+            if(!Main.runningFast()) {
                 Main.printSymbolName(m);
                 Main.profile(m);
             }

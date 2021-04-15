@@ -8,19 +8,23 @@ import java.util.stream.Collectors;
 public class Main {
 
     private static int errorExit, last, first;//primary error code
+
     static Stack<Multex> ret = new PStack<>();
     static Stack<Multex> dat = new PStack<>();
+
     static HashMap<String, List<Symbol>> dict =
             new HashMap<>();
     final static Book bible = new Bible();
     static Book context = bible;
     static Book current = context;
-    static boolean fast = false;
-    static InputStream in = System.in;
-    static PrintStream out = System.out;
-    static PrintStream err = System.err;
-    static PrintStream put = out;
-    static boolean html = false;
+
+    private static boolean fast = false;
+    private static boolean html = false;
+
+    private static InputStream in = System.in;
+    private static PrintStream out = System.out;
+    private static PrintStream err = System.err;
+    private static PrintStream put = out;
 
     //========================================== ENTRY / EXIT
 
@@ -28,11 +32,6 @@ public class Main {
         try {
             if(html) {
                 print("<span>");
-                if(out != err) {
-                    putError(true);
-                    print("<span>");
-                    putError(false);
-                }
             }
             clearErrors();
             intern(args);//first
@@ -46,11 +45,6 @@ public class Main {
         printErrorSummary();
         if(html) {
             print("</span>");
-            if(out != err) {
-                putError(true);
-                print("</span>");
-                putError(false);
-            }
         } else {
             System.exit(first);//a nice ...
         }
@@ -63,14 +57,23 @@ public class Main {
     public static void userAbort(boolean a) {
         print(ANSI_WARN + "User aborted process.");
         println();
+        first = a?0:1;//bash polarity
         if (html) {
             throw new RuntimeException("User abort.");
         } else {
-            System.exit(a?0:1);//generate user abort exit code bash polarity
+            System.exit(first);//generate user abort exit code
         }
     }
 
+    public static int getErrorExit() {
+        return first;
+    }
+
     //========================================== INTERPRETER
+
+    public static boolean runningFast() {
+        return fast;
+    }
 
     public static void execute(Multex s) {
         ret.push(s);
@@ -413,7 +416,7 @@ public class Main {
     }
 
     public static String withinError(Object o) {
-        if(o instanceof String) return (String)o;
+        if(o instanceof String) return html?escapeHTML((String)o):(String)o;
         if(o instanceof Prim) return ANSI_PRIM + o.getClass().getName() +
                 "[" + withinError(((Symbol)o).named) + ANSI_PRIM + "]";
         if(o instanceof Book) return ANSI_BOOK + o.getClass().getName() +
@@ -444,9 +447,18 @@ public class Main {
 
     //========================================= PRINTING
 
-    static void putError(boolean error) {
-        if(error) put = err;
-        else put = out;
+    private static void putError(boolean error) {
+        if(error) {
+            put = err;
+            if(out != err) {
+                print("<span>");
+            }
+        } else {
+            if(out != err) {
+                print("</span>");
+            }
+            put = out;
+        }
     }
 
     public static void printErrorSummary() {
@@ -479,10 +491,10 @@ public class Main {
 
     static void errorPlump(String prefix, int code, Object o) {
         print(prefix);
-        print("[" + errorCode[code] + "] ");
-        print(errorFact[code]);
+        print("[" + errorCode[code] + "]");
+        printLiteral(errorFact[code]);
         if(o != null) {
-            print(": ");
+            print(":");
             print(withinError(o));
         } else {
             print(".");
@@ -532,13 +544,9 @@ public class Main {
         "WARN"
     };
 
-    static void print(String s) {
+    private static void print(String s) {
         if(s == null) return;
-        if(html) {
-            put.print(s);//quick!!
-        } else {
-            put.print(s);
-        }
+        put.print(s);
     }
 
     public static void printSymbolName(Symbol s) {
@@ -584,11 +592,19 @@ public class Main {
     public static void printSymbolized(String s) {
         if(s == null) return;
         print(ANSI_LIT);
-        print(join(singleton(s)));//Mutex entry form
+        printLiteral(join(singleton(s)));//Mutex entry form
         print(" ");
     }
 
-    static void println() {
+    public static void printLiteral(String s) {
+        if(html) {
+            print(escapeHTML(s));
+        } else {
+            print(s);
+        }
+    }
+
+    private static void println() {
         if(html) {
             put.print("<br /></span><span>");//quick!!
         } else {
@@ -606,7 +622,7 @@ public class Main {
         err = e;
     }
 
-    static void setColorHTML() {
+    public static void setHTML() {
         html = true;
         for(String i: reflect) {
             Class<?> c = Main.class;
