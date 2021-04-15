@@ -45,8 +45,10 @@ public class Main {
             }
         }
         printErrorSummary();
+        err.flush();
         if(html) {
             print("</span>");
+            out.flush();
         } else {
             System.exit(first);//a nice ...
         }
