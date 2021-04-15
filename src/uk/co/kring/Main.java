@@ -54,11 +54,17 @@ public class Main {
         }
     }
 
-    public static void userAbort() {
+    public static synchronized void main(String s) {
+        main(readString(s).basis);//a go go
+    }
+
+    //========================================== USER ABORT
+
+    static void userAbort() {
         userAbort(false);
     }
 
-    public static void userAbort(boolean a) {
+    static void userAbort(boolean a) {
         print(ANSI_WARN + "User aborted process.");
         println();
         first = a?0:1;//bash polarity
@@ -69,13 +75,9 @@ public class Main {
         }
     }
 
-    public static int getErrorExit() {
-        return first;
-    }
-
     //========================================== INTERPRETER
 
-    public static boolean runningFast() {
+    static boolean runningFast() {
         return fast;
     }
 
@@ -91,15 +93,15 @@ public class Main {
         return c;
     }
 
-    public static Book getCurrent() {
+    static Book getCurrent() {
         return current;
     }
 
-    public static void setCurrent(Book b) {
+    static void setCurrent(Book b) {
         current = b;
     }
 
-    public static void execute(Multex s) {
+    static void execute(Multex s) {
         ret.push(s);
         while(!s.ended()) {
             if(s.firstString() == null) return;//no fail null
@@ -110,15 +112,15 @@ public class Main {
         ret.pop();
     }
 
-    public static void profile(Symbol s) {
+    static void profile(Symbol s) {
         //TODO
     }
 
-    public static void reg(Symbol s) {
+    static void reg(Symbol s) {
         reg(s, current);
     }
 
-    public static void reg(Symbol s, Book current) {
+    static void reg(Symbol s, Book current) {
         List<Symbol> ls = unReg(s, current);
         if(ls == null) return;
         s.executeIn = context;//keep context
@@ -133,7 +135,7 @@ public class Main {
         ls.add(s);//new
     }
 
-    public static List<Symbol> unReg(Symbol s, Book current) {
+    static List<Symbol> unReg(Symbol s, Book current) {
         if(s.named == null) {
             setError(ERR_NAME, s);
             return null;
@@ -176,18 +178,18 @@ public class Main {
         }
     }
 
-    public static Symbol find(String t) {
+    static Symbol find(String t) {
         return find(t, true);//default
     }
 
-    public static Symbol find(String t, Book b) {
+    static Symbol find(String t, Book b) {
         Book c = switchContext(b);
         Symbol s = find(t, true);//default
         switchContext(b);//restore
         return s;
     }
 
-    public static Symbol find(String t, boolean error) {
+    static Symbol find(String t, boolean error) {
         List<Symbol> s = dict.get(t);
         Book c;
         if(s != null) {
@@ -238,7 +240,7 @@ public class Main {
 
     static final String para = "\\~";//quirk of the shell
 
-    public static Multex readReader(InputStream input, String alternate) {
+    static Multex readReader(InputStream input, String alternate) {
         BufferedReader b = null;
         try {
             if(input != toClose && input != null) {
@@ -251,7 +253,7 @@ public class Main {
                 toClose = input;
             }
             b = br;
-            if(alternate != null) {
+            if(alternate != null && input == null) {
                 b = new BufferedReader(new InputStreamReader(
                         new ByteArrayInputStream((in + "\n").getBytes())));//alternate text
             }
@@ -290,15 +292,15 @@ public class Main {
             return new Multex(args);
         } catch (Exception e) {
             setError(ERR_IO, b);//Input
-            return new Multex(new String[0]);//blank
+            return alternate != null ? readReader(null, alternate) : new Multex(new String[0]);//blank
         }
     }
 
-    public static Multex readString(String s) {
+    static Multex readString(String s) {
         return readReader(null, s);
     }
 
-    public static Multex readInput() {
+    static Multex readInput() {
         return readReader(in, null);
     }
 
@@ -322,7 +324,7 @@ public class Main {
         return sa;
     }
 
-    public static String dollar(String s) {
+    static String dollar(String s) {
         s = s.replace("\\$", para);
         int i;
         while((i = s.indexOf("$")) != -1) {
@@ -333,7 +335,7 @@ public class Main {
         return s.replace(para, "$");
     }
 
-    public static String topMost(Stack<Multex> sm, boolean next) {
+    static String topMost(Stack<Multex> sm, boolean next) {
         Multex m = sm.peek();
         if(next) m.shift();
         while(m.firstString() == null) {
@@ -345,7 +347,7 @@ public class Main {
         return s;
     }
 
-    public static String literal() {
+    static String literal() {
         String s = topMost(ret, true);
         if(!fast) {
             printSymbolized(s);
@@ -353,14 +355,14 @@ public class Main {
         return s;
     }
 
-    public static String parameter(Stack<Multex> sm, boolean next) {
+    static String parameter(Stack<Multex> sm, boolean next) {
         Multex m = sm.pop();
         String s = topMost(sm, next);
         sm.push(m);
         return s;
     }
 
-    public static void swap(Stack<Multex> sm) {
+    static void swap(Stack<Multex> sm) {
         Multex m = sm.pop();
         Multex t = sm.pop();
         sm.push(m);
@@ -391,9 +393,9 @@ public class Main {
 
     //========================================== CMD UTIL
 
-    public static void silentExec(String s) {
+    static void silentExec(Multex s) {
         try {
-            int x = Runtime.getRuntime().exec(s).waitFor();
+            int x = Runtime.getRuntime().exec(join(s.basis)).waitFor();
             if(x != 0) setError(ERR_PROCESS, s);
         } catch(Exception e) {
             setError(ERR_PROCESS, s);
@@ -402,7 +404,7 @@ public class Main {
 
     //================================================== ERRORS
 
-    static final String[] errorFact = {
+    public static final String[] errorFact = {
         "Input or output problem. Was the process interrupted? OK",           //0
         "Stack underflow. Not enough data was provided to some word", //1
         "Out of memory. Maybe the stack overflowed",  //2
@@ -442,7 +444,7 @@ public class Main {
     public static final int ERR_BOOK_MULTIPLE = 16;
     public static final int ERR_CON_BAD = 17;
 
-    static final int[] errorCode = {//by lines of 4
+    public static final int[] errorCode = {//by lines of 4
         2, 3, 5, 7,                     //0
         11, 13, 17, 19,                 //4
         23, 29, 31, 37,                 //8
@@ -460,13 +462,13 @@ public class Main {
         43 * 59, 16, //terminal response to multiple books
     };
 
-    public static void clearErrors() {
+    static void clearErrors() {
         errorExit = 1;
         last = -1;
         first = 0;
     }
 
-    public static void setError(int t, Object o) {
+    static void setError(int t, Object o) {
         String s;
         long e = errorExit;
         if(first < 1) first = t;
@@ -477,7 +479,7 @@ public class Main {
         mapErrors(e * t);
     }
 
-    public static String withinError(Object o) {
+    static String withinError(Object o) {
         if(o instanceof String) return html?escapeHTML((String)o):(String)o;
         if(o instanceof Prim) return ANSI_PRIM + o.getClass().getName() +
                 "[" + withinError(((Symbol)o).named) + ANSI_PRIM + "]";
@@ -523,7 +525,7 @@ public class Main {
         }
     }
 
-    public static void printErrorSummary() {
+    static void printErrorSummary() {
         if(last != -1) {
             putError(true);
             println();
@@ -547,7 +549,7 @@ public class Main {
         last = -1;//errors flushed
     }
 
-    public static void printProfile() {
+    static void printProfile() {
         //TODO
     }
 
@@ -564,7 +566,7 @@ public class Main {
         println();
     }
 
-    public static void stackTrace(Stack<Multex> s) {
+    static void stackTrace(Stack<Multex> s) {
         putError(true);
         println();
         while(!s.empty()) {
@@ -611,7 +613,7 @@ public class Main {
         put.print(s);
     }
 
-    public static void printSymbolName(Symbol s) {
+    static void printSymbolName(Symbol s) {
         if(s == null) return;
         String c = ANSI_SYMBOL;
         if(s instanceof Prim) c = ANSI_PRIM;
@@ -623,7 +625,7 @@ public class Main {
         }
     }
 
-    public static void printContext() {
+    static void printContext() {
         print("[");
         printSymbolName(current);
         print("] ");
@@ -642,7 +644,7 @@ public class Main {
         println();
     }
 
-    public static void printSymbol(Symbol s) {
+    static void printSymbol(Symbol s) {
         if(s == null) return;
         if(s instanceof Prim) printSymbolName(s);
         Book c = context;
@@ -661,7 +663,7 @@ public class Main {
         print(" ");
     }
 
-    public static void list(Multex m) {
+    static void list(Multex m) {
         println();
         if(m instanceof Symbol) {
             printSymbol((Symbol)m);
@@ -670,14 +672,14 @@ public class Main {
         }
     }
 
-    public static void printSymbolized(String s) {
+    static void printSymbolized(String s) {
         if(s == null) return;
         print(ANSI_LIT);
         printLiteral(join(singleton(s)));//Mutex entry form
         print(" ");
     }
 
-    public static void printLiteral(String s) {
+    static void printLiteral(String s) {
         if(html) {
             print(escapeHTML(s));
         } else {
