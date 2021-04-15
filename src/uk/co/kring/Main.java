@@ -706,6 +706,18 @@ public class Main {
         return Main.class;
     }
 
+    public static PipedInputStream getPipeOutput(InputStream i, PrintStream e) throws IOException {
+        //arrange a process pipeline
+        err = e;
+        //in
+        in = i;
+        //out
+        PipedInputStream io = new PipedInputStream();
+        PipedOutputStream oo = new PipedOutputStream(io);
+        out = new PrintStream(oo);
+        return io;
+    }
+
     public static Class<Main> setHTML() {
         html = true;
         for(String i: reflect) {
