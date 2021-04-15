@@ -222,8 +222,13 @@ public class Main {
                 return null;
             }
         } catch(Exception e) {
-            if(error) Main.setError(Main.ERR_FIND, t);
-            return null;
+            //lazy mode
+            if(context.executeIn != null) {//try recent used books
+                return find(t, context.executeIn);
+            } else {
+                if (error) Main.setError(Main.ERR_FIND, t);
+                return null;
+            }
         }
     }
 
