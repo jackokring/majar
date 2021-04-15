@@ -25,6 +25,8 @@ public class Main {
     private static PrintStream out = System.out;
     private static PrintStream err = System.err;
     private static PrintStream put = out;
+    private static BufferedReader br;
+    private static InputStream toClose;
 
     //========================================== ENTRY / EXIT
 
@@ -234,14 +236,29 @@ public class Main {
 
     static final String para = "\\~";//quirk of the shell
 
-    public static Multex readReader(InputStream in) {
+    public static Multex readReader(InputStream input, String alternate) {
+        BufferedReader b = null;
         try {
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(in));
+            if(input != toClose && input != null) {
+                //yes a different stream
+                br.close();
+                br = null;
+            }
+            if(br == null && input != null) {
+                br = new BufferedReader(new InputStreamReader(input));//open on demand
+                toClose = input;
+            }
+            b = br;
+            if(alternate != null) {
+                b = new BufferedReader(new InputStreamReader(
+                        new ByteArrayInputStream((in + "\n").getBytes())));//alternate text
+            }
             boolean quote = false;
             int j = 0;
-            String l = br.readLine();
+            String l = b == null? "" : b.readLine();//blanks
             l = l.replace("\\\"", para);
+            l = l.replace("\n", " ");
+            l = l.replace("\t", " ");
             String[] args = l.split(l);
             for(int i = 0; i < args.length; i++) {
                 if(!quote) {
@@ -270,15 +287,17 @@ public class Main {
             intern(args);//pointers??
             return new Multex(args);
         } catch (Exception e) {
-            setError(ERR_IO, in);//Input
+            setError(ERR_IO, b);//Input
             return new Multex(new String[0]);//blank
         }
     }
 
-    public static Multex readString(String in) {
-        in = in.replace("\n", " ");
-        in = in.replace("\t", " ");
-        return readReader(new ByteArrayInputStream((in + "\n").getBytes()));
+    public static Multex readString(String s) {
+        return readReader(null, s);
+    }
+
+    public static Multex readInput() {
+        return readReader(in, null);
     }
 
     //================================================== STRING UTIL
@@ -672,17 +691,20 @@ public class Main {
         }
     }
 
-    public static void setIO(InputStream i, PrintStream o) {
-        setIO(i, o, o);
+    //=========================================== ADAPTION UTILS
+
+    public static Class<Main> setIO(InputStream i, PrintStream o) {
+        return setIO(i, o, o);
     }
 
-    public static void setIO(InputStream i, PrintStream o, PrintStream e) {
+    public static Class<Main> setIO(InputStream i, PrintStream o, PrintStream e) {
         in = i;
         out = o;
         err = e;
+        return Main.class;
     }
 
-    public static void setHTML() {
+    public static Class<Main> setHTML() {
         html = true;
         for(String i: reflect) {
             Class<?> c = Main.class;
@@ -693,5 +715,6 @@ public class Main {
                 err.println("Can't set color field");
             }
         }
+        return Main.class;
     }
 }
