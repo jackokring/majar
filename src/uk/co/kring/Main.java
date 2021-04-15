@@ -33,7 +33,7 @@ public class Main {
     public static synchronized void main(String[] args) {
         try {
             if(html) {
-                print("<span>");
+                print("<span class=\"majar\"><span>");
             }
             clearErrors();
             intern(args);//first
@@ -47,7 +47,7 @@ public class Main {
         printErrorSummary();
         err.flush();
         if(html) {
-            print("</span>");
+            print("</span></span>");
             out.flush();
         } else {
             System.exit(first);//a nice ...
