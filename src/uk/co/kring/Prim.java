@@ -6,7 +6,7 @@ package uk.co.kring;
  */
 public abstract class Prim extends Symbol {
 
-    void run(Main m) {
+    protected void run(Main m) {
         def(m);
     }
 
