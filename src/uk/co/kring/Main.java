@@ -808,7 +808,7 @@ public class Main {
             params.remove(i);
             if(strings != null) {
                 for(int j = 0; j < strings.length; j++) {
-                    strings[j] = escapeQuote(strings[j]);
+                    strings[j] = escapeQuote(strings[j]).intern();//entry point used later cost analysis
                 }
                 m.put(k, strings);
             }
