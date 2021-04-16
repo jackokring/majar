@@ -9,7 +9,7 @@ public class Main {
 
     private static final HashMap<Thread, Main> threads = new HashMap<>();
 
-    static Main make() {//multi threading maker
+    static synchronized Main make() {//multi threading maker
         Main t = threads.get(Thread.currentThread());
         if(t != null) {
             return t;
@@ -19,31 +19,32 @@ public class Main {
         return t;
     }
 
-    private static int errorExit, last, first;//primary error code
+    private int errorExit, last, first;//primary error code
 
-    static Stack<Multex> ret = new PStack<>();
-    static Stack<Multex> dat = new PStack<>();
+    Stack<Multex> ret = new PStack<>();
+    Stack<Multex> dat = new PStack<>();
 
-    static HashMap<String, List<Symbol>> dict =
+    HashMap<String, List<Symbol>> dict =
             new HashMap<>();
-    final static Book bible = new Bible();
-    private static Book context = bible;
-    private static Book current = context;
+    final Book bible = new Bible();
+    private Book context = bible;
+    private Book current = context;
 
-    private static boolean fast = false;
-    private static boolean html = false;
+    private boolean fast = false;
+    private boolean html = false;
 
-    private static InputStream in = System.in;
-    private static PrintStream out = System.out;
-    private static PrintStream err = System.err;
-    private static PrintStream put = out;
-    private static BufferedReader br;
-    private static InputStream toClose;
+    private InputStream in = System.in;
+    private PrintStream out = System.out;
+    private PrintStream err = System.err;
+    private PrintStream put = out;
+    private BufferedReader br;
+    private InputStream toClose;
 
     //========================================== ENTRY / EXIT
 
     public static synchronized void main(String[] args) {
         try {
+            Main m = make();
             if(html) {
                 print("<span class=\"majar\"><span>");
             }
