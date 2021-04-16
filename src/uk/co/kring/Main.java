@@ -71,6 +71,12 @@ public class Main {
         }
     }
 
+    public static int run(String s) {//per thread running from text
+        Main m = newMain();
+        main(m.readString(s).basis);
+        return m.first;
+    }
+
     //========================================== USER ABORT
 
     void userAbort() {
