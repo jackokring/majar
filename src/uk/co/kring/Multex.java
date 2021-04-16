@@ -6,7 +6,7 @@ package uk.co.kring;
 public class Multex {
 
     protected void run(Main m) {
-        Symbol s = m.find(firstString(), executeIn);
+        Symbol s = m.find(firstString(), executeIn, true);
         if(s != null) {
             if(!m.runningFast()) {
                 m.printSymbolName(s);

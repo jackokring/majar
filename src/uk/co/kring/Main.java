@@ -80,7 +80,7 @@ public class Main {
 
     /**
      * The run method to interpret a string.
-     * @param s
+     * @param s the string to run.
      * @return the error code. The setHTML() method must be used to prevent a system exit.
      */
     public static int run(String s) {//per thread running from text
@@ -149,15 +149,13 @@ public class Main {
         s.executeIn = context;//keep context
         s.in.basis = Arrays.copyOf(s.in.basis, s.in.basis.length + 1);
         s.in.basis[s.in.basis.length - 1] = s.named;
-        if(s != current) {
+        if(s != bible) {
             s.in = current;
         } else {//bible ...
-            s.in = null;
+            s.in = null;//or kill context
         }
         if(s instanceof Book) {
-            context = (Book)s;//make context
             s.executeIn = null;//clear recent cache
-            s.in.executeIn = (Book)s;//set containing book as last used in
         }
         ls.add(s);//new
     }
@@ -194,6 +192,9 @@ public class Main {
         for(String i: b.basis) {
             unReg(find(i), b);
         }
+        if(b.in.executeIn == b) {
+            b.in.executeIn = null;
+        }
         b.in = null;//hide context chain for future
         if(b == current) {
             setError(ERR_CUR_DEL, b);
@@ -209,7 +210,7 @@ public class Main {
         return find(t, true);//default
     }
 
-    Symbol find(String t, Book b) {
+    Symbol find(String t, Book b, boolean error) {
         Book c = switchContext(b);
         Symbol s = find(t, true);//default
         switchContext(c);//restore
@@ -257,7 +258,7 @@ public class Main {
         } catch(Exception e) {
             //lazy mode
             if(context.executeIn != null) {//try recent used books
-                return find(t, context.executeIn);
+                return find(t, context.executeIn, error);
             } else {
                 if (error) setError(Main.ERR_FIND, t);
                 return null;
@@ -478,7 +479,7 @@ public class Main {
         "No! You can't alter the bible in that way. Consider forking and editing the Java Bible class build method",     //10
         "Quoted string formatted bad. Do not use \" in the middle of words and leave spaces",   //11
         "Symbol with no name. A symbol must have a name to write it into a book",   //12
-        "Overwritten book. All the words in it are now gone ",  //13
+        "Overwritten book. All the words in it are now gone",  //13
         "Partial context deleted. Some books in the context chain no longer exist",  //14
         "Current book deleted. Current book set to the bible",  //15
         "Multiple books deleted. A large deletion of books happened",  //16
@@ -835,7 +836,7 @@ public class Main {
      * Used to get the input stream associated with a gotten writer stream.
      * @param p the writer.
      * @return the input stream.
-     * @throws IOException
+     * @throws IOException stream error.
      */
     public static InputStream ReadWriter(PrintWriter p) throws IOException {
         if(p instanceof ThreadPipeWriter) {
@@ -855,7 +856,7 @@ public class Main {
      * @param i input stream.
      * @param o output stream.
      * @return true if the input stream was not at the end.
-     * @throws IOException
+     * @throws IOException stream error.
      */
     public static boolean copyInputToOutput(InputStream i, OutputStream o) throws IOException {
         int t = -1;//end?
@@ -956,7 +957,7 @@ public class Main {
     public static Class<Main> makeSafe(String safeName, Map<String, String[]> params) {
         Main m = getMain();
         Safe s = new Safe(safeName.intern());//safes do not evaluate or execute anything inside
-        m.reg(s, m.current);
+        m.reg(s, m.context);
         for(String i: params.keySet()) {//serves you right if you did not clean parameters as no intern()
             Symbol key = new Symbol(i, params.get(i));
             m.reg(key, s);//register keys in safe

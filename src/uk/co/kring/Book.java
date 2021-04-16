@@ -11,5 +11,6 @@ public class Book extends Symbol {
 
     protected void run(Main m) {
         m.current = this;
+        this.in.executeIn = this;//cache
     }
 }
