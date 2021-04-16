@@ -5,11 +5,14 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The main interpreter class with utilities for use.
+ */
 public class Main {
 
     private static final HashMap<Thread, Main> threads = new HashMap<>();
 
-    public static synchronized Main getMain() {//multi threading maker
+    static synchronized Main getMain() {//multi threading maker
         Main t = threads.get(Thread.currentThread());
         if(t == null) {
             t = newMain();
@@ -46,6 +49,10 @@ public class Main {
 
     //========================================== ENTRY / EXIT
 
+    /**
+     * The main entry point for the majar interpreter.
+     * @param args command arguments.
+     */
     public static void main(String[] args) {
         Main m = getMain();
         try {
@@ -71,6 +78,11 @@ public class Main {
         }
     }
 
+    /**
+     * The run method to interpret a string.
+     * @param s
+     * @return the error code. The setHTML() method must be used to prevent a system exit.
+     */
     public static int run(String s) {//per thread running from text
         Main m = newMain();
         main(m.readString(s).basis);
@@ -325,24 +337,43 @@ public class Main {
 
     //================================================== STRING UTIL
 
+    /**
+     * Internalize a sString[] so that the == operator works as a fast comparison.
+     * @param s array to internalize.
+     */
     public static void intern(String[] s) {
         for(int i = 0; i < s.length; i++) {
             s[i] = s[i].intern();//pointers??
         }
     }
 
+    /**
+     * Add escapes to a string to be compliant HTML.
+     * @param s a string to escape.
+     * @return escaped sting.
+     */
     public static String escapeHTML(String s) {
         return s.codePoints().mapToObj(c -> c > 127 || "\"'<>&".indexOf(c) != -1 ?
                 "&#" + c + ";" : new String(Character.toChars(c)))
                 .collect(Collectors.joining());
     }
 
+    /**
+     * Add escapes of quote marks to a string.
+     * @param s a string to escape.
+     * @return escaped sting.
+     */
     public static String escapeQuote(String s) {
         return s.codePoints().mapToObj(c -> c < 128 && "\"'".indexOf(c) != -1 ?
                 "\\" + c : new String(Character.toChars(c)))
                 .collect(Collectors.joining());
     }
 
+    /**
+     * Convert a string to a 1 element string array.
+     * @param s string to use.
+     * @return one element string array.
+     */
     public static String[] singleton(String s) {
         String[] sa = new String[1];
         sa[0] = s.intern();
@@ -394,6 +425,11 @@ public class Main {
         sm.push(t);
     }
 
+    /**
+     * Join together a string array applying quotes as though the output can be used by the command line.
+     * @param s string array.
+     * @return joined string.
+     */
     public static String join(String[] s) {
         StringBuilder t = new StringBuilder();
         boolean f = false;
@@ -429,6 +465,9 @@ public class Main {
 
     //================================================== ERRORS
 
+    /**
+     * The error messages of the interpreter.
+     */
     public static final String[] errorFact = {
         "Input or output problem. Was the process interrupted? OK",           //0
         "Stack underflow. Not enough data was provided to some word", //1
@@ -469,6 +508,9 @@ public class Main {
     //16;
     public static final int ERR_CON_BAD = 17;
 
+    /**
+     * The error code primes for indexing.
+     */
     public static final int[] errorCode = {//by lines of 4
         2, 3, 5, 7,                     //0
         11, 13, 17, 19,                 //4
@@ -720,12 +762,37 @@ public class Main {
         }
     }
 
+    /**
+     * A print utility to unquote unescape and then possibly HTML escape before printing.
+     * @param s the string to print.
+     * @return the main class to chain methods.
+     */
+    public static Main exjectPrint(String s) {
+        Main m = getMain();
+        m.printLiteral(s.replace("\\\"", "\"").
+                replace("\\'", "'"));//better store a few more bytes and exject!
+        return m;
+    }
+
     //=========================================== ADAPTION UTILS
 
+    /**
+     * Set the input and output streams on the main class before calling the main.
+     * @param i input stream.
+     * @param o output stream.
+     * @return the main class to chain methods.
+     */
     public static Class<Main> setIO(InputStream i, PrintStream o) {
         return setIO(i, o, o);
     }
 
+    /**
+     * Set the input and output streams on the main class before calling the main.
+     * @param i input stream.
+     * @param o output stream.
+     * @param e output error stream.
+     * @return the main class to chain methods.
+     */
     public static Class<Main> setIO(InputStream i, PrintStream o, PrintStream e) {
         Main m = getMain();
         m.in = i;
@@ -756,6 +823,11 @@ public class Main {
         }
     }
 
+    /**
+     * Used to get a stream to use as output which can then later be connected to an input.
+     * @param threaded is the connection between threads?
+     * @return the output writer.
+     */
     public static PrintWriter getWriter(boolean threaded) {
         if(threaded) {
             return new ThreadPipeWriter(new PipedOutputStream());
@@ -763,7 +835,13 @@ public class Main {
         return new PipeWriter(new ByteArrayOutputStream());
     }
 
-    public static InputStream collapseWriter(PrintWriter p) throws IOException {
+    /**
+     * Used to get the input stream associated with a gotten writer stream.
+     * @param p the writer.
+     * @return the input stream.
+     * @throws IOException
+     */
+    public static InputStream ReadWriter(PrintWriter p) throws IOException {
         if(p instanceof ThreadPipeWriter) {
             if(((ThreadPipeWriter)p).m == getMain()) {
                 throw new IOException("On same thread:" + p.toString());
@@ -776,6 +854,13 @@ public class Main {
         throw new IOException("Can't collapse: " + p.toString());
     }
 
+    /**
+     * A Utility to copy an input stream to an output stream.
+     * @param i input stream.
+     * @param o output stream.
+     * @return true if the input stream was not at the end.
+     * @throws IOException
+     */
     public static boolean copyInputToOutput(InputStream i, OutputStream o) throws IOException {
         int t = -1;//end?
         while(i.available() > 0) {
@@ -784,6 +869,11 @@ public class Main {
         return t != -1;//more
     }
 
+    /**
+     * Sets HTML mode. This uses tags for styling, and also prevents a system exit. This allows the
+     * code to be used for websites so as to not exit the web server process.
+     * @return the main class to chain methods.
+     */
     public static Class<Main> setHTML() {
         Main m = getMain();
         m.html = true;
@@ -799,43 +889,65 @@ public class Main {
         return Main.class;
     }
 
-    public static void clobberInjection(Map<String, String[]> params, String[] stringsIn) {
+    /**
+     * A utility escape quotes in named strings and sanitize numbers. All unnamed strings or numbers
+     * are deleted from the parameter map. Useful for handling servlet requests. Strings override numbers.
+     * Exact BCD financial numbers can possibly generate some imprecise double precision numbers.
+     * @param params the parameter map.
+     * @param stringsIn the keys that strings are in.
+     * @param numbersIn the keys that numbers are in.
+     * @return the main class to chain methods.
+     */
+    public static Class<Main> clobberInjection(Map<String, String[]> params,
+                                               String[] stringsIn, String[] numbersIn) {
         HashMap<String, String[]> m = new HashMap<>();
         if(stringsIn != null) for(String i: stringsIn) {
             //must be an allow not a deny policy to catch programmer desires and proof code
             String k = i.intern();
             String[] strings = params.get(i);
-            params.remove(i);
+            params.remove(i);//got first
             if(strings != null) {
                 for(int j = 0; j < strings.length; j++) {
                     strings[j] = escapeQuote(strings[j]).intern();//entry point used later cost analysis
                 }
-                m.put(k, strings);
+                m.put(k, strings);//interned escaped strings
             }
         }
-        for(String i: params.keySet()) {
+        if(numbersIn != null) for(String i: numbersIn) {
             //as numbers may not be quoted in concatenations
             //use of a string surround to do the number conversion is language specific
             //better to cast here
+            String k = i.intern();
             String[] strings = params.get(i);
-            if(strings != null) for(int j = 0; j < strings.length; j++) {
-                long num;
-                try {
-                    num = Long.parseLong(strings[j]);
-                } catch(Exception e) {
-                    num = -1;
+            params.remove(i);//got last
+            if(strings != null) {
+                for(int j = 0; j < strings.length; j++) {
+                    if(strings[j].contains(".")) {
+                        double num;
+                        try {
+                            num = Double.parseDouble(strings[j]);
+                        } catch (Exception e) {
+                            num = Double.NaN;//might get floating point? Financials 2dp?
+                            //consider fixed point rounding integers for financials.
+                        }
+                        strings[j] = Double.toString(num);
+                    } else {
+                        long num;
+                        try {
+                            num = Long.parseLong(strings[j]);
+                        } catch (Exception e) {
+                            num = -1;
+                        }
+                        strings[j] = Long.toString(num);
+                    }
                 }
-                strings[j] = Long.toString(num);
+                m.put(k, strings);//interned (any) numbers are likely to not be symbol names
             }
         }
+        params.clear();//empty the unrequested bad
         for(String i: m.keySet()) {
-            params.put(i, m.get(i));//and replace strings
+            params.put(i, m.get(i));//and (re)place strings
         }
-    }
-
-    public static void exjectPrint(String s) {
-        Main m = getMain();
-        m.printLiteral(s.replace("\\\"", "\"").
-                replace("\\'", "'"));//better store a few more bytes and exject!
+        return Main.class;
     }
 }
