@@ -7,17 +7,16 @@ import java.util.stream.Collectors;
 
 public class Main {
 
-    private static final HashMap<Long, Main> threads = new HashMap<>();
+    private static final HashMap<Thread, Main> threads = new HashMap<>();
 
     public static synchronized Main getMain() {//multi threading maker
-        Main t = threads.get(Thread.currentThread().getId());
-        if(t != null) {
-            return t;
-        }
-        System.out.println(String.valueOf(Thread.currentThread().getId()));
-        t = new Main();
-        threads.put(Thread.currentThread().getId(), t);
+        Main t = threads.get(Thread.currentThread());
         return t;
+    }
+
+    public static synchronized void newMain() {
+        Main t = new Main();
+        threads.put(Thread.currentThread(), t);
     }
 
     private int errorExit, last, first;//primary error code
@@ -44,6 +43,7 @@ public class Main {
     //========================================== ENTRY / EXIT
 
     public static void main(String[] args) {
+        newMain();
         Main m = getMain();
         try {
             if(m.html) {
@@ -66,11 +66,6 @@ public class Main {
         } else {
             System.exit(m.first);//a nice ... exit on first finished thread?
         }
-    }
-
-    public static void main(String s) {
-        Main m = getMain();
-        main(m.readString(s).basis);//a go go
     }
 
     //========================================== USER ABORT
