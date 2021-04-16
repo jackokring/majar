@@ -22,6 +22,6 @@ public class Majar extends Prim {
 
         //12. Job Control
         //===============
-        
+
     }
 }
