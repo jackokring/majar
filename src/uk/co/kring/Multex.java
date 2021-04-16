@@ -1,16 +1,16 @@
 package uk.co.kring;
 
-public class Multex implements Runnable {
+public class Multex {
 
-    public void run() {
-        Symbol m = Main.find(firstString(), executeIn);
-        if(m != null) {
-            if(!Main.runningFast()) {
-                Main.printSymbolName(m);
-                Main.profile(m);
+    public void run(Main m) {
+        Symbol s = m.find(firstString(), executeIn);
+        if(s != null) {
+            if(!m.runningFast()) {
+                m.printSymbolName(s);
+                m.profile(s);
             }
-            Main.execute(new Multex(m));//Threading ...
-            m.idx++;//Simple profiling
+            m.execute(new Multex(s), m);//Threading ...
+            s.idx++;//Simple profiling
         }
     }
 

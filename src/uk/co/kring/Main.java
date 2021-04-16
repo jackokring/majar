@@ -51,7 +51,7 @@ public class Main {
             m.clearErrors();
             intern(args);//first
             m.reg(m.current);
-            m.execute(new Multex(args));
+            m.execute(new Multex(args), m);
         } catch(RuntimeException e) {
             if(!m.ret.empty()) {
                 m.stackTrace(m.ret);//destructive print
@@ -115,11 +115,11 @@ public class Main {
         current = b;
     }
 
-    void execute(Multex s) {
+    void execute(Multex s, Main m) {
         ret.push(s);
         while(!s.ended()) {
             if(s.firstString() == null) return;//no fail null
-            s.run();
+            s.run(m);
             s.shift();
             if(errOver()) break;//prime errors
         }

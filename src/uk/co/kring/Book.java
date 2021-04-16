@@ -6,7 +6,7 @@ public class Book extends Symbol {
         super(name, new String[0]);//empty to start
     }
 
-    public void run() {
-        Main.setCurrent(this);
+    public void run(Main m) {
+        m.setCurrent(this);
     }
 }
