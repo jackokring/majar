@@ -11,13 +11,13 @@ public class Safe extends Book {
     }
 
     protected void run(Main m) {
-        m.setCurrent(this);
+        m.current = this;
         Multex s = m.find(m.literal());
         if(s == null) {
             //no value stack balance
             m.dat.push(new Multex(new String[0]));//blank
         }
         m.dat.push(new Multex(s.basis));//place the recalled value
-        m.setCurrent(this.in);
+        m.current = in;
     }
 }

@@ -10,6 +10,6 @@ public class Book extends Symbol {
     }
 
     protected void run(Main m) {
-        m.setCurrent(this);
+        m.current = this;
     }
 }

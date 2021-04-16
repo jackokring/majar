@@ -28,14 +28,14 @@ public class Main {
 
     private int errorExit, last, first;//primary error code
 
-    Stack<Multex> ret = new ProtectedStack<>();
-    Stack<Multex> dat = new ProtectedStack<>();
+    protected Stack<Multex> ret = new ProtectedStack<>();
+    protected Stack<Multex> dat = new ProtectedStack<>();
 
-    HashMap<String, List<Symbol>> dict =
+    protected HashMap<String, List<Symbol>> dict =
             new HashMap<>();
     final Book bible = new Bible();
-    private Book context = bible;
-    private Book current = context;
+    protected Book context = bible;
+    protected Book current = context;
 
     private boolean fast = false;
     private boolean html = false;
@@ -122,14 +122,6 @@ public class Main {
         Book c = context;
         context = b;
         return c;
-    }
-
-    Book getCurrent() {
-        return current;
-    }
-
-    void setCurrent(Book b) {
-        current = b;
     }
 
     void execute(Multex s, Main m) {
@@ -951,6 +943,23 @@ public class Main {
         params.clear();//empty the unrequested bad
         for(String i: m.keySet()) {
             params.put(i, m.get(i));//and (re)place strings
+        }
+        return Main.class;
+    }
+
+    /**
+     * Make a safe storage of a map in the interpreter.
+     * @param safeName name of the safe to make in the context book (not the programmatic current book).
+     * @param params the parameter map.
+     * @return the main class to chain methods.
+     */
+    public static Class<Main> makeSafe(String safeName, Map<String, String[]> params) {
+        Main m = getMain();
+        Safe s = new Safe(safeName.intern());//safes do not evaluate or execute anything inside
+        m.reg(s, m.current);
+        for(String i: params.keySet()) {//serves you right if you did not clean parameters as no intern()
+            Symbol key = new Symbol(i, params.get(i));
+            m.reg(key, s);//register keys in safe
         }
         return Main.class;
     }
