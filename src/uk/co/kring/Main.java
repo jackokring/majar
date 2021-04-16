@@ -14,7 +14,7 @@ public class Main {
         if(t != null) {
             return t;
         }
-        t = new Main();
+        //t = new Main();
         threads.put(Thread.currentThread(), t);
         return t;
     }
@@ -796,7 +796,7 @@ public class Main {
 
     public static void clobberInjection(Map<String, String[]> params, String[] stringsIn) {
         HashMap<String, String[]> m = new HashMap<>();
-        for(String i: stringsIn) {
+        if(stringsIn != null) for(String i: stringsIn) {
             //must be an allow not a deny policy to catch programmer desires and proof code
             String[] strings = params.get(i);
             if(strings != null) {

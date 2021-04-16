@@ -10,14 +10,14 @@ public class PStack<T> extends Stack<T> {
             return super.push(t);
         } catch(OutOfMemoryError e) {
             System.gc();
-            Main.setError(Main.ERR_OVER, this);
+            Main.getMain().setError(Main.ERR_OVER, this);
             return t;
         }
     }
 
     @Override
     public synchronized T pop() {
-        if(empty()) Main.setError(Main.ERR_UNDER, this);
+        if(empty()) Main.getMain().setError(Main.ERR_UNDER, this);
         return super.pop();
     }
 }
