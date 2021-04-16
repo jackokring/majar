@@ -1,5 +1,8 @@
 package uk.co.kring;
 
+/**
+ * A named multex to store in books.
+ */
 public class Symbol extends Multex {
 
     String named;

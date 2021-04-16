@@ -1,5 +1,8 @@
 package uk.co.kring;
 
+/**
+ * A class to contain an array of strings with some connection to an execution efficiency concept.
+ */
 public class Multex {
 
     void run(Main m) {
@@ -26,6 +29,7 @@ public class Multex {
     public Multex(Multex m) {//new idx
         this(m.basis);
         idx = 0;//duplicate work? no error
+        executeIn = m.executeIn;
     }
 
     public String firstString() {

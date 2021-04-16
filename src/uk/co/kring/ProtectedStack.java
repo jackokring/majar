@@ -2,7 +2,11 @@ package uk.co.kring;
 
 import java.util.Stack;
 
-public class PStack<T> extends Stack<T> {
+/**
+ * An error checked stack for the interpreter.
+ * @param <T> the stack unit element kind.
+ */
+public class ProtectedStack<T> extends Stack<T> {
 
     @Override
     public T push(T t) {

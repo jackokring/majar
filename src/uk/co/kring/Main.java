@@ -28,8 +28,8 @@ public class Main {
 
     private int errorExit, last, first;//primary error code
 
-    Stack<Multex> ret = new PStack<>();
-    Stack<Multex> dat = new PStack<>();
+    Stack<Multex> ret = new ProtectedStack<>();
+    Stack<Multex> dat = new ProtectedStack<>();
 
     HashMap<String, List<Symbol>> dict =
             new HashMap<>();
@@ -157,7 +157,11 @@ public class Main {
         s.executeIn = context;//keep context
         s.in.basis = Arrays.copyOf(s.in.basis, s.in.basis.length + 1);
         s.in.basis[s.in.basis.length - 1] = s.named;
-        s.in = current;
+        if(s != current) {
+            s.in = current;
+        } else {//bible ...
+            s.in = null;
+        }
         if(s instanceof Book) {
             context = (Book)s;//make context
             s.executeIn = null;//clear recent cache
@@ -898,7 +902,7 @@ public class Main {
      * @param numbersIn the keys that numbers are in.
      * @return the main class to chain methods.
      */
-    public static Class<Main> clobberInjection(Map<String, String[]> params,
+    public static Class<Main> cleanParameters(Map<String, String[]> params,
                                                String[] stringsIn, String[] numbersIn) {
         HashMap<String, String[]> m = new HashMap<>();
         if(stringsIn != null) for(String i: stringsIn) {
