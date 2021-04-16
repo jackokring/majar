@@ -832,4 +832,10 @@ public class Main {
             params.put(i, m.get(i));//and replace strings
         }
     }
+
+    public static void exjectPrint(String s) {
+        Main m = getMain();
+        m.printLiteral(s.replace("\\\"", "\"").
+                replace("\\'", "'"));//better store a few more bytes and exject!
+    }
 }
