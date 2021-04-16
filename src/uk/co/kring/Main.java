@@ -9,7 +9,7 @@ public class Main {
 
     private static final HashMap<Thread, Main> threads = new HashMap<>();
 
-    static synchronized Main make() {//multi threading maker
+    public static synchronized Main getMain() {//multi threading maker
         Main t = threads.get(Thread.currentThread());
         if(t != null) {
             return t;
@@ -42,42 +42,43 @@ public class Main {
 
     //========================================== ENTRY / EXIT
 
-    public static synchronized void main(String[] args) {
+    public static void main(String[] args) {
+        Main m = getMain();
         try {
-            Main m = make();
-            if(html) {
-                print("<span class=\"majar\"><span>");
+            if(m.html) {
+                m.print("<span class=\"majar\"><span>");
             }
-            clearErrors();
+            m.clearErrors();
             intern(args);//first
-            reg(current);
-            execute(new Multex(args));
+            m.reg(m.current);
+            m.execute(new Multex(args));
         } catch(RuntimeException e) {
-            if(!ret.empty()) {
-                stackTrace(ret);//destructive print
+            if(!m.ret.empty()) {
+                m.stackTrace(m.ret);//destructive print
             }
         }
-        printErrorSummary();
-        err.flush();
-        if(html) {
-            print("</span></span>");
-            out.flush();
+        m.printErrorSummary();
+        m.err.flush();
+        if(m.html) {
+            m.print("</span></span>");
+            m.out.flush();
         } else {
-            System.exit(first);//a nice ...
+            System.exit(m.first);//a nice ... exit on first finished thread?
         }
     }
 
-    public static synchronized void main(String s) {
-        main(readString(s).basis);//a go go
+    public static void main(String s) {
+        Main m = getMain();
+        main(m.readString(s).basis);//a go go
     }
 
     //========================================== USER ABORT
 
-    static void userAbort() {
+    void userAbort() {
         userAbort(false);
     }
 
-    static void userAbort(boolean a) {
+    void userAbort(boolean a) {
         print(ANSI_WARN + "User aborted process.");
         println();
         first = a?0:1;//bash polarity
@@ -90,11 +91,11 @@ public class Main {
 
     //========================================== INTERPRETER
 
-    static boolean runningFast() {
+    boolean runningFast() {
         return fast;
     }
 
-    private static Book switchContext(Book b) {
+    private Book switchContext(Book b) {
         if(b.in == null) {
             if(!(b instanceof Bible)) {
                 setError(ERR_CON_BAD, b);
@@ -106,15 +107,15 @@ public class Main {
         return c;
     }
 
-    static Book getCurrent() {
+    Book getCurrent() {
         return current;
     }
 
-    static void setCurrent(Book b) {
+    void setCurrent(Book b) {
         current = b;
     }
 
-    static void execute(Multex s) {
+    void execute(Multex s) {
         ret.push(s);
         while(!s.ended()) {
             if(s.firstString() == null) return;//no fail null
@@ -125,15 +126,15 @@ public class Main {
         ret.pop();
     }
 
-    static void profile(Symbol s) {
+    void profile(Symbol s) {
         //TODO
     }
 
-    static void reg(Symbol s) {
+    void reg(Symbol s) {
         reg(s, current);
     }
 
-    static void reg(Symbol s, Book current) {
+    void reg(Symbol s, Book current) {
         List<Symbol> ls = unReg(s, current);
         if(ls == null) return;
         s.executeIn = context;//keep context
@@ -148,7 +149,7 @@ public class Main {
         ls.add(s);//new
     }
 
-    static List<Symbol> unReg(Symbol s, Book current) {
+    List<Symbol> unReg(Symbol s, Book current) {
         if(s.named == null) {
             setError(ERR_NAME, s);
             return null;
@@ -175,7 +176,7 @@ public class Main {
         return ls;
     }
 
-    static void deleteBook(Book b) {
+    void deleteBook(Book b) {
         setError(ERR_BOOK, b);
         for(String i: b.basis) {
             unReg(find(i), b);
@@ -191,18 +192,18 @@ public class Main {
         }
     }
 
-    static Symbol find(String t) {
+    Symbol find(String t) {
         return find(t, true);//default
     }
 
-    static Symbol find(String t, Book b) {
+    Symbol find(String t, Book b) {
         Book c = switchContext(b);
         Symbol s = find(t, true);//default
         switchContext(c);//restore
         return s;
     }
 
-    static Symbol find(String t, boolean error) {
+    Symbol find(String t, boolean error) {
         List<Symbol> s = dict.get(t);
         Book c;
         if(s != null) {
@@ -215,7 +216,7 @@ public class Main {
                 }
                 c = c.in;//next higher context
             } while(c != null);
-            if(error) Main.setError(Main.ERR_CONTEXT, context);
+            if(error) setError(Main.ERR_CONTEXT, context);
         }
         //class loading bootstrap of Class named as method camelCase
         String p = t.substring(0, 1).toUpperCase(Locale.ROOT) + t.substring(1);//make run method!!
@@ -237,7 +238,7 @@ public class Main {
                 if(!fast) printSymbolName((Symbol)instance);
                 return (Symbol)instance;
             } else {
-                if(error) Main.setError(Main.ERR_PLUG, instance);//class always report bad Java?
+                if(error) setError(Main.ERR_PLUG, instance);//class always report bad Java?
                 return null;
             }
         } catch(Exception e) {
@@ -245,7 +246,7 @@ public class Main {
             if(context.executeIn != null) {//try recent used books
                 return find(t, context.executeIn);
             } else {
-                if (error) Main.setError(Main.ERR_FIND, t);
+                if (error) setError(Main.ERR_FIND, t);
                 return null;
             }
         }
@@ -253,7 +254,7 @@ public class Main {
 
     static final String para = "\\~";//quirk of the shell
 
-    static Multex readReader(InputStream input, String alternate) {
+    Multex readReader(InputStream input, String alternate) {
         BufferedReader b = null;
         try {
             if(input != toClose && input != null) {
@@ -309,11 +310,11 @@ public class Main {
         }
     }
 
-    static Multex readString(String s) {
+    Multex readString(String s) {
         return readReader(null, s);
     }
 
-    static Multex readInput() {
+    Multex readInput() {
         return readReader(in, null);
     }
 
@@ -337,7 +338,7 @@ public class Main {
         return sa;
     }
 
-    static String dollar(String s) {
+    String dollar(String s) {
         s = s.replace("\\$", para);
         int i;
         while((i = s.indexOf("$")) != -1) {
@@ -360,7 +361,7 @@ public class Main {
         return s;
     }
 
-    static String literal() {
+    String literal() {
         String s = topMost(ret, true);
         if(!fast) {
             printSymbolized(s);
@@ -406,7 +407,7 @@ public class Main {
 
     //========================================== CMD UTIL
 
-    static void silentExec(Multex s) {
+    void silentExec(Multex s) {
         try {
             int x = Runtime.getRuntime().exec(join(s.basis)).waitFor();
             if(x != 0) setError(ERR_PROCESS, s);
@@ -475,13 +476,13 @@ public class Main {
         43 * 59, 16, //terminal response to multiple books
     };
 
-    static void clearErrors() {
+    void clearErrors() {
         errorExit = 1;
         last = -1;
         first = 0;
     }
 
-    static void setError(int t, Object o) {
+    void setError(int t, Object o) {
         String s;
         long e = errorExit;
         if(first < 1) first = t;
@@ -492,7 +493,7 @@ public class Main {
         mapErrors(e * t);
     }
 
-    static String withinError(Object o) {
+    String withinError(Object o) {
         if(o instanceof String) return html?escapeHTML((String)o):(String)o;
         if(o instanceof Prim) return ANSI_PRIM + o.getClass().getName() +
                 "[" + withinError(((Symbol)o).named) + ANSI_PRIM + "]";
@@ -505,7 +506,7 @@ public class Main {
                 Integer.toHexString(o.hashCode()) + "]";
     }
 
-    static void mapErrors(long e) {
+    void mapErrors(long e) {
         for(int i = 0; i < errorComposites.length; i += 2) {
             if(e % errorComposites[i] == 0) {
                 e /= errorComposites[i];
@@ -517,14 +518,14 @@ public class Main {
         errorExit = (int)e;
     }
 
-    static boolean errOver() {
+    boolean errOver() {
         if(last < 0) return false;
         return ((long) errorExit << 2) > Integer.MAX_VALUE;
     }
 
     //========================================= PRINTING
 
-    private static void putError(boolean error) {
+    private void putError(boolean error) {
         if(error) {
             put = err;
             if(out != err) {
@@ -538,7 +539,7 @@ public class Main {
         }
     }
 
-    static void printErrorSummary() {
+    void printErrorSummary() {
         if(last != -1) {
             putError(true);
             println();
@@ -562,11 +563,11 @@ public class Main {
         last = -1;//errors flushed
     }
 
-    static void printProfile() {
+    void printProfile() {
         //TODO
     }
 
-    static void errorPlump(String prefix, int code, Object o) {
+    void errorPlump(String prefix, int code, Object o) {
         print(prefix);
         print("[" + errorCode[code] + "]");
         printLiteral(errorFact[code]);
@@ -579,7 +580,7 @@ public class Main {
         println();
     }
 
-    static void stackTrace(Stack<Multex> s) {
+    void stackTrace(Stack<Multex> s) {
         putError(true);
         println();
         while(!s.empty()) {
@@ -601,16 +602,16 @@ public class Main {
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
 
-    public static String ANSI_SYMBOL = ANSI_BLUE;
-    public static String ANSI_PRIM = ANSI_YELLOW;
-    public static String ANSI_CLASS = ANSI_PURPLE;
-    public static String ANSI_MULTEX = ANSI_GREEN;
-    public static String ANSI_BOOK = ANSI_CYAN;
-    public static String ANSI_LIT = ANSI_RED;
-    public static String ANSI_ERR = ANSI_RED;
-    public static String ANSI_WARN = ANSI_YELLOW;
+    public String ANSI_SYMBOL = ANSI_BLUE;
+    public String ANSI_PRIM = ANSI_YELLOW;
+    public String ANSI_CLASS = ANSI_PURPLE;
+    public String ANSI_MULTEX = ANSI_GREEN;
+    public String ANSI_BOOK = ANSI_CYAN;
+    public String ANSI_LIT = ANSI_RED;
+    public String ANSI_ERR = ANSI_RED;
+    public String ANSI_WARN = ANSI_YELLOW;
 
-    static String[] reflect = {
+    static final String[] reflect = {
         "SYMBOL",
         "PRIM",
         "CLASS",
@@ -621,12 +622,12 @@ public class Main {
         "WARN"
     };
 
-    private static void print(String s) {
+    private void print(String s) {
         if(s == null) return;
         put.print(s);
     }
 
-    static void printSymbolName(Symbol s) {
+    void printSymbolName(Symbol s) {
         if(s == null) return;
         String c = ANSI_SYMBOL;
         if(s instanceof Prim) c = ANSI_PRIM;
@@ -638,7 +639,7 @@ public class Main {
         }
     }
 
-    static void printContext() {
+    void printContext() {
         print("[");
         printSymbolName(current);
         print("] ");
@@ -657,7 +658,7 @@ public class Main {
         println();
     }
 
-    static void printSymbol(Symbol s) {
+    void printSymbol(Symbol s) {
         if(s == null) return;
         if(s instanceof Prim) printSymbolName(s);
         Book c = context;
@@ -676,7 +677,7 @@ public class Main {
         print(" ");
     }
 
-    static void list(Multex m) {
+    void list(Multex m) {
         println();
         if(m instanceof Symbol) {
             printSymbol((Symbol)m);
@@ -685,14 +686,14 @@ public class Main {
         }
     }
 
-    static void printSymbolized(String s) {
+    void printSymbolized(String s) {
         if(s == null) return;
         print(ANSI_LIT);
         printLiteral(join(singleton(s)));//Mutex entry form
         print(" ");
     }
 
-    static void printLiteral(String s) {
+    void printLiteral(String s) {
         if(html) {
             print(escapeHTML(s));
         } else {
@@ -700,7 +701,7 @@ public class Main {
         }
     }
 
-    private static void println() {
+    private void println() {
         if(html) {
             put.print("<br /></span><span>");//quick!!
         } else {
@@ -715,9 +716,10 @@ public class Main {
     }
 
     public static Class<Main> setIO(InputStream i, PrintStream o, PrintStream e) {
-        in = i;
-        out = o;
-        err = e;
+        Main m = getMain();
+        m.in = i;
+        m.out = o;
+        m.err = e;
         return Main.class;
     }
 
@@ -748,14 +750,15 @@ public class Main {
     }
 
     public static Class<Main> setHTML() {
-        html = true;
+        Main m = getMain();
+        m.html = true;
         for(String i: reflect) {
             Class<?> c = Main.class;
             try {
                 Field f = c.getField("ANSI_" + i);
                 f.set(c, "</span><span class=\"" + i + "\">");
             } catch (Exception e) {
-                err.println("Can't set color field");
+                m.err.println("Can't set color field");
             }
         }
         return Main.class;
