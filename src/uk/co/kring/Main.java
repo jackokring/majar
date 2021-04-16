@@ -11,12 +11,16 @@ public class Main {
 
     public static synchronized Main getMain() {//multi threading maker
         Main t = threads.get(Thread.currentThread());
+        if(t == null) {
+            t = newMain();
+        }
         return t;
     }
 
-    public static synchronized void newMain() {
+    static synchronized Main newMain() {
         Main t = new Main();
         threads.put(Thread.currentThread(), t);
+        return t;
     }
 
     private int errorExit, last, first;//primary error code
@@ -43,7 +47,6 @@ public class Main {
     //========================================== ENTRY / EXIT
 
     public static void main(String[] args) {
-        newMain();
         Main m = getMain();
         try {
             if(m.html) {
