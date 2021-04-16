@@ -7,6 +7,18 @@ import java.util.stream.Collectors;
 
 public class Main {
 
+    private static final HashMap<Thread, Main> threads = new HashMap<>();
+
+    static Main make() {//multi threading maker
+        Main t = threads.get(Thread.currentThread());
+        if(t != null) {
+            return t;
+        }
+        t = new Main();
+        threads.put(Thread.currentThread(), t);
+        return t;
+    }
+
     private static int errorExit, last, first;//primary error code
 
     static Stack<Multex> ret = new PStack<>();
