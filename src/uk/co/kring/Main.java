@@ -332,6 +332,12 @@ public class Main {
                 .collect(Collectors.joining());
     }
 
+    public static String escapeQuote(String s) {
+        return s.codePoints().mapToObj(c -> c < 128 && "\"'".indexOf(c) != -1 ?
+                "\\" + c : new String(Character.toChars(c)))
+                .collect(Collectors.joining());
+    }
+
     public static String[] singleton(String s) {
         String[] sa = new String[1];
         sa[0] = s.intern();
@@ -786,5 +792,37 @@ public class Main {
             }
         }
         return Main.class;
+    }
+
+    public static void clobberInjection(Map<String, String[]> params, String[] stringsIn) {
+        HashMap<String, String[]> m = new HashMap<>();
+        for(String i: stringsIn) {
+            //must be an allow not a deny policy to catch programmer desires and proof code
+            String[] strings = params.get(i);
+            if(strings != null) {
+                for(int j = 0; j < strings.length; j++) {
+                    strings[j] = escapeQuote(strings[j]);
+                }
+                m.put(i, strings);
+            }
+        }
+        for(String i: params.keySet()) {
+            //as numbers may not be quoted in concatenations
+            //use of a string surround to do the number conversion is language specific
+            //better to cast here
+            String[] strings = params.get(i);
+            if(strings != null) for(int j = 0; j < strings.length; j++) {
+                long num;
+                try {
+                    num = Long.parseLong(strings[j]);
+                } catch(Exception e) {
+                    num = -1;
+                }
+                strings[j] = Long.toString(num);
+            }
+        }
+        for(String i: m.keySet()) {
+            params.put(i, m.get(i));//and replace strings
+        }
     }
 }
