@@ -736,10 +736,12 @@ public class Main {
     static class ThreadPipeWriter extends PrintWriter {
 
         PipedOutputStream s;
+        Main m;
 
         public ThreadPipeWriter(PipedOutputStream b) {
             super(b);
             s = b;
+            m = getMain();
         }
     }
 
@@ -752,12 +754,15 @@ public class Main {
 
     public static InputStream collapseWriter(PrintWriter p) throws IOException {
         if(p instanceof ThreadPipeWriter) {
+            if(((ThreadPipeWriter)p).m == getMain()) {
+                throw new IOException("On same thread:" + p.toString());
+            }
             return new PipedInputStream(((ThreadPipeWriter)p).s);
         }
         if(p instanceof PipeWriter) {
             return new ByteArrayInputStream(((PipeWriter) p).s.toByteArray());
         }
-        throw new IOException(p.toString());
+        throw new IOException("Can't collapse: " + p.toString());
     }
 
     public static boolean copyInputToOutput(InputStream i, OutputStream o) throws IOException {
