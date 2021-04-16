@@ -7,15 +7,16 @@ import java.util.stream.Collectors;
 
 public class Main {
 
-    private static final HashMap<Thread, Main> threads = new HashMap<>();
+    private static final HashMap<Long, Main> threads = new HashMap<>();
 
     public static synchronized Main getMain() {//multi threading maker
-        Main t = threads.get(Thread.currentThread());
+        Main t = threads.get(Thread.currentThread().getId());
         if(t != null) {
             return t;
         }
-        //t = new Main();
-        threads.put(Thread.currentThread(), t);
+        System.out.println(String.valueOf(Thread.currentThread().getId()));
+        t = new Main();
+        threads.put(Thread.currentThread().getId(), t);
         return t;
     }
 
