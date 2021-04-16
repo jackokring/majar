@@ -804,6 +804,8 @@ public class Main {
         if(stringsIn != null) for(String i: stringsIn) {
             //must be an allow not a deny policy to catch programmer desires and proof code
             String[] strings = params.get(i);
+            params.remove(i);
+            i = i.intern();
             if(strings != null) {
                 for(int j = 0; j < strings.length; j++) {
                     strings[j] = escapeQuote(strings[j]);
