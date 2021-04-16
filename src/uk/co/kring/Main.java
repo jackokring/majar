@@ -803,9 +803,9 @@ public class Main {
         HashMap<String, String[]> m = new HashMap<>();
         if(stringsIn != null) for(String i: stringsIn) {
             //must be an allow not a deny policy to catch programmer desires and proof code
+            i = i.intern();
             String[] strings = params.get(i);
             params.remove(i);
-            i = i.intern();
             if(strings != null) {
                 for(int j = 0; j < strings.length; j++) {
                     strings[j] = escapeQuote(strings[j]);
