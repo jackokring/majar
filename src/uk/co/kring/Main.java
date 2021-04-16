@@ -733,12 +733,31 @@ public class Main {
         }
     }
 
-    public static PrintWriter getWriter() {
+    static class ThreadPipeWriter extends PrintWriter {
+
+        PipedOutputStream s;
+
+        public ThreadPipeWriter(PipedOutputStream b) {
+            super(b);
+            s = b;
+        }
+    }
+
+    public static PrintWriter getWriter(boolean threaded) {
+        if(threaded) {
+            return new ThreadPipeWriter(new PipedOutputStream());
+        }
         return new PipeWriter(new ByteArrayOutputStream());
     }
 
-    public static InputStream collapseWriter(PrintWriter p) {
-        return new ByteArrayInputStream(((PipeWriter)p).s.toByteArray());
+    public static InputStream collapseWriter(PrintWriter p) throws IOException {
+        if(p instanceof ThreadPipeWriter) {
+            return new PipedInputStream(((ThreadPipeWriter)p).s);
+        }
+        if(p instanceof PipeWriter) {
+            return new ByteArrayInputStream(((PipeWriter) p).s.toByteArray());
+        }
+        throw new IOException(p.toString());
     }
 
     public static boolean copyInputToOutput(InputStream i, OutputStream o) throws IOException {
