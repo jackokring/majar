@@ -2,7 +2,7 @@ package uk.co.kring;
 
 public class Multex {
 
-    public void run(Main m) {
+    void run(Main m) {
         Symbol s = m.find(firstString(), executeIn);
         if(s != null) {
             if(!m.runningFast()) {

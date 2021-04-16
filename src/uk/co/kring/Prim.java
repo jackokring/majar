@@ -2,11 +2,11 @@ package uk.co.kring;
 
 public abstract class Prim extends Symbol {
 
-    public void run() {
-        def();
+    void run(Main m) {
+        def(m);
     }
 
-    public abstract void def();
+    protected abstract void def(Main m);
 
     public Prim(String name) {
         super(name, Main.singleton(("Prim#" + name).intern()));//get name
