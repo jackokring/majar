@@ -756,13 +756,29 @@ public class Main {
         }
     }
 
-    void printTag(String name, String classOpen) {//else close
+    void printHTML(String s) {
+        if(html) {
+            print(s.replace(htmlPara, "&"));//fix up HTML
+        } else {
+            print(s);
+        }
+    }
+
+    void printTag(String name, String classOpen, Map.Entry<String, String[]> nameValue) {//else close
         print("<");
         if(classOpen == null) print("/");
         printLiteral(name);
         if(classOpen != null) {
             print(" class=\"");
             printLiteral(classOpen);
+            print("\"");
+        }
+        if(nameValue != null) {
+            print(" name=\"");
+            printLiteral(nameValue.getKey());
+            print("\" ");
+            print(" value=\"");
+            printLiteral(join(nameValue.getValue()));
             print("\"");
         }
         print(">");
