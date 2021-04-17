@@ -269,7 +269,6 @@ public class Main {
     static final String para = "\\~";//quirk of the shell
 
     Multex readReader(InputStream input, String alternate) {
-        BufferedReader b = null;
         try {
             if(input != toClose && input != null) {
                 //yes a different stream
@@ -280,52 +279,50 @@ public class Main {
                 br = new BufferedReader(new InputStreamReader(input));//open on demand
                 toClose = input;
             }
-            b = br;
-            if(alternate != null && input == null) {
-                b = new BufferedReader(new InputStreamReader(
-                        new ByteArrayInputStream((in + "\n").getBytes())));//alternate text
+            if(br == null) {
+                return readString(alternate);
             }
-            boolean quote = false;
-            int j = 0;
-            String l = b == null? "" : b.readLine();//blanks
-            l = l.replace("\\\"", para);
-            l = l.replace("\n", " ");
-            l = l.replace("\t", " ");
-            String[] args = l.split(l);
-            for(int i = 0; i < args.length; i++) {
-                if(!quote) {
-                    if(args[i].startsWith("\"")) {
-                        quote = true;
-                        args[i] = args[i].substring(1);//remove quote
-                    } else {
-                        j++;//second or more concat
-                    }
-                }
-                if(quote) {//not quite an else
-                    if(args[i].endsWith("\"")) {
-                        quote = false;
-                        args[i] = args[i].substring(0, args[i].length() - 1);//remove quote
-                    }
-                }
-                if(args[i].contains("\"")) setError(ERR_ESCAPE, args[i].replace(para, "\\\""));
-                args[j] += " " + args[i];
-                args[i] = null;
-                if(!quote) j = i;//restore parse
-            }
-            for(int i = 0; i < args.length; i++) {
-                if(args[i] != null) args[i] = args[i].replace(para, "\"");//hack!
-            }
-            if(quote) setError(ERR_QUOTE, args[j]);
-            intern(args);//pointers??
-            return new Multex(args);
+            return readString(br.readLine());
         } catch (Exception e) {
-            setError(ERR_IO, b);//Input
-            return alternate != null ? readReader(null, alternate) : new Multex(new String[0]);//blank
+            setError(ERR_IO, br);//Input
+            return readString(alternate);
         }
     }
 
     Multex readString(String s) {
-        return readReader(null, s);
+        boolean quote = false;
+        int j = 0;
+        if(s == null) s = "";
+        s = s.replace("\\\"", para);
+        s = s.replace("\n", " ");
+        s = s.replace("\t", " ");
+        String[] args = s.split("");
+        for(int i = 0; i < args.length; i++) {
+            if(!quote) {
+                if(args[i].startsWith("\"")) {
+                    quote = true;
+                    args[i] = args[i].substring(1);//remove quote
+                } else {
+                    j++;//second or more concat
+                }
+            }
+            if(quote) {//not quite an else
+                if(args[i].endsWith("\"")) {
+                    quote = false;
+                    args[i] = args[i].substring(0, args[i].length() - 1);//remove quote
+                }
+            }
+            if(args[i].contains("\"")) setError(ERR_ESCAPE, args[i].replace(para, "\\\""));
+            args[j] += " " + args[i];
+            args[i] = null;
+            if(!quote) j = i;//restore parse
+        }
+        for(int i = 0; i < args.length; i++) {
+            if(args[i] != null) args[i] = args[i].replace(para, "\"");//hack!
+        }
+        if(quote) setError(ERR_QUOTE, args[j]);
+        intern(args);//pointers??
+        return new Multex(args);
     }
 
     Multex readInput() {
@@ -544,13 +541,18 @@ public class Main {
     }
 
     String withinError(Object o) {
-        if(o instanceof String) return html?escapeHTML((String)o):(String)o;
+        String s;
+        if(o instanceof String) {
+            s = join(singleton((String)o));
+            return html?escapeHTML(s):s;
+        }
+        s = ((Symbol)o).named;
         if(o instanceof Prim) return ANSI_PRIM + o.getClass().getName() +
-                "[" + withinError(((Symbol)o).named) + ANSI_PRIM + "]";
+                "[" + withinError(s) + ANSI_PRIM + "]";
         if(o instanceof Book) return ANSI_BOOK + o.getClass().getName() +
-                "[" + withinError(((Symbol)o).named) + ANSI_BOOK + "]";
+                "[" + withinError(s) + ANSI_BOOK + "]";
         if(o instanceof Symbol) return ANSI_SYMBOL + o.getClass().getName() +
-                "[" + withinError(((Symbol)o).named) + ANSI_SYMBOL + "]";
+                "[" + withinError(s) + ANSI_SYMBOL + "]";
         if(o instanceof Multex) return ANSI_MULTEX + withinError(join(((Multex) o).basis));
         return ANSI_CLASS + o.getClass().getName() + "[" +
                 Integer.toHexString(o.hashCode()) + "]";
