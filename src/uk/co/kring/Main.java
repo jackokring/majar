@@ -266,7 +266,8 @@ public class Main {
         }
     }
 
-    static final String para = "\\~";//quirk of the shell
+    static final String para = "\u009B";//quirk of the shell unused representation of "\[["
+    static final String htmlPara = "\u0085";//technically NEL, but ...
 
     Multex readReader(InputStream input, String alternate) {
         try {
@@ -294,6 +295,7 @@ public class Main {
         int j = 0;
         if(s == null) s = "";
         s = s.replace("\\\"", para);
+        if(html) s = s.replace("&", htmlPara);//input render
         s = s.replace("\n", " ");
         s = s.replace("\t", " ");
         String[] args = s.split("");
@@ -625,7 +627,7 @@ public class Main {
         printLiteral(errorFact[code]);
         if(o != null) {
             print(":");
-            print(withinError(o));
+            print(withinError(o));//may contain escape codes
         } else {
             print(".");
         }
@@ -637,7 +639,8 @@ public class Main {
         println();
         while(!s.empty()) {
             //trace
-            print(ANSI_ERR + "@ " + s.pop().firstString());
+            print(ANSI_ERR + "@ ");
+            printLiteral(s.pop().firstString());
             println();
         }
         println();
@@ -747,7 +750,7 @@ public class Main {
 
     void printLiteral(String s) {
         if(html) {
-            print(escapeHTML(s));
+            print(escapeHTML(s).replace(htmlPara, "&"));//fix up HTML
         } else {
             print(s);
         }
@@ -928,7 +931,7 @@ public class Main {
                         try {
                             num = Long.parseLong(strings[j]);
                         } catch (Exception e) {
-                            num = -1;
+                            num = Long.MIN_VALUE;//best parse compromise
                         }
                         strings[j] = Long.toString(num);
                     }
