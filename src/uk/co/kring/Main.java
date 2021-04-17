@@ -764,13 +764,11 @@ public class Main {
     /**
      * A print utility to unquote unescape and then possibly HTML escape before printing.
      * @param s the string to print.
-     * @return the main class to chain methods.
      */
-    public static Main exjectPrint(String s) {
+    public static void exjectPrint(String s) {
         Main m = getMain();
         m.printLiteral(s.replace("\\\"", "\"").
                 replace("\\'", "'"));//better store a few more bytes and exject!
-        return m;
     }
 
     //=========================================== ADAPTION UTILS
@@ -779,10 +777,9 @@ public class Main {
      * Set the input and output streams on the main class before calling the main.
      * @param i input stream.
      * @param o output stream.
-     * @return the main class to chain methods.
      */
-    public static Class<Main> setIO(InputStream i, PrintStream o) {
-        return setIO(i, o, o);
+    public static void setIO(InputStream i, PrintStream o) {
+        setIO(i, o, o);
     }
 
     /**
@@ -790,35 +787,31 @@ public class Main {
      * @param i input stream.
      * @param o output stream.
      * @param e output error stream.
-     * @return the main class to chain methods.
      */
-    public static Class<Main> setIO(InputStream i, PrintStream o, PrintStream e) {
+    public static void setIO(InputStream i, PrintStream o, PrintStream e) {
         Main m = getMain();
         m.in = i;
         m.out = o;
         m.err = e;
-        return Main.class;
     }
 
-    static class PipeWriter extends PrintWriter {
+    static class PipePrintStream extends PrintStream {
 
         ByteArrayOutputStream s;
 
-        public PipeWriter(ByteArrayOutputStream b) {
+        public PipePrintStream(ByteArrayOutputStream b) {
             super(b);
             s = b;
         }
     }
 
-    static class ThreadPipeWriter extends PrintWriter {
+    static class ThreadPipePrintStream extends PrintStream {
 
         PipedOutputStream s;
-        Main m;
 
-        public ThreadPipeWriter(PipedOutputStream b) {
+        public ThreadPipePrintStream(PipedOutputStream b) {
             super(b);
             s = b;
-            m = getMain();
         }
     }
 
@@ -827,11 +820,11 @@ public class Main {
      * @param threaded is the connection between threads?
      * @return the output writer.
      */
-    public static PrintWriter getWriter(boolean threaded) {
+    public static PrintStream getPrintStream(boolean threaded) {
         if(threaded) {
-            return new ThreadPipeWriter(new PipedOutputStream());
+            return new ThreadPipePrintStream(new PipedOutputStream());
         }
-        return new PipeWriter(new ByteArrayOutputStream());
+        return new PipePrintStream(new ByteArrayOutputStream());
     }
 
     /**
@@ -840,40 +833,42 @@ public class Main {
      * @return the input stream.
      * @throws IOException stream error.
      */
-    public static InputStream ReadWriter(PrintWriter p) throws IOException {
-        if(p instanceof ThreadPipeWriter) {
-            if(((ThreadPipeWriter)p).m == getMain()) {
-                throw new IOException("On same thread:" + p.toString());
-            }
-            return new PipedInputStream(((ThreadPipeWriter)p).s);
+    public static InputStream readPrintStream(PrintStream p) throws IOException {
+        if(p instanceof ThreadPipePrintStream) {
+            return new PipedInputStream(((ThreadPipePrintStream)p).s);
         }
-        if(p instanceof PipeWriter) {
-            return new ByteArrayInputStream(((PipeWriter) p).s.toByteArray());
+        if(p instanceof PipePrintStream) {
+            return new ByteArrayInputStream(((PipePrintStream) p).s.toByteArray());
         }
         throw new IOException("Can't collapse: " + p.toString());
     }
 
     /**
-     * A Utility to copy an input stream to an output stream.
+     * A threaded utility to copy an input stream to an output stream.
      * @param i input stream.
      * @param o output stream.
-     * @return true if the input stream was not at the end.
-     * @throws IOException stream error.
      */
-    public static boolean copyInputToOutput(InputStream i, OutputStream o) throws IOException {
-        int t = -1;//end?
-        while(i.available() > 0) {
-            o.write(t = i.read());
-        }
-        return t != -1;//more
+    public static void stream(InputStream i, OutputStream o) {
+        (new Thread(() -> {
+            int t = -1;//end?
+            try {
+                do {
+                    while (i.available() > 0) {
+                        o.write(t = i.read());
+                    }
+                    Thread.yield();//pause
+                } while (t != -1);
+            } catch(IOException e) {
+                (new PrintStream(o)).println(e.toString());//error
+            }
+        })).start();
     }
 
     /**
      * Sets HTML mode. This uses tags for styling, and also prevents a system exit. This allows the
      * code to be used for websites so as to not exit the web server process.
-     * @return the main class to chain methods.
      */
-    public static Class<Main> setHTML() {
+    public static void setHTML() {
         Main m = getMain();
         m.html = true;
         for(String i: reflect) {
@@ -885,7 +880,6 @@ public class Main {
                 m.err.println("Can't set color field");
             }
         }
-        return Main.class;
     }
 
     /**
@@ -895,9 +889,8 @@ public class Main {
      * @param params the parameter map.
      * @param stringsIn the keys that strings are in.
      * @param numbersIn the keys that numbers are in.
-     * @return the main class to chain methods.
      */
-    public static Class<Main> cleanParameters(Map<String, String[]> params,
+    public static void cleanParameters(Map<String, String[]> params,
                                                String[] stringsIn, String[] numbersIn) {
         HashMap<String, String[]> m = new HashMap<>();
         if(stringsIn != null) for(String i: stringsIn) {
@@ -947,16 +940,14 @@ public class Main {
         for(String i: m.keySet()) {
             params.put(i, m.get(i));//and (re)place strings
         }
-        return Main.class;
     }
 
     /**
      * Make a safe storage of a map in the interpreter.
      * @param safeName name of the safe to make in the context book (not the programmatic current book).
      * @param params the parameter map.
-     * @return the main class to chain methods.
      */
-    public static Class<Main> makeSafe(String safeName, Map<String, String[]> params) {
+    public static void makeSafe(String safeName, Map<String, String[]> params) {
         Main m = getMain();
         Safe s = new Safe(safeName.intern());//safes do not evaluate or execute anything inside
         m.reg(s, m.context);
@@ -964,6 +955,25 @@ public class Main {
             Symbol key = new Symbol(i, params.get(i));
             m.reg(key, s);//register keys in safe
         }
-        return Main.class;
+    }
+
+    /**
+     * Make a new threaded process to process an input stream with code and env parameters.
+     * @param what the input stream.
+     * @param with the code string.
+     * @param params the map of string keys to array of strings.
+     * @return the input stream to chain into other processes.
+     * @throws IOException on a stream error.
+     */
+    public static InputStream processHTML(InputStream what, String with,
+                                          Map<String, String[]> params) throws IOException {
+        PrintStream out = getPrintStream(true);
+        (new Thread(() -> {
+            Main.setIO(what, out);
+            Main.setHTML();//as it needs this for no system exit
+            Main.makeSafe("env", params);
+            Main.run(with);
+        })).start();
+        return readPrintStream(out);
     }
 }
