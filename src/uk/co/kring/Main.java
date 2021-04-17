@@ -847,12 +847,37 @@ public class Main {
     }
 
     /**
+     * A waiter for returning a print stream continuation.
+     */
+    public static class Waiter {
+
+        PrintStream s;
+        Thread t;
+
+        public Waiter(PrintStream stream, Thread thread) {
+            s = stream;
+            t = thread;
+        }
+
+        public PrintStream getPrintStream() {
+            try {
+                t.join();
+                threads.remove(t);//helps with gc
+            } catch(Exception e) {
+                //continue anyway
+            }
+            return s;
+        }
+    }
+
+    /**
      * A threaded utility to copy an input stream to an output stream.
      * @param i input stream.
      * @param o output stream.
+     * @return the output stream waiter to chain into other processes.
      */
-    public static void stream(InputStream i, OutputStream o) {
-        (new Thread(() -> {
+    public static Waiter stream(InputStream i, PrintStream o) {
+        Thread bg = new Thread(() -> {
             int t = -1;//end?
             try {
                 do {
@@ -862,9 +887,11 @@ public class Main {
                     Thread.yield();//pause
                 } while (t != -1);
             } catch(IOException e) {
-                (new PrintStream(o)).println(e.toString());//error
+                //end of stream
             }
-        })).start();
+        });
+        bg.start();
+        return new Waiter(o, bg);
     }
 
     /**
