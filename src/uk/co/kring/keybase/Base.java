@@ -1,6 +1,6 @@
 package uk.co.kring.keybase;
 
-import uk.co.kring.keybase.stream.BulkStream;
+import uk.co.kring.generic.BulkStream;
 
 public abstract class Base extends Key {
 

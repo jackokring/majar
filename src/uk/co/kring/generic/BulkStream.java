@@ -1,4 +1,4 @@
-package uk.co.kring.keybase.stream;
+package uk.co.kring.generic;
 
 import java.util.Comparator;
 import java.util.Iterator;

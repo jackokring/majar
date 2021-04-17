@@ -1,6 +1,6 @@
 package uk.co.kring.keybase;
 
-import uk.co.kring.keybase.stream.BulkStream;
+import uk.co.kring.generic.BulkStream;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
