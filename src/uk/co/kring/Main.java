@@ -756,6 +756,18 @@ public class Main {
         }
     }
 
+    void printTag(String name, String classOpen) {//else close
+        print("<");
+        if(classOpen == null) print("/");
+        printLiteral(name);
+        if(classOpen != null) {
+            print(" class=\"");
+            printLiteral(classOpen);
+            print("\"");
+        }
+        print(">");
+    }
+
     private void println() {
         if(html) {
             put.print("<br /></span><span>");//quick!!
