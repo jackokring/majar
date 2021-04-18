@@ -1092,4 +1092,40 @@ public class Main {
         if(k != null) k.getPrintStream().close();
         return readPrintStream(out);
     }
+
+    /**
+     * Make a new threaded partition process on an input stream with code and env parameters.
+     * @param what the input stream.
+     * @param tag the tag string not including angle brackets.
+     * @param run the code string to run for an insert after the found tag.
+     * @param params the map of string keys to array of strings.
+     * @param idx a task index starting point.
+     * @return the input stream to chain into other processes.
+     * @throws IOException on a stream error.
+     */
+    public static InputStream printSpliterator(InputStream what, String tag, String run,
+                                           Map<String, String[]> params, int idx) throws IOException {
+        Waiter k = null;
+        PrintStream out = getPrintStream(true);
+        String tag2 = "<" + tag + " />";
+        StringBuilder sb = new StringBuilder();
+        try {
+            while (what.available() > 0) {
+                int i = what.read();
+                if(i == -1) break;
+                sb.append(i);
+                if(sb.substring(sb.length() - tag2.length()).equals(tag2)) {
+                    InputStream insert = processHTML(new ByteArrayInputStream(sb.toString().getBytes()),
+                            run, params, idx);//start
+                    Waiter w = stream(insert, out);
+                    k = stream(printSpliterator(what, tag, run, params, idx++), w.getPrintStream());//nest
+                    break;
+                }
+            }
+        } catch(Exception e) {
+            //stream error
+        }
+        if(k != null) k.getPrintStream().close();
+        return readPrintStream(out);
+    }
 }
