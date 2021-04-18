@@ -815,9 +815,10 @@ public class Main {
      * Set the input and output streams on the main class before calling the main.
      * @param i input stream.
      * @param o output stream.
+     * @return the main instance.
      */
-    public static void setIO(InputStream i, PrintStream o) {
-        setIO(i, o, o);
+    public static Main setIO(InputStream i, PrintStream o) {
+        return setIO(i, o, o);
     }
 
     /**
@@ -825,12 +826,14 @@ public class Main {
      * @param i input stream.
      * @param o output stream.
      * @param e output error stream.
+     * @return the main instance.
      */
-    public static void setIO(InputStream i, PrintStream o, PrintStream e) {
+    public static Main setIO(InputStream i, PrintStream o, PrintStream e) {
         Main m = getMain();
         if(i != null) m.in = i;
         if(o != null) m.out = o;
         if(e != null) m.err = e;
+        return m;
     }
 
     static class PipePrintStream extends PrintStream {
@@ -936,8 +939,9 @@ public class Main {
     /**
      * Sets HTML mode. This uses tags for styling, and also prevents a system exit. This allows the
      * code to be used for websites so as to not exit the web server process.
+     * @return the main instance.
      */
-    public static void setHTML() {
+    public static Main setHTML() {
         Main m = getMain();
         m.html = true;
         for(String i: reflect) {
@@ -949,6 +953,7 @@ public class Main {
                 m.err.println("Can't set color field");
             }
         }
+        return m;
     }
 
     /**
@@ -1015,8 +1020,9 @@ public class Main {
      * Make a safe storage of a map in the interpreter.
      * @param safeName name of the safe to make in the context book (not the programmatic current book).
      * @param params the parameter map.
+     * @return the main instance.
      */
-    public static void makeSafe(String safeName, Map<String, String[]> params) {
+    public static Main makeSafe(String safeName, Map<String, String[]> params) {
         Main m = getMain();
         Safe s = new Safe(safeName.intern());//safes do not evaluate or execute anything inside
         m.reg(s, m.context);
@@ -1024,6 +1030,7 @@ public class Main {
             Symbol key = new Symbol(i, params.get(i));
             m.reg(key, s);//register keys in safe
         }
+        return m;
     }
 
     /**
@@ -1031,16 +1038,19 @@ public class Main {
      * @param what the input stream.
      * @param with the code string.
      * @param params the map of string keys to array of strings.
+     * @param idx a task index starting point.
      * @return the input stream to chain into other processes.
      * @throws IOException on a stream error.
      */
     public static InputStream processHTML(InputStream what, String with,
-                                          Map<String, String[]> params) throws IOException {
+                                          Map<String, String[]> params, int idx) throws IOException {
         PrintStream out = getPrintStream(true);
         (new Thread(() -> {
             Main.setIO(what, out);
             Main.setHTML();//as it needs this for no system exit
-            Main.makeSafe("env", params);
+            Main m = Main.makeSafe("env", params);
+            //TODO maybe an ideal variable
+            m.reg(new Symbol("task", singleton(String.valueOf(idx))));
             Main.run(with);
             out.close();//start next dependant
         })).start();
@@ -1069,8 +1079,7 @@ public class Main {
                 if(i == -1) break;
                 sb.append(i);
                 if(sb.substring(sb.length() - tag2.length()).equals(tag2)) {
-                    params.put("task", singleton(String.valueOf(idx)));
-                    InputStream insert = processHTML(null, run, params);//start
+                    InputStream insert = processHTML(null, run, params, idx);//start
                     Waiter w = stream(insert, stream(new ByteArrayInputStream(sb.toString().getBytes()),
                             out).getPrintStream());//insert
                     k = stream(atSpecialTag(what, tag, run, params, idx++), w.getPrintStream());//nest insert
