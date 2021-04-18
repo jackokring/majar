@@ -234,7 +234,7 @@ public class Main {
             if(error) setError(Main.ERR_CONTEXT, context);
         }
         //class loading bootstrap of Class named as method camelCase
-        String p = t.substring(0, 1).toUpperCase(Locale.ROOT) + t.substring(1);//make run method!!
+        String p = Character.toUpperCase(t.charAt(0)) + t.substring(1);//make run method!!
         p = p.intern();//make findable
         String name = Main.class.getPackage().getName() + ".plug." + p;
         try {
