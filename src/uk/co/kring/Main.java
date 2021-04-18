@@ -125,9 +125,9 @@ public class Main {
     }
 
     void execute(Multex s, Main m) {
+        s = s.optionReplace();
         ret.push(s);
         while(!s.ended()) {
-            if(s.firstString() == null) return;//no fail null
             s.run(m);
             s.shift();
             if(errOver()) break;//prime errors
@@ -1049,8 +1049,7 @@ public class Main {
             Main.setIO(what, out);
             Main.setHTML();//as it needs this for no system exit
             Main m = Main.makeSafe("env", params);
-            //TODO maybe an ideal variable
-            m.reg(new Symbol("task", singleton(String.valueOf(idx))));
+            m.reg(new Var("task", String.valueOf(idx)));
             Main.run(with);
             out.close();//start next dependant
         })).start();

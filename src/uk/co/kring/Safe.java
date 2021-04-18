@@ -10,7 +10,7 @@ public class Safe extends Book {
         super(name);//empty to start
     }
 
-    protected void run(Main m) {
+    protected final void run(Main m) {
         m.current = this;
         Multex s = m.find(m.literal());
         if(s == null) {
@@ -19,5 +19,6 @@ public class Safe extends Book {
         }
         m.dat.push(new Multex(s.basis));//place the recalled value
         m.current = in;
+        m.ret.pop();//and leave execution frame
     }
 }

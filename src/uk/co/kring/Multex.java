@@ -6,15 +6,20 @@ package uk.co.kring;
 public class Multex {
 
     protected void run(Main m) {
+        if(firstString() == null) return;//no fail null
         Symbol s = m.find(firstString(), executeIn, true);
         if(s != null) {
             if(!m.runningFast()) {
                 m.printSymbolName(s);
                 m.profile(s);
             }
-            m.execute(new Multex(s), m);//Threading ...
+            m.execute(s, m);//Threading ...
             s.idx++;//Simple profiling
         }
+    }
+
+    protected Multex optionReplace() {
+        return new Multex(this);
     }
 
     String[] basis;

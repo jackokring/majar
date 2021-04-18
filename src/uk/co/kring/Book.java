@@ -12,5 +12,18 @@ public class Book extends Symbol {
     protected void run(Main m) {
         m.current = this;
         this.in.executeIn = this;//cache
+        m.ret.pop();//and leave execution frame
+    }
+
+    protected Multex optionReplace() {
+        return this;//NO
+    }
+
+    public void shift() {
+        //nothing
+    }
+
+    public boolean ended() {
+        return false;//never ending story
     }
 }

@@ -8,6 +8,7 @@ public abstract class Prim extends Symbol {
 
     protected final void run(Main m) {
         def(m);
+        m.ret.pop();//and leave execution frame
     }
 
     /**
@@ -22,5 +23,17 @@ public abstract class Prim extends Symbol {
 
     public Prim() {
         this(null);
+    }
+
+    protected Multex optionReplace() {
+        return this;//NO
+    }
+
+    public void shift() {
+        //nothing
+    }
+
+    public boolean ended() {
+        return false;//never ending story
     }
 }
