@@ -211,6 +211,7 @@ public class Main {
     }
 
     Symbol find(String t, Book b, boolean error) {
+        if(b == null) b = context;
         Book c = switchContext(b);
         Symbol s = find(t, true);//default
         switchContext(c);//restore
@@ -782,6 +783,12 @@ public class Main {
             print("\"");
         }
         print(">");
+    }
+
+    void printSpecialTag(String name) {
+        print("<");
+        printLiteral(name);
+        print(" />");
     }
 
     private void println() {
