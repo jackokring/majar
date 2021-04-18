@@ -373,7 +373,7 @@ public class Main {
      */
     public static String[] singleton(String s) {
         String[] sa = new String[1];
-        sa[0] = s.intern();
+        //sa[0] = s.intern();
         return sa;
     }
 
@@ -914,12 +914,17 @@ public class Main {
     public static Waiter stream(InputStream i, PrintStream o) {
         Thread bg = new Thread(() -> {
             int avail;
+            int read = 0;
+            byte[] t;
             try {
-                while ((avail = i.available()) > 0) {
-                    byte[] t = new byte[avail];//end?
-                    o.write(i.read(t, 0, avail));
-                }
-                Thread.yield();//pause
+                do {
+                    while ((avail = i.available()) > 0) {
+                        t = new byte[avail];//end?
+                        read = i.read(t, 0, avail);
+                        o.write(t, 0, avail);
+                    }
+                    Thread.yield();//pause
+                } while(read != -1);
             } catch(IOException e) {
                 //end of stream
             }
@@ -1039,6 +1044,43 @@ public class Main {
             Main.run(with);
             out.close();//start next dependant
         })).start();
+        return readPrintStream(out);
+    }
+
+    /**
+     * Make a new threaded data inserter on an input stream with code and env parameters.
+     * @param what the input stream.
+     * @param tag the tag string not including angle brackets.
+     * @param run the code string to run for an insert after the found tag.
+     * @param params the map of string keys to array of strings.
+     * @param idx a task index starting point.
+     * @return the input stream to chain into other processes.
+     * @throws IOException on a stream error.
+     */
+    public static InputStream atSpecialTag(InputStream what, String tag, String run,
+                                          Map<String, String[]> params, int idx) throws IOException {
+        Waiter k = null;
+        PrintStream out = getPrintStream(true);
+        String tag2 = "<" + tag + " />";
+        StringBuilder sb = new StringBuilder();
+        try {
+            while (what.available() > 0) {
+                int i = what.read();
+                if(i == -1) break;
+                sb.append(i);
+                if(sb.substring(sb.length() - tag2.length()).equals(tag2)) {
+                    params.put("task", singleton(String.valueOf(idx)));
+                    InputStream insert = processHTML(null, run, params);//start
+                    Waiter w = stream(insert, stream(new ByteArrayInputStream(sb.toString().getBytes()),
+                            out).getPrintStream());//insert
+                    k = stream(atSpecialTag(what, tag, run, params, idx++), w.getPrintStream());//nest insert
+                    break;
+                }
+            }
+        } catch(Exception e) {
+            //stream error
+        }
+        if(k != null) k.getPrintStream().close();
         return readPrintStream(out);
     }
 }
