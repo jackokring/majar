@@ -828,9 +828,9 @@ public class Main {
      */
     public static void setIO(InputStream i, PrintStream o, PrintStream e) {
         Main m = getMain();
-        m.in = i;
-        m.out = o;
-        m.err = e;
+        if(i != null) m.in = i;
+        if(o != null) m.out = o;
+        if(e != null) m.err = e;
     }
 
     static class PipePrintStream extends PrintStream {
