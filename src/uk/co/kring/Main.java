@@ -913,14 +913,13 @@ public class Main {
      */
     public static Waiter stream(InputStream i, PrintStream o) {
         Thread bg = new Thread(() -> {
-            int t = -1;//end?
+            int avail;
             try {
-                do {
-                    while (i.available() > 0) {
-                        o.write(t = i.read());
-                    }
-                    Thread.yield();//pause
-                } while (t != -1);
+                while ((avail = i.available()) > 0) {
+                    byte[] t = new byte[avail];//end?
+                    o.write(i.read(t, 0, avail));
+                }
+                Thread.yield();//pause
             } catch(IOException e) {
                 //end of stream
             }
@@ -1038,6 +1037,7 @@ public class Main {
             Main.setHTML();//as it needs this for no system exit
             Main.makeSafe("env", params);
             Main.run(with);
+            out.close();//start next dependant
         })).start();
         return readPrintStream(out);
     }
