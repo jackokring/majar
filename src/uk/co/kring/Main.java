@@ -765,7 +765,7 @@ public class Main {
         }
     }
 
-    void printTag(String name, String classOpen, Map.Entry<String, String[]> nameValue) {//else close
+    void printTag(String name, String classOpen, Symbol nameValue) {//else close
         print("<");
         if(classOpen == null) print("/");
         printLiteral(name);
@@ -776,10 +776,10 @@ public class Main {
         }
         if(nameValue != null) {
             print(" name=\"");
-            printLiteral(nameValue.getKey());
+            printLiteral(nameValue.named);
             print("\" ");
             print(" value=\"");
-            printLiteral(join(nameValue.getValue()));
+            printLiteral(join(nameValue.basis));
             print("\"");
         }
         print(">");
