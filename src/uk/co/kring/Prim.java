@@ -27,7 +27,16 @@ public abstract class Prim extends Symbol {
         this(null);
     }
 
+    /**
+     * Defines the simple state of not needing threading.
+     * @return true if simple. The default is simple.
+     */
+    protected boolean simple() {
+        return true;
+    }
+
     protected Multex optionReplace() {
+        if(simple()) return this;
         try {
             Class<?> clazz = this.getClass();
             Constructor<?> constructor = clazz.getConstructor(String.class);
