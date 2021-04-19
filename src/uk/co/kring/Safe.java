@@ -12,7 +12,7 @@ public class Safe extends Book {
 
     protected final void run(Main m) {
         m.current = this;
-        Multex s = m.find(m.literal());
+        Multex s = m.find(m.literal(), false);
         if(s == null) {
             //no value stack balance
             m.dat.push(new Multex(new String[0]));//blank

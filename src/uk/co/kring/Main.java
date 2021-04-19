@@ -34,7 +34,7 @@ public class Main {
 
     protected HashMap<String, List<Symbol>> dict =
             new HashMap<>();
-    final Book bible = new Bible();
+    private final Book bible = new Bible();
     protected Book context = bible;
     protected Book current = context;
 
@@ -47,6 +47,8 @@ public class Main {
     private PrintStream put = out;
     private BufferedReader br;
     private InputStream toClose;
+
+    private final Stack<Boolean> macroEscape = new Stack<>();
 
     //========================================== ENTRY / EXIT
 
@@ -191,7 +193,7 @@ public class Main {
     void deleteBook(Book b) {
         setError(ERR_BOOK, b);
         for(String i: b.basis) {
-            unReg(find(i), b);
+            unReg(find(i, false), b);
         }
         if(b.in.executeIn == b) {
             b.in.executeIn = null;
@@ -205,10 +207,6 @@ public class Main {
             setError(ERR_CON_DEL, b);
             context = current;
         }
-    }
-
-    Symbol find(String t) {
-        return find(t, true);//default
     }
 
     Symbol find(String t, Book b, boolean error) {
@@ -234,37 +232,42 @@ public class Main {
             } while(c != null);
             if(error) setError(Main.ERR_CONTEXT, context);
         }
-        //class loading bootstrap of Class named as method camelCase
-        String p = Character.toUpperCase(t.charAt(0)) + t.substring(1);//make run method!!
-        p = p.intern();//make findable
-        String name = Main.class.getPackage().getName() + ".plug." + p;
-        try {
-            Class<?> clazz = Class.forName(name);
-            //Constructor<?> constructor = clazz.getConstructor(String.class);
-            Object instance = clazz.newInstance();
-            if(instance instanceof Prim) {
-                ((Prim) instance).named = t;//quick hack to put Prim on a default constructor
-                Book b = current;
-                current = context;
-                reg((Symbol) instance);
-                current = b;//N.B. important to bring into context to RUN!!
-                //as a system definition, it by nature would be later available in the same context
-                //current therefore is for user definitions in majar and not Java
-                //this has implications for multiple instances
-                if(!fast) printSymbolName((Symbol)instance);
-                return (Symbol)instance;
-            } else {
-                if(error) setError(Main.ERR_PLUG, instance);//class always report bad Java?
-                return null;
+        if(error) {//if finding for errors then try class any lazy context too
+            //class loading bootstrap of Class named as method camelCase
+            String p = Character.toUpperCase(t.charAt(0)) + t.substring(1);//make run method!!
+            p = p.intern();//make findable
+            String name = Main.class.getPackage().getName() + ".plug." + p;
+            try {
+                Class<?> clazz = Class.forName(name);
+                //Constructor<?> constructor = clazz.getConstructor(String.class);
+                Object instance = clazz.newInstance();
+                if (instance instanceof Prim) {
+                    ((Prim) instance).named = t;//quick hack to put Prim on a default constructor
+                    Book b = current;
+                    current = context;
+                    reg((Symbol) instance);
+                    current = b;//N.B. important to bring into context to RUN!!
+                    //as a system definition, it by nature would be later available in the same context
+                    //current therefore is for user definitions in majar and not Java
+                    //this has implications for multiple instances
+                    if (!fast) printSymbolName((Symbol) instance);
+                    return (Symbol) instance;
+                } else {
+                    setError(Main.ERR_PLUG, instance);//class always report bad Java?
+                    return null;
+                }
+            } catch (Exception e) {
+                //lazy mode
+                if (context.executeIn != null) {//try recent used books
+                    return find(t, context.executeIn, error);
+                } else {
+                    setError(Main.ERR_FIND, t);
+                    return null;
+                }
             }
-        } catch(Exception e) {
-            //lazy mode
-            if(context.executeIn != null) {//try recent used books
-                return find(t, context.executeIn, error);
-            } else {
-                if (error) setError(Main.ERR_FIND, t);
-                return null;
-            }
+        } else {
+            setError(Main.ERR_FIND, t);
+            return null;
         }
     }
 
@@ -409,6 +412,35 @@ public class Main {
         }
         ret.push(m);//restore
         return s;
+    }
+
+    //only call this from within a macro
+    void setMacroEscape(boolean escape, Macro m) {
+        if(macroEscape.empty()) {
+            setError(ERR_BRACKET, m);
+        } else {
+            macroEscape.pop();
+        }
+        macroEscape.push(escape);
+    }
+
+    String[] multiLiteral(Main m) {
+        LinkedList<String> ls = new LinkedList<>();
+        macroEscape.push(false);
+        do {
+            String s = literal();
+            Symbol f = find(s, false);//not an error if it's not
+            if(f != null && f instanceof Macro) {
+                if(!fast) {
+                    printSymbol(f);
+                }
+                ((Macro) f).macroExecute(m);//the macro must potentially set macro escape
+            } else {
+                ls.addLast(s);
+            }
+        } while(!macroEscape.peek());
+        macroEscape.pop();
+        return (String[])ls.toArray();
     }
 
     static String parameter(Stack<Multex> sm, boolean next) {
