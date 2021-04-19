@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
  */
 public class Main {
 
-    private static final HashMap<Thread, Main> threads = new HashMap<>();
+    protected static final HashMap<Thread, Main> threads = new HashMap<>();
 
     static synchronized Main getMain() {//multi threading maker
         Main t = threads.get(Thread.currentThread());
@@ -836,106 +836,6 @@ public class Main {
         return m;
     }
 
-    static class PipePrintStream extends PrintStream {
-
-        ByteArrayOutputStream s;
-
-        public PipePrintStream(ByteArrayOutputStream b) {
-            super(b);
-            s = b;
-        }
-    }
-
-    static class ThreadPipePrintStream extends PrintStream {
-
-        PipedOutputStream s;
-
-        public ThreadPipePrintStream(PipedOutputStream b) {
-            super(b);
-            s = b;
-        }
-    }
-
-    /**
-     * Used to get a stream to use as output which can then later be connected to an input.
-     * @param threaded is the connection between threads?
-     * @return the output writer.
-     */
-    public static PrintStream getPrintStream(boolean threaded) {
-        if(threaded) {
-            return new ThreadPipePrintStream(new PipedOutputStream());
-        }
-        return new PipePrintStream(new ByteArrayOutputStream());
-    }
-
-    /**
-     * Used to get the input stream associated with a gotten writer stream.
-     * @param p the writer.
-     * @return the input stream.
-     * @throws IOException stream error.
-     */
-    public static InputStream readPrintStream(PrintStream p) throws IOException {
-        if(p instanceof ThreadPipePrintStream) {
-            return new PipedInputStream(((ThreadPipePrintStream)p).s);
-        }
-        if(p instanceof PipePrintStream) {
-            return new ByteArrayInputStream(((PipePrintStream) p).s.toByteArray());
-        }
-        throw new IOException("Can't collapse: " + p.toString());
-    }
-
-    /**
-     * A waiter for returning a print stream continuation.
-     */
-    public static class Waiter {
-
-        PrintStream s;
-        Thread t;
-
-        public Waiter(PrintStream stream, Thread thread) {
-            s = stream;
-            t = thread;
-        }
-
-        public PrintStream getPrintStream() {
-            try {
-                t.join();
-                threads.remove(t);//helps with gc
-            } catch(Exception e) {
-                //continue anyway
-            }
-            return s;
-        }
-    }
-
-    /**
-     * A threaded utility to copy an input stream to an output stream.
-     * @param i input stream.
-     * @param o output stream.
-     * @return the output stream waiter to chain into other processes.
-     */
-    public static Waiter stream(InputStream i, PrintStream o) {
-        Thread bg = new Thread(() -> {
-            int avail;
-            int read = 0;
-            byte[] t;
-            try {
-                do {
-                    while ((avail = i.available()) > 0) {
-                        t = new byte[avail];//end?
-                        read = i.read(t, 0, avail);
-                        o.write(t, 0, avail);
-                    }
-                    Thread.yield();//pause
-                } while(read != -1);
-            } catch(IOException e) {
-                //end of stream
-            }
-        });
-        bg.start();
-        return new Waiter(o, bg);
-    }
-
     /**
      * Sets HTML mode. This uses tags for styling, and also prevents a system exit. This allows the
      * code to be used for websites so as to not exit the web server process.
@@ -1044,16 +944,15 @@ public class Main {
      */
     public static InputStream processHTML(InputStream what, String with,
                                           Map<String, String[]> params, int idx) throws IOException {
-        PrintStream out = getPrintStream(true);
-        (new Thread(() -> {
-            Main.setIO(what, out);
+        InputStream i = Waiter.getPrintWaiter(new Thread(() -> {
+            Waiter out = Waiter.bind();
+            Main.setIO(what, out.getPrintStream());
             Main.setHTML();//as it needs this for no system exit
             Main m = Main.makeSafe("env", params);
-            m.reg(new Var("task", String.valueOf(idx)));
+            m.reg(new Var("task".intern(), String.valueOf(idx)));
             Main.run(with);
-            out.close();//start next dependant
-        })).start();
-        return readPrintStream(out);
+        }), idx);
+        return i;
     }
 
     /**
@@ -1068,28 +967,30 @@ public class Main {
      */
     public static InputStream atSpecialTag(InputStream what, String tag, String run,
                                           Map<String, String[]> params, int idx) throws IOException {
-        Waiter k = null;
-        PrintStream out = getPrintStream(true);
-        String tag2 = "<" + tag + " />";
-        StringBuilder sb = new StringBuilder();
-        try {
-            while (what.available() > 0) {
-                int i = what.read();
-                if(i == -1) break;
-                sb.append(i);
-                if(sb.substring(sb.length() - tag2.length()).equals(tag2)) {
-                    InputStream insert = processHTML(null, run, params, idx);//start
-                    Waiter w = stream(insert, stream(new ByteArrayInputStream(sb.toString().getBytes()),
-                            out).getPrintStream());//insert
-                    k = stream(atSpecialTag(what, tag, run, params, idx++), w.getPrintStream());//nest insert
-                    break;
+        InputStream in = Waiter.getPrintWaiter(new Thread(() -> {
+            Waiter out = Waiter.bind();
+            String tag2 = "<" + tag + " />";
+            StringBuilder sb = new StringBuilder();
+            int id = out.getProcessID();
+            try {
+                while (what.available() > 0) {
+                    int i = what.read();
+                    if (i != -1) sb.append(i);
+                    if (sb.substring(sb.length() - tag2.length()).equals(tag2) || i == -1) {
+                        InputStream insert = processHTML(null, run, params, id);//start
+                        Waiter w = Waiter.stream(insert, Waiter.stream(
+                                new ByteArrayInputStream(sb.toString().getBytes()),
+                                out.getPrintStream()).getPrintStream());//insert
+                        if (i == -1) break;
+                        Waiter.stream(atSpecialTag(what, tag, run, params, id++), w.getPrintStream());//nest insert
+                        break;
+                    }
                 }
+            } catch (Exception e) {
+                //stream error
             }
-        } catch(Exception e) {
-            //stream error
-        }
-        if(k != null) k.getPrintStream().close();
-        return readPrintStream(out);
+        }), idx);
+        return in;
     }
 
     /**
@@ -1104,27 +1005,28 @@ public class Main {
      */
     public static InputStream printSpliterator(InputStream what, String tag, String run,
                                            Map<String, String[]> params, int idx) throws IOException {
-        Waiter k = null;
-        PrintStream out = getPrintStream(true);
-        String tag2 = "<" + tag + " />";
-        StringBuilder sb = new StringBuilder();
-        try {
-            while (what.available() > 0) {
-                int i = what.read();
-                if(i == -1) break;
-                sb.append(i);
-                if(sb.substring(sb.length() - tag2.length()).equals(tag2)) {
-                    InputStream insert = processHTML(new ByteArrayInputStream(sb.toString().getBytes()),
-                            run, params, idx);//start
-                    Waiter w = stream(insert, out);
-                    k = stream(printSpliterator(what, tag, run, params, idx++), w.getPrintStream());//nest
-                    break;
+        InputStream in = Waiter.getPrintWaiter(new Thread(() -> {
+            Waiter out = Waiter.bind();
+            String tag2 = "<" + tag + " />";
+            StringBuilder sb = new StringBuilder();
+            int id = out.getProcessID();
+            try {
+                while (what.available() > 0) {
+                    int i = what.read();
+                    if(i != -1) sb.append(i);
+                    if(sb.substring(sb.length() - tag2.length()).equals(tag2) || i == -1) {
+                        InputStream insert = processHTML(new ByteArrayInputStream(sb.toString().getBytes()),
+                                run, params, id);//start
+                        Waiter w = Waiter.stream(insert, out.getPrintStream());
+                        if(i == -1) break;
+                        Waiter.stream(printSpliterator(what, tag, run, params, id++), w.getPrintStream());//nest
+                        break;
+                    }
                 }
+            } catch(Exception e) {
+                //stream error
             }
-        } catch(Exception e) {
-            //stream error
-        }
-        if(k != null) k.getPrintStream().close();
-        return readPrintStream(out);
+        }), idx);
+        return in;
     }
 }

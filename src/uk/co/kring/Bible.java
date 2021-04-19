@@ -12,6 +12,11 @@ public class Bible extends Book {
 
     void build() {
         //TODO main bible hook point
+        //0. Virtual Reserved
+        //===================
+        //env - the parameter environment
+        //task - the task number
+
         //1. Word Management
         //==================
 
