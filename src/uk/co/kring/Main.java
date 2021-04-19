@@ -488,6 +488,7 @@ public class Main {
         "Multiple books deleted. A large deletion of books happened",  //16
         "A bad execution context. The book was deleted. 'Tis but a crust",     //17
         "Can't multi-thread this. Something refused to duplicate and provide unique per thread storage", //18
+        "Macro terminal excess. Some words must have preceding words. Like code brackets", //19
     };
 
     public static final int ERR_IO = 0;
@@ -509,6 +510,7 @@ public class Main {
     //16;
     public static final int ERR_CON_BAD = 17;
     public static final int ERR_THREAD = 18;
+    public static final int ERR_BRACKET = 19;
 
     /**
      * The error code primes for indexing.

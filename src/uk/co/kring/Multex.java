@@ -24,7 +24,8 @@ public class Multex {
 
     /**
      * Returns an effective clone under executive speed conditions. Some classes return singleton instances.
-     * @return
+     * This is to allow multi-threading by supplying a new set of instance variables.
+     * @return the replacement or this self for no replacement.
      */
     protected Multex optionReplace() {
         return new Multex(this);

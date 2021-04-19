@@ -17,3 +17,6 @@ via the Stream methods. Iterator methods too. The load into a Stream has
 many possibilities. The Base then can add extra indexing information
 and other extras, stripping non-essential secondary data from the save.
 Indexes themselves may be stored in some kind of Key object.
+
+Javadocs
+=
