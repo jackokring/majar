@@ -1,6 +1,7 @@
 package uk.co.kring;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -1031,6 +1032,33 @@ public class Main {
                 //stream error
             }
         }), idx);
+        return in;
+    }
+
+    /**
+     * Allows use of an output filtering stream on an input stream. Could be useful with chains
+     * and how input streams nicely match the data flow of parameters. Output streams as parameters
+     * require the equivalent of a process wait and join, whereas a fork can happen with no
+     * synchronization.
+     * @param input the input stream.
+     * @param clazz the class of the filter output stream.
+     * @return an input stream to chain processing.
+     * @throws IOException on a stream error.
+     */
+    public static InputStream filterPrintStream(InputStream input,
+                                                Class<? extends FilterOutputStream> clazz) throws IOException {
+        InputStream in = Waiter.getPrintWaiter(new Thread(() -> {
+            Waiter w = Waiter.bind();
+            try {
+                Constructor<?> constructor = clazz.getConstructor(OutputStream.class);
+                Object instance = constructor.newInstance(w.getPrintStream());
+                Waiter.stream(input, new PrintStream((OutputStream) instance));
+                ((OutputStream) instance).flush();//don't close as that's the waiter's job.
+                //that would close the waiter stream as a cascade.
+            } catch (Exception e) {
+                //end thread on exception
+            }
+        }), 0);
         return in;
     }
 }
