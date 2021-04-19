@@ -1,5 +1,7 @@
 package uk.co.kring;
 
+import java.lang.reflect.Constructor;
+
 /**
  * An abstract class representing a primitive Java operation. Primitives can be loaded from the "plug"
  * sub-package automatically by using the simple class name with a lowercase first letter (like a method name).
@@ -18,7 +20,7 @@ public abstract class Prim extends Symbol {
     protected abstract void def(Main m);
 
     public Prim(String name) {
-        super(name, Main.singleton(("Prim#" + name).intern()));//get name
+        super(name, Main.singleton(name));//get name
     }
 
     public Prim() {
@@ -26,7 +28,15 @@ public abstract class Prim extends Symbol {
     }
 
     protected Multex optionReplace() {
-        return this;//NO
+        try {
+            Class<?> clazz = this.getClass();
+            Constructor<?> constructor = clazz.getConstructor(String.class);
+            Object instance = constructor.newInstance(named);
+            return (Prim)instance;//yes
+        } catch(Exception e) {
+            Main.getMain().setError(Main.ERR_THREAD, this);
+            return this;
+        }
     }
 
     public void shift() {

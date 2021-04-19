@@ -486,6 +486,7 @@ public class Main {
         "Current book deleted. Current book set to the bible",  //15
         "Multiple books deleted. A large deletion of books happened",  //16
         "A bad execution context. The book was deleted. 'Tis but a crust",     //17
+        "Can't multi-thread this. Something refused to duplicate and provide unique per thread storage", //18
     };
 
     public static final int ERR_IO = 0;
@@ -506,6 +507,7 @@ public class Main {
     public static final int ERR_CUR_DEL = 15;
     //16;
     public static final int ERR_CON_BAD = 17;
+    public static final int ERR_THREAD = 18;
 
     /**
      * The error code primes for indexing.
