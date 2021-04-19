@@ -401,10 +401,12 @@ public class Main {
     }
 
     String literal() {
+        Multex m = ret.pop();//executive context
         String s = topMost(ret, true);
         if(!fast) {
             printSymbolized(s);
         }
+        ret.push(m);//restore
         return s;
     }
 
