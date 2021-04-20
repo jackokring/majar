@@ -304,7 +304,7 @@ public class Main {
 
     Multex readString(String s) {
         boolean quote = false;
-        int j = 0;
+        int j = -1;
         if(s == null) s = "";
         s = s.replace("\\\"", para);
         if(html) s = s.replace("&", htmlPara);//input render
@@ -313,22 +313,24 @@ public class Main {
         String[] args = s.split(" ");
         for(int i = 0; i < args.length; i++) {
             if(!quote) {
+                j++;//step
                 if(args[i].startsWith("\"")) {
                     quote = true;
                     args[i] = args[i].substring(1);//remove quote
-                } else {
-                    j++;//second or more concat
                 }
             }
             if(quote) {//not quite an else
+                //no step
                 if(args[i].endsWith("\"")) {
                     quote = false;
                     args[i] = args[i].substring(0, args[i].length() - 1);//remove quote
                 }
             }
             if(args[i].contains("\"")) setError(ERR_ESCAPE, args[i].replace(para, "\\\""));
-            args[j] += " " + args[i];
-            args[i] = null;
+            if(j != i) {
+                args[j] += " " + args[i];//add
+                args[i] = null;
+            }
             if(!quote) j = i;//restore parse
         }
         for(int i = 0; i < args.length; i++) {
