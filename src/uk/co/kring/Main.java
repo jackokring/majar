@@ -983,15 +983,15 @@ public class Main {
      */
     public static InputStream processHTML(InputStream what, String with,
                                           Map<String, String[]> params, int idx) throws IOException {
-        InputStream i = Waiter.getPrintWaiter(new Thread(() -> {
+        return Waiter.getPrintWaiter(new Thread(() -> {
             Waiter out = Waiter.bind();
             Main.setIO(what, out.getPrintStream());
             Main.setHTML();//as it needs this for no system exit
             Main m = Main.makeSafe("env", params);
             m.reg(new Var("task", String.valueOf(idx)));
             Main.run(with);
+            out.close();
         }), idx);
-        return i;
     }
 
     /**
@@ -1006,7 +1006,7 @@ public class Main {
      */
     public static InputStream atSpecialTag(InputStream what, String tag, String run,
                                           Map<String, String[]> params, int idx) throws IOException {
-        InputStream in = Waiter.getPrintWaiter(new Thread(() -> {
+        return Waiter.getPrintWaiter(new Thread(() -> {
             Waiter out = Waiter.bind();
             String tag2 = "<" + tag + " />";
             StringBuilder sb = new StringBuilder();
@@ -1021,15 +1021,15 @@ public class Main {
                                 new ByteArrayInputStream(sb.toString().getBytes()),
                                 out.getPrintStream()).getPrintStream());//insert
                         if (i == -1) break;
-                        Waiter.stream(atSpecialTag(what, tag, run, params, id++), w.getPrintStream());//nest insert
+                        out = Waiter.stream(atSpecialTag(what, tag, run, params, id++), w.getPrintStream());//nest insert
                         break;
                     }
                 }
+                out.close();
             } catch (Exception e) {
                 //stream error
             }
         }), idx);
-        return in;
     }
 
     /**
@@ -1044,7 +1044,7 @@ public class Main {
      */
     public static InputStream printSpliterator(InputStream what, String tag, String run,
                                            Map<String, String[]> params, int idx) throws IOException {
-        InputStream in = Waiter.getPrintWaiter(new Thread(() -> {
+        return Waiter.getPrintWaiter(new Thread(() -> {
             Waiter out = Waiter.bind();
             String tag2 = "<" + tag + " />";
             StringBuilder sb = new StringBuilder();
@@ -1058,15 +1058,15 @@ public class Main {
                                 run, params, id);//start
                         Waiter w = Waiter.stream(insert, out.getPrintStream());
                         if(i == -1) break;
-                        Waiter.stream(printSpliterator(what, tag, run, params, id++), w.getPrintStream());//nest
+                        out = Waiter.stream(printSpliterator(what, tag, run, params, id++), w.getPrintStream());//nest
                         break;
                     }
                 }
+                out.close();
             } catch(Exception e) {
                 //stream error
             }
         }), idx);
-        return in;
     }
 
     /**
@@ -1081,18 +1081,18 @@ public class Main {
      */
     public static InputStream filterPrintStream(InputStream input,
                                                 Class<? extends FilterOutputStream> clazz) throws IOException {
-        InputStream in = Waiter.getPrintWaiter(new Thread(() -> {
+        return Waiter.getPrintWaiter(new Thread(() -> {
             Waiter w = Waiter.bind();
             try {
                 Constructor<?> constructor = clazz.getConstructor(OutputStream.class);
                 Object instance = constructor.newInstance(w.getPrintStream());
-                Waiter.stream(input, new PrintStream((OutputStream) instance));
+                w = Waiter.stream(input, new PrintStream((OutputStream) instance));
                 ((OutputStream) instance).flush();//don't close as that's the waiter's job.
                 //that would close the waiter stream as a cascade.
+                w.close();
             } catch (Exception e) {
                 //end thread on exception
             }
         }), 0);
-        return in;
     }
 }

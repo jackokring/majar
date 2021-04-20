@@ -8,50 +8,57 @@ import java.util.HashMap;
  */
 public class Waiter {
 
-    protected static HashMap<Thread, Waiter> waiters = new HashMap<>();
-    private PrintStream s;
+    private final static HashMap<Thread, Waiter> waiters = new HashMap<>();
+    private final PrintStream s;
     private Thread t;
-    private int idx;//a process id
+    private final int idx;//a process id
 
-    public Waiter(PrintStream stream, Thread thread, int id) {
+    Waiter(PrintStream stream, Thread thread, int id) {
         s = stream;
         t = thread;
         idx = id;
     }
 
+    /**
+     * Gets the print stream from the waiter after waiting on the bound thread finishing.
+     * @return the print stream.
+     */
     public PrintStream getPrintStream() {
         if(t == null) return s;
         try {
             t.join();
-            Main.getMain().threads.remove(t);//helps with gc
+            synchronized (Waiter.class) {
+                Main.threads.remove(t);//helps with gc
+                //t = Thread.currentThread();//re-lock on current thread
+                t = null;//self managed sequentially then on
+            }
         } catch(Exception e) {
             //continue anyway
         }
         return s;
     }
 
+    /**
+     * Gets the id bound within the waiter if any.
+     * @return the id or zero.
+     */
     public int getProcessID() {
         return idx;
     }
 
-    public static Waiter bind() {
+    /**
+     * Get a bound waiter for the output stream piped into the input stream returned by getting a print
+     * waiter.
+     * @return the waiter.
+     */
+    public static synchronized Waiter bind() {
         Waiter w = waiters.get(Thread.currentThread());
-        waiters.remove(w);
+        waiters.remove(Thread.currentThread());
         return w;
     }
 
-    public static void register(Waiter w, Thread t) {
+    static synchronized void register(Waiter w, Thread t) {
         waiters.put(t, w);
-    }
-
-    static class PipePrintStream extends PrintStream {
-
-        ByteArrayOutputStream s;
-
-        public PipePrintStream(ByteArrayOutputStream b) {
-            super(b);
-            s = b;
-        }
     }
 
     static class ThreadPipePrintStream extends PrintStream {
@@ -72,12 +79,11 @@ public class Waiter {
      * @return the input stream from the print stream.
      */
     public static InputStream getPrintWaiter(Thread thread, int id) throws IOException {
-        PrintStream p = thread != null ? new ThreadPipePrintStream(new PipedOutputStream()) :
-                new PipePrintStream(new ByteArrayOutputStream());
+        PrintStream p = new ThreadPipePrintStream(new PipedOutputStream());
         if(thread == null) {
-            return inputPrintStream(p);
+            throw new NullPointerException();//must specify thread
         }
-        Waiter.register(new Waiter(p, null, id), thread);//for later bind
+        Waiter.register(new Waiter(p, null, id), thread);//for later bind no join
         Thread bg = new Thread(() -> {
             thread.start();
             try {
@@ -95,9 +101,6 @@ public class Waiter {
         if(p instanceof ThreadPipePrintStream) {
             return new PipedInputStream(((ThreadPipePrintStream)p).s);
         }
-        if(p instanceof PipePrintStream) {
-            return new ByteArrayInputStream(((PipePrintStream) p).s.toByteArray());
-        }
         throw new IOException("Can't collapse: " + p.toString());
     }
 
@@ -110,22 +113,35 @@ public class Waiter {
     public static Waiter stream(InputStream i, PrintStream o) {
         Thread bg = new Thread(() -> {
             int avail;
-            int read = 0;
+            int read;
             byte[] t;
             try {
                 do {
-                    while ((avail = i.available()) > 0) {
-                        t = new byte[avail];//end?
-                        read = i.read(t, 0, avail);
-                        o.write(t, 0, avail);
-                    }
+                    avail = i.available();
+                    t = new byte[avail];//end?
+                    read = i.read(t, 0, avail);
+                    o.write(t, 0, avail);
                     Thread.yield();//pause
                 } while(read != -1);
             } catch(IOException e) {
                 //end of stream
+                try {
+                    i.close();//propagate output impossible
+                } catch(IOException f) {
+                    //and continue
+                }
             }
         });
         bg.start();
-        return new Waiter(o, bg, 0);
+        return new Waiter(o, bg, 0);//stream join on copy complete
+    }
+
+    /**
+     * Close a waiter if the stream is no longer required.
+     */
+    public synchronized void close() {
+        s.close();//close stream
+        Main.threads.remove(t);//helps with gc
+        t = null;//close stream and cancel wait
     }
 }
