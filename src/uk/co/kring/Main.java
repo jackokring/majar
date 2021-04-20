@@ -27,6 +27,8 @@ public class Main {
         return t;
     }
 
+    private boolean running = true;
+
     private int errorExit, last, first;//primary error code
 
     protected Stack<Multex> ret = new ProtectedStack<>();
@@ -66,12 +68,14 @@ public class Main {
             intern(args);//first
             m.reg(m.bible);
             ((Bible)m.bible).build().fix();
+            m.flusher.start();//flush timing ...
             m.execute(new Multex(args), m);
         } catch(Exception e) {
             if(!m.ret.empty()) {
                 m.stackTrace(m.ret);//destructive print
             }
         }
+        m.running = false;
         m.printErrorSummary();
         m.err.flush();
         if(m.html) {
@@ -860,6 +864,17 @@ public class Main {
             throw new RuntimeException();//baulk
         }
     }
+
+    private Thread flusher = new Thread(() -> {
+        while(!out.checkError() && running) {
+            out.flush();
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e) {
+
+            }
+        }
+    });
 
     //=========================================== ADAPTION UTILS
 
