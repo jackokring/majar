@@ -1,14 +1,14 @@
 package uk.co.kring.newra;
 
 import uk.co.kring.Main;
-import uk.co.kring.Prim;
+import uk.co.kring.ThreadPrim;
 
 /**
  * An abstract class representing an AI primitive. As AI primitives
  * can later be factorized with exceptions due to singular cases the
  * methods supplied allow for this.
  */
-public abstract class NewRaNetPrim extends Prim {
+public abstract class NewRaNetPrim extends ThreadPrim {
     @Override
     protected final void def(Main m) {
         if(hasException(m)) {

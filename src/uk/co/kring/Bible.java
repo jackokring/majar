@@ -6,7 +6,7 @@ package uk.co.kring;
 public class Bible extends Book {
 
     public Bible() {
-        super("bible".intern());
+        super("bible");//literal already intern
         build();
     }
 

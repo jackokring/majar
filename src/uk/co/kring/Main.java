@@ -988,7 +988,7 @@ public class Main {
             Main.setIO(what, out.getPrintStream());
             Main.setHTML();//as it needs this for no system exit
             Main m = Main.makeSafe("env", params);
-            m.reg(new Var("task".intern(), String.valueOf(idx)));
+            m.reg(new Var("task", String.valueOf(idx)));
             Main.run(with);
         }), idx);
         return i;
