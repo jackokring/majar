@@ -14,6 +14,14 @@ public abstract class Base extends Key implements Stream<Key>, Iterable<Key> {
 
     Store store;
 
+    /**
+     * Write an operator to the base.
+     * @param op the operator.
+     */
+    public synchronized void write(Operator<? extends Key> op) {
+
+    }
+
     @Override
     public Stream<Key> filter(Predicate<? super Key> predicate) {
         return null;

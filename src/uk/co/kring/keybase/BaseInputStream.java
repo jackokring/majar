@@ -16,23 +16,24 @@ public class BaseInputStream extends InputStream {
     @Override
     public int read() throws IOException {
         throw new IOException();//no byte access??
+        //should really proxy formatted
     }
 
     /**
      * Construct an input stream to process a base as characters.
      * @param base the base to use for generation.
+     * @param by the list of formats.
      */
-    public BaseInputStream(Base base) {
+    public BaseInputStream(Base base, List<Format<? extends Key>> by) {
 
     }
 
     /**
      * A formatted read.
-     * @param by the list of formats.
      * @return formatted string.
-     * @throws IOException
+     * @throws IOException on stream error.
      */
-    public synchronized String read(List<Format<? extends Key>> by) throws IOException {
+    public synchronized String readByFormat() throws IOException {
         return null;
     }
 }
