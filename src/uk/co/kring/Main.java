@@ -430,7 +430,7 @@ public class Main {
         do {
             String s = literal();
             Symbol f = find(s, false);//not an error if it's not
-            if(f != null && f instanceof Macro) {
+            if(f instanceof Macro) {
                 if(!fast) {
                     printSymbol(f);
                 }
@@ -440,7 +440,12 @@ public class Main {
             }
         } while(!macroEscape.peek());
         macroEscape.pop();
-        return (String[])ls.toArray();
+        Object[] o = ls.toArray();
+        String[] s = new String[o.length];
+        for(int i = 0; i < o.length; i++) {
+            s[i] = (String)o[i];
+        }
+        return s;
     }
 
     static String parameter(Stack<Multex> sm, boolean next) {
