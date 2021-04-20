@@ -7,15 +7,24 @@ public class Bible extends Book {
 
     public Bible() {
         super("bible");//literal already intern
-        build();
     }
 
-    void build() {
+    String[] reserved = {
+            //0. Virtual Reserved
+            //===================
+            "env", "task",
+    };
+
+    void fix() {
+        Main m = Main.getMain();
+        for(String s: reserved) {
+            Symbol f = m.find(s, false);
+            if(f != null) m.unReg(f, this, true);
+        }
+    }
+
+    Bible build() {
         //TODO main bible hook point
-        //0. Virtual Reserved
-        //===================
-        //env - the parameter environment
-        //task - the task number
 
         //1. Word Management
         //==================
@@ -41,5 +50,6 @@ public class Bible extends Book {
         //8. Useful Composites
         //====================
 
+        return this;//chain fixes
     }
 }

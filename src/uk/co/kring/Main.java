@@ -64,7 +64,8 @@ public class Main {
             }
             m.clearErrors();
             intern(args);//first
-            m.reg(m.current);
+            m.reg(m.bible);
+            ((Bible)m.bible).build().fix();
             m.execute(new Multex(args), m);
         } catch(RuntimeException e) {
             if(!m.ret.empty()) {
@@ -164,6 +165,10 @@ public class Main {
     }
 
     List<Symbol> unReg(Symbol s, Book current) {
+        return unReg(s, current,false);
+    }
+
+    List<Symbol> unReg(Symbol s, Book current, boolean reserved) {
         if(s.named == null) {
             setError(ERR_NAME, s);
             return null;
@@ -174,7 +179,7 @@ public class Main {
         }
         for(Symbol i: ls) {
             if(i.in == current) {
-                if(i.in instanceof Bible) {
+                if(i.in instanceof Bible && !reserved) {
                     setError(ERR_BIBLE, i);
                     return null;
                 } else {
