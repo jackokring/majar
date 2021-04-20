@@ -2,9 +2,8 @@ package uk.co.kring.keybase;
 
 /**
  * The class of types of values.
+ * @param <K> the field class.
  */
-public abstract class Field extends Key {
-
-    Class<? extends Key> clazz;
+public abstract class Field<K extends Key> extends Key {
 
 }

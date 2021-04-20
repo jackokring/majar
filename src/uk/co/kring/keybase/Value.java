@@ -2,10 +2,10 @@ package uk.co.kring.keybase;
 
 /**
  * An abstract typed item of type by field.
+ * @param <K> the value class.
  */
-public abstract class Value extends Key {
+public abstract class Value<K extends Key> extends Key {
 
-    Field field;
-    Key key;
-
+    Field<K> field;
+    K key;
 }

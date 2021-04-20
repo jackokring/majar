@@ -2,16 +2,17 @@ package uk.co.kring.keybase;
 
 /**
  * A class representing a CRUD on a key.
+ * @param <K> the kind of key.
  */
-public abstract class Operator {
+public abstract class Operator<K extends Key> {
 
-    Key key;
+    K key;
 
     /**
      * Create a new operator.
      * @param key the key to operate on.
      */
-    public Operator(Key key) {
+    public Operator(K key) {
 
     }
 }

@@ -30,7 +30,7 @@ public class BaseOutputStream extends OutputStream {
      * Write an operator to the stream.
      * @param op the operator.
      */
-    public synchronized void write(Operator op) {
+    public synchronized void write(Operator<? extends Key> op) {
 
     }
 }
