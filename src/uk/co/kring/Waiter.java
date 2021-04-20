@@ -99,9 +99,11 @@ public class Waiter {
         try {
             return new PipedInputStream(p.s);
         } catch(IOException e) {
-            throw new RuntimeException();
+            return new ByteArrayInputStream(ERR.getBytes());
         }
     }
+
+    public static final String ERR = "<!-- Can't read pipe -->";
 
     /**
      * A threaded utility to copy an input stream to an output stream.
@@ -124,12 +126,8 @@ public class Waiter {
                 } while(read != -1);
             } catch(IOException e) {
                 //end of stream
-                try {
-                    i.close();//propagate output impossible
-                } catch(IOException f) {
-                    //and continue
-                }
             }
+            drainAndClose(i);
         });
         bg.start();
         return new Waiter(o, bg, 0);//stream join on copy complete
@@ -144,7 +142,11 @@ public class Waiter {
         t = null;//close stream and cancel wait
     }
 
-    public static void drain(InputStream in) {
+    /**
+     * Drain and close an input stream.
+     * @param in the stream.
+     */
+    public static void drainAndClose(InputStream in) {
         try {
             in.close();
         } catch(IOException e) {
