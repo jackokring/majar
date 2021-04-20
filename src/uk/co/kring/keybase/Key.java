@@ -3,8 +3,10 @@ package uk.co.kring.keybase;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.stream.Stream;
 
+/**
+ * The abstract data keyed item.
+ */
 public abstract class Key {
 
     Key replacement;
@@ -23,15 +25,37 @@ public abstract class Key {
         }
     }
 
-    public abstract void load(DataInputStream dis);
+    /**
+     * How to load the class from a stream.
+     * @param dis stream to use.
+     */
+    protected abstract void load(DataInputStream dis);
 
-    public abstract void save(DataOutputStream dos);
+    /**
+     * How to save the class to a stream.
+     * @param dos stream to use.
+     */
+    protected abstract void save(DataOutputStream dos);
 
-    public abstract Stream<? extends Key> find(Class<? extends Key> c);
+    /**
+     * Query this for connections to something of a class.
+     * @param c the class
+     * @return a stream of keys.
+     */
+    public abstract Base find(Class<? extends Key> c);
 
-    public abstract Stream<? extends Key> find(Stream<? extends Key> s);
+    /**
+     * Query this for connections to other keys in a stream.
+     * @param s the query stream.
+     * @return a stream of keys.
+     */
+    public abstract Base find(Base s);
 
-    public Class<? extends Key> called() {//mangler?
-        return this.getClass();
+    /**
+     * A common name.
+     * @return the name.
+     */
+    public String called() {//mangler?
+        return this.getClass().getName();
     }
 }

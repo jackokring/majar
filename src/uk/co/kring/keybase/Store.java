@@ -1,11 +1,12 @@
 package uk.co.kring.keybase;
 
-import uk.co.kring.generic.BulkStream;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.util.UUID;
 
+/**
+ * The primary abstract store for data so that persistence is possible.
+ */
 public abstract class Store extends Key {
 
     UUID instance = UUID.randomUUID();
@@ -20,7 +21,16 @@ public abstract class Store extends Key {
 
     abstract DataOutputStream outputStream();
 
-    public abstract BulkStream<? extends Key> load();
+    /**
+     * Load the store.
+     * @param baseClass the class identifying the base.
+     * @return the stream.
+     */
+    public abstract Base load(Class<Base> baseClass);
 
-    public abstract void save(BulkStream<? extends Key> s);
+    /**
+     * Save to the store.
+     * @param base the stream.
+     */
+    public abstract void save(Base base);
 }
