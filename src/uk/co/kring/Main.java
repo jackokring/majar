@@ -67,7 +67,7 @@ public class Main {
             m.reg(m.bible);
             ((Bible)m.bible).build().fix();
             m.execute(new Multex(args), m);
-        } catch(RuntimeException e) {
+        } catch(Exception e) {
             if(!m.ret.empty()) {
                 m.stackTrace(m.ret);//destructive print
             }
@@ -90,7 +90,9 @@ public class Main {
     public static int run(String s) {//per thread running from text
         Main m = newMain();
         main(m.readString(s).basis);
-        return m.first;
+        int first = m.first;
+        threads.remove(Thread.currentThread());//possible saving but sequential reinitialization
+        return first;
     }
 
     //========================================== USER ABORT
