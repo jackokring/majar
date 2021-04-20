@@ -854,6 +854,13 @@ public class Main {
         }
     }
 
+    //allows transaction completion by ignorance of errors until a start transaction is needed
+    void startTransaction() {
+        if(out.checkError() || err.checkError()) {
+            throw new RuntimeException();//baulk
+        }
+    }
+
     //=========================================== ADAPTION UTILS
 
     /**
