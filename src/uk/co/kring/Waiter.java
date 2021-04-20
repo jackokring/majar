@@ -77,14 +77,9 @@ public class Waiter {
      * @param thread is the thread to execute using the stream.
      * @param id is the id to extract for use in the thread.
      * @return the input stream from the print stream.
-     * @throws IllegalArgumentException if no thread given.
-     * @throws RuntimeException if the pipe can't be made.
      */
     public static InputStream getPrintWaiter(Thread thread, int id) {
         ThreadPipePrintStream p = new ThreadPipePrintStream(new PipedOutputStream());
-        if(thread == null) {
-            throw new IllegalArgumentException();//must specify thread
-        }
         Waiter.register(new Waiter(p, null, id), thread);//for later bind no join
         Thread bg = new Thread(() -> {
             thread.start();
@@ -95,15 +90,22 @@ public class Waiter {
             }
             p.close();//auto close
         });
-        bg.start();
+        if(thread != null) {
+            bg.start();
+        } else {
+            p.close();
+            return new ByteArrayInputStream(ERR_STREAM.getBytes());
+        }
         try {
             return new PipedInputStream(p.s);
         } catch(IOException e) {
-            return new ByteArrayInputStream(ERR.getBytes());
+            p.close();
+            return new ByteArrayInputStream(ERR_PIPE.getBytes());
         }
     }
 
-    public static final String ERR = "<!-- Can't read pipe -->";
+    public static final String ERR_PIPE = "<!-- Can't read pipe -->";
+    public static final String ERR_STREAM = "<!-- No thread writes pipe -->";
 
     /**
      * A threaded utility to copy an input stream to an output stream.

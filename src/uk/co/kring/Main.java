@@ -310,7 +310,7 @@ public class Main {
         if(html) s = s.replace("&", htmlPara);//input render
         s = s.replace("\n", " ");
         s = s.replace("\t", " ");
-        String[] args = s.split("");
+        String[] args = s.split(" ");
         for(int i = 0; i < args.length; i++) {
             if(!quote) {
                 if(args[i].startsWith("\"")) {
@@ -990,7 +990,7 @@ public class Main {
             Main.setHTML();//as it needs this for no system exit
             Main m = Main.makeSafe("env", params);
             m.reg(new Var("task", String.valueOf(idx)));
-            Main.run(with);
+            Main.run(with);//may not exhaustively use input what
             out.close();
         }), idx);
     }
@@ -1012,7 +1012,7 @@ public class Main {
             StringBuilder sb = new StringBuilder();
             int id = out.getProcessID();
             try {
-                while (what.available() > 0) {
+                while(true) {
                     int i = what.read();
                     if (i != -1) sb.append(i);
                     if (sb.substring(sb.length() - tag2.length()).equals(tag2) || i == -1) {
@@ -1025,6 +1025,7 @@ public class Main {
                         break;
                     }
                 }
+                Waiter.drainAndClose(what);
                 out.close();
             } catch (Exception e) {
                 //stream error
@@ -1049,7 +1050,7 @@ public class Main {
             StringBuilder sb = new StringBuilder();
             int id = out.getProcessID();
             try {
-                while (what.available() > 0) {
+                while(true) {
                     int i = what.read();
                     if(i != -1) sb.append(i);
                     if(sb.substring(sb.length() - tag2.length()).equals(tag2) || i == -1) {
@@ -1061,6 +1062,7 @@ public class Main {
                         break;
                     }
                 }
+                Waiter.drainAndClose(what);
                 out.close();
             } catch(Exception e) {
                 //stream error
