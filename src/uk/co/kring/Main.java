@@ -78,6 +78,7 @@ public class Main {
             m.print("</span></span>");
             m.out.flush();
         } else {
+            m.out.flush();
             System.exit(m.first);//a nice ... exit on first finished thread?
         }
     }
@@ -634,6 +635,7 @@ public class Main {
     //========================================= PRINTING
 
     private void putError(boolean error) {
+        put.flush();
         if(error) {
             put = err;
             if(out != err && html) {

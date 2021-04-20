@@ -155,4 +155,12 @@ public class Waiter {
             //back propagation cull
         }
     }
+
+    /**
+     * Test to see if starting a transaction is a good idea.
+     * @return true if commit is necessary as a block free of IO problems.
+     */
+    public boolean startTransaction() {
+        return !s.checkError();
+    }
 }
