@@ -77,11 +77,13 @@ public class Waiter {
      * @param thread is the thread to execute using the stream.
      * @param id is the id to extract for use in the thread.
      * @return the input stream from the print stream.
+     * @throws IllegalArgumentException if no thread given.
+     * @throws RuntimeException if the pipe can't be made.
      */
-    public static InputStream getPrintWaiter(Thread thread, int id) throws IOException {
-        PrintStream p = new ThreadPipePrintStream(new PipedOutputStream());
+    public static InputStream getPrintWaiter(Thread thread, int id) {
+        ThreadPipePrintStream p = new ThreadPipePrintStream(new PipedOutputStream());
         if(thread == null) {
-            throw new NullPointerException();//must specify thread
+            throw new IllegalArgumentException();//must specify thread
         }
         Waiter.register(new Waiter(p, null, id), thread);//for later bind no join
         Thread bg = new Thread(() -> {
@@ -94,14 +96,11 @@ public class Waiter {
             p.close();//auto close
         });
         bg.start();
-        return inputPrintStream(p);
-    }
-
-    static InputStream inputPrintStream(PrintStream p) throws IOException {
-        if(p instanceof ThreadPipePrintStream) {
-            return new PipedInputStream(((ThreadPipePrintStream)p).s);
+        try {
+            return new PipedInputStream(p.s);
+        } catch(IOException e) {
+            throw new RuntimeException();
         }
-        throw new IOException("Can't collapse: " + p.toString());
     }
 
     /**
@@ -143,5 +142,13 @@ public class Waiter {
         s.close();//close stream
         Main.threads.remove(t);//helps with gc
         t = null;//close stream and cancel wait
+    }
+
+    public static void drain(InputStream in) {
+        try {
+            in.close();
+        } catch(IOException e) {
+            //back propagation cull
+        }
     }
 }

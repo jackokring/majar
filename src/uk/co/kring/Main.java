@@ -48,7 +48,7 @@ public class Main {
     private BufferedReader br;
     private InputStream toClose;
 
-    private final Stack<Boolean> macroEscape = new Stack<>();
+    protected Stack<Boolean> macroEscape = new ProtectedStack<>();
 
     //========================================== ENTRY / EXIT
 
@@ -979,10 +979,9 @@ public class Main {
      * @param params the map of string keys to array of strings.
      * @param idx a task index starting point.
      * @return the input stream to chain into other processes.
-     * @throws IOException on a stream error.
      */
     public static InputStream processHTML(InputStream what, String with,
-                                          Map<String, String[]> params, int idx) throws IOException {
+                                          Map<String, String[]> params, int idx) {
         return Waiter.getPrintWaiter(new Thread(() -> {
             Waiter out = Waiter.bind();
             Main.setIO(what, out.getPrintStream());
@@ -1002,10 +1001,9 @@ public class Main {
      * @param params the map of string keys to array of strings.
      * @param idx a task index starting point.
      * @return the input stream to chain into other processes.
-     * @throws IOException on a stream error.
      */
     public static InputStream atSpecialTag(InputStream what, String tag, String run,
-                                          Map<String, String[]> params, int idx) throws IOException {
+                                          Map<String, String[]> params, int idx){
         return Waiter.getPrintWaiter(new Thread(() -> {
             Waiter out = Waiter.bind();
             String tag2 = "<" + tag + " />";
@@ -1017,11 +1015,11 @@ public class Main {
                     if (i != -1) sb.append(i);
                     if (sb.substring(sb.length() - tag2.length()).equals(tag2) || i == -1) {
                         InputStream insert = processHTML(null, run, params, id);//start
-                        Waiter w = Waiter.stream(insert, Waiter.stream(
+                        out = Waiter.stream(insert, Waiter.stream(
                                 new ByteArrayInputStream(sb.toString().getBytes()),
                                 out.getPrintStream()).getPrintStream());//insert
                         if (i == -1) break;
-                        out = Waiter.stream(atSpecialTag(what, tag, run, params, id++), w.getPrintStream());//nest insert
+                        out = Waiter.stream(atSpecialTag(what, tag, run, params, id++), out.getPrintStream());//nest insert
                         break;
                     }
                 }
@@ -1040,10 +1038,9 @@ public class Main {
      * @param params the map of string keys to array of strings.
      * @param idx a task index starting point.
      * @return the input stream to chain into other processes.
-     * @throws IOException on a stream error.
      */
     public static InputStream printSpliterator(InputStream what, String tag, String run,
-                                           Map<String, String[]> params, int idx) throws IOException {
+                                           Map<String, String[]> params, int idx) {
         return Waiter.getPrintWaiter(new Thread(() -> {
             Waiter out = Waiter.bind();
             String tag2 = "<" + tag + " />";
@@ -1056,9 +1053,9 @@ public class Main {
                     if(sb.substring(sb.length() - tag2.length()).equals(tag2) || i == -1) {
                         InputStream insert = processHTML(new ByteArrayInputStream(sb.toString().getBytes()),
                                 run, params, id);//start
-                        Waiter w = Waiter.stream(insert, out.getPrintStream());
+                        out = Waiter.stream(insert, out.getPrintStream());
                         if(i == -1) break;
-                        out = Waiter.stream(printSpliterator(what, tag, run, params, id++), w.getPrintStream());//nest
+                        out = Waiter.stream(printSpliterator(what, tag, run, params, id++), out.getPrintStream());//nest
                         break;
                     }
                 }
@@ -1077,10 +1074,9 @@ public class Main {
      * @param input the input stream.
      * @param clazz the class of the filter output stream.
      * @return an input stream to chain processing.
-     * @throws IOException on a stream error.
      */
     public static InputStream filterPrintStream(InputStream input,
-                                                Class<? extends FilterOutputStream> clazz) throws IOException {
+                                                Class<? extends FilterOutputStream> clazz) {
         return Waiter.getPrintWaiter(new Thread(() -> {
             Waiter w = Waiter.bind();
             try {
