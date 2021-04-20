@@ -29,6 +29,8 @@ public abstract class Prim extends Symbol {
 
     /**
      * Defines the simple state of not needing threading.
+     * Simple is fine for most plugin loading as each load is an instance. For builtin primitives needing
+     * instance per use it requires using the thread primitive class instead of this class.
      * @return true if simple. The default is simple.
      */
     protected boolean simple() {
