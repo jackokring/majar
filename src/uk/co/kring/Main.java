@@ -634,11 +634,11 @@ public class Main {
     private void putError(boolean error) {
         if(error) {
             put = err;
-            if(out != err) {
+            if(out != err && html) {
                 print("<span>");
             }
         } else {
-            if(out != err) {
+            if(out != err && html) {
                 print("</span>");
             }
             put = out;
@@ -848,16 +848,6 @@ public class Main {
         } else {
             put.println(ANSI_RESET);
         }
-    }
-
-    /**
-     * A print utility to unquote unescape and then possibly HTML escape before printing.
-     * @param s the string to print.
-     */
-    public static void exjectPrint(String s) {
-        Main m = getMain();
-        m.printLiteral(s.replace("\\\"", "\"").
-                replace("\\'", "'"));//better store a few more bytes and exject!
     }
 
     //=========================================== ADAPTION UTILS
