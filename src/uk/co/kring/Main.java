@@ -541,31 +541,9 @@ public class Main {
 
     //================================================== ERRORS
 
-    /**
-     * The error messages of the interpreter.
-     */
-    public static final String[] errorFact = {
-        "Input or output problem. Was the process interrupted? OK",           //0
-        "Stack underflow. Not enough data was provided to some word", //1
-        "Out of memory. Maybe the stack overflowed",  //2
-        "Closing \" missing. Check your code",      //3
-        "External process error.",//4
-        "Word not found. The word is not defined and in a book",       //5
-        "Protected f'ing bible. The bible book has reserved words in",//6
-        "Raise you an irrefutable. Yes, the bible can't be revoked, but can be expanded",//7
-        "Bad context. There is a definition but not in the context chain. Use context",     //8
-        "Bad plugin. The Java class to provide a word as a context plugin is not a class extending Prim",  //9
-        "No! You can't alter the bible in that way. Consider forking and editing the Java Bible class build method",     //10
-        "Quoted string formatted bad. Do not use \" in the middle of words and leave spaces",   //11
-        "Symbol with no name. A symbol must have a name to write it into a book",   //12
-        "Overwritten book. All the words in it are now gone",  //13
-        "Partial context deleted. Some books in the context chain no longer exist",  //14
-        "Current book deleted. Current book set to the bible",  //15
-        "Multiple books deleted. A large deletion of books happened",  //16
-        "A bad execution context. The book was deleted. 'Tis but a crust",     //17
-        "Can't multi-thread this. Something refused to duplicate and provide unique per thread storage", //18
-        "Macro terminal excess. Some words must have preceding words. Like code brackets", //19
-    };
+    static ResourceBundle errorFact =
+            ResourceBundle.getBundle(Main.class.getPackage().getName()
+                    + ".lang.Errors", Locale.getDefault());
 
     public static final int ERR_IO = 0;
     public static final int ERR_UNDER = 1;
@@ -692,7 +670,7 @@ public class Main {
                 if(first == 1) first = 0;//no error
                 //keep first in summary
             }
-            for(int i = 0; i < errorFact.length; i++) {
+            for(int i = 0; i < errorFact.keySet().size(); i++) {
                 if(errorExit == 1) break;
                 if(errorExit % errorCode[i] == 0) {
                     errorPlump(c, i, null);
@@ -711,7 +689,7 @@ public class Main {
     void errorPlump(String prefix, int code, Object o) {
         print(prefix);
         print("[" + errorCode[code] + "]");
-        printLiteral(errorFact[code]);
+        printLiteral(errorFact.getString(String.valueOf(code)));//indexed by code
         if(o != null) {
             print(":");
             print(withinError(o));//may contain escape codes
