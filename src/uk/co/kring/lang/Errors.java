@@ -34,6 +34,7 @@ public class Errors extends ListResourceBundle {
                 { "18", "Can't multi-thread this. Something refused to duplicate and provide unique per thread storage" }, //18
                 { "19", "Macro terminal excess. Some words must have preceding words. Like code brackets" }, //19
                 { "20", "Nul terminal problems. You're crazy. Stop pretending things are still on stacks" },   //20
+                { "21", "Chaos in progress. Given your fancy for using nul, here goes ..."}, //21
 
                 { "abort", "User aborted process." },
         };

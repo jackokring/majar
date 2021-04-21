@@ -573,6 +573,7 @@ public class Main {
     public static final int ERR_THREAD = 18;
     public static final int ERR_BRACKET = 19;
     public static final int ERR_NUL = 20;
+    //21
 
     /**
      * The error code primes for indexing.
@@ -593,6 +594,8 @@ public class Main {
         17 * 19, 10, //inform of the possibility of forking
         43 * 43, 16, //multi-book deletion
         43 * 59, 16, //terminal response to multiple books
+        73 * 73, 21,
+        79 * 73, 21,    //null terminal
     };
 
     void clearErrors() {
