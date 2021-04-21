@@ -28,6 +28,12 @@ public class Bible extends Book {
 
         //1. Word Management
         //==================
+        reg(new Prim("list") {
+            @Override
+            protected void def(Main m) {
+                m.list(m.find(m.literal(), true));
+            }
+        });
 
         //2. Variables
         //============

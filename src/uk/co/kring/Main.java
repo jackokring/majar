@@ -811,6 +811,7 @@ public class Main {
     }
 
     void list(Multex m) {
+        if(m == null) return;
         println();
         if(m instanceof Symbol) {
             printSymbol((Symbol)m);

@@ -26,4 +26,12 @@ public class Book extends Symbol {
     public boolean ended() {
         return false;//never ending story
     }
+
+    /**
+     * Registration proxy.
+     * @param s what to register.
+     */
+    protected void reg(Symbol s) {
+        Main.getMain().reg(s);
+    }
 }
