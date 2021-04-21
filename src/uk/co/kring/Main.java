@@ -235,6 +235,7 @@ public class Main {
     }
 
     Symbol find(String t, boolean error) {
+        if(t == null) return null;
         List<Symbol> s = dict.get(t);
         Book c;
         if(s != null) {
@@ -473,6 +474,7 @@ public class Main {
                 }
                 ((Macro) f).macroExecute(m);//the macro must potentially set macro escape
             } else {
+                if(s == null) break;//end literal stream
                 ls.addLast(s);
             }
         } while(!macroEscape.peek());
