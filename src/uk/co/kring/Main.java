@@ -641,7 +641,7 @@ public class Main {
                 //apply the composite and reduce
             }
         }
-        if(e > Integer.MAX_VALUE) throw new RuntimeException("MajarInternal");
+        if(e > Integer.MAX_VALUE) throw new RuntimeException();//now baulk
         errorExit = (int)e;
     }
 
