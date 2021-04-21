@@ -235,7 +235,10 @@ public class Main {
     }
 
     Symbol find(String t, boolean error) {
-        if(t == null) return null;
+        if(t == null) {
+            setError(Main.ERR_NUL, nul);
+            return null;
+        }
         List<Symbol> s = dict.get(t);
         Book c;
         if(s != null) {
