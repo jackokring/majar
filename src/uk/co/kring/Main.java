@@ -160,6 +160,9 @@ public class Main {
     }
 
     void reg(Symbol s, Book current) {
+        if(s == null || s == nul) {
+            setError(ERR_NUL, nul);
+        }
         List<Symbol> ls = unReg(s, current);
         if(ls == null) return;
         s.executeIn = context;//keep context

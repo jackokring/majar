@@ -1,5 +1,7 @@
 package uk.co.kring;
 
+import static uk.co.kring.Main.nul;
+
 /**
  * The basic bible book of irrevocable words built in to the system interpreter.
  */
@@ -32,6 +34,24 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 m.list(m.find(m.literal(), true));
+            }
+        });
+        reg(new Prim("book") {
+            @Override
+            protected void def(Main m) {
+                String name = m.literal();
+                if(name == null) {
+                    m.setError(Main.ERR_NUL, nul);
+                }
+                Book b;
+                reg(b = new Book(name));
+                m.current = b;//make ready
+            }
+        });
+        reg(new Prim("author") {
+            @Override
+            protected void def(Main m) {
+                m.current = m.context;//author context
             }
         });
 
