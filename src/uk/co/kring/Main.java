@@ -30,7 +30,7 @@ public class Main {
     private boolean running = true;
 
     private int errorExit, last, first;//primary error code
-    static Symbol nul = new Nul();
+    public static final Symbol nul = new Nul();
 
     protected Stack<Multex> ret = new ProtectedStack<>(nul);
     protected Stack<Multex> dat = new ProtectedStack<>(nul);
@@ -421,7 +421,10 @@ public class Main {
         while(m.firstString() == null) {
             m.shift();
             if(m.ended()) m = sm.pop();
-            if(m == nul) break;//better no loop
+            if(m == nul) {
+                Main.getMain().setError(ERR_NUL, m);
+                break;//better no loop
+            }
         }
         String s = m.firstString();
         if(!next && !shiftSkip) m.shift();
@@ -569,6 +572,7 @@ public class Main {
     public static final int ERR_CON_BAD = 17;
     public static final int ERR_THREAD = 18;
     public static final int ERR_BRACKET = 19;
+    public static final int ERR_NUL = 20;
 
     /**
      * The error code primes for indexing.

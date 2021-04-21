@@ -6,6 +6,15 @@ package uk.co.kring;
 public class Nul extends Symbol {
 
     /**
+     * The bad executive run.
+     * @param m context.
+     */
+    protected void run(Main m) {
+        m.setError(Main.ERR_NUL, this);//exactly
+        return;
+    }
+
+    /**
      * Create a null.
      */
     public Nul() {

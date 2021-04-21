@@ -33,6 +33,7 @@ public class Errors extends ListResourceBundle {
                 { "17", "A bad execution context. The book was deleted. 'Tis but a crust" },     //17
                 { "18", "Can't multi-thread this. Something refused to duplicate and provide unique per thread storage" }, //18
                 { "19", "Macro terminal excess. Some words must have preceding words. Like code brackets" }, //19
+                { "20", "Nul terminal problems. You're crazy. Stop pretending things are still on stacks" },   //20
 
                 { "abort", "User aborted process." },
         };

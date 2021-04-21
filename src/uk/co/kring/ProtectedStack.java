@@ -18,6 +18,7 @@ public class ProtectedStack<T> extends Stack<T> {
 
     @Override
     public T push(T t) {
+        if(t == Main.nul) return t;//prevents nul flood
         if(count++ > STACK_MAX) Main.getMain().setError(Main.ERR_OVER, this);
         return super.push(t);
 
