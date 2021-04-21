@@ -1,0 +1,37 @@
+package uk.co.kring;
+
+/**
+ * A null item class.
+ */
+public class Nul extends Symbol {
+
+    /**
+     * Create a null.
+     */
+    public Nul() {
+        super("nul", Main.singleton(""));
+    }
+
+    /**
+     * Gets the first executive string available (isn't one).
+     * @return the executive string.
+     */
+    public String firstString() {
+        return null;
+    }
+
+    /**
+     * Shifts to the next executive string (isn't one)..
+     */
+    public void shift() {
+
+    }
+
+    /**
+     * There are no more executive strings.
+     * @return end of strings.
+     */
+    public boolean ended() {
+        return true;
+    }
+}

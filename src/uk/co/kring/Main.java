@@ -30,9 +30,10 @@ public class Main {
     private boolean running = true;
 
     private int errorExit, last, first;//primary error code
+    static Symbol nul = new Nul();
 
-    protected Stack<Multex> ret = new ProtectedStack<>();
-    protected Stack<Multex> dat = new ProtectedStack<>();
+    protected Stack<Multex> ret = new ProtectedStack<>(nul);
+    protected Stack<Multex> dat = new ProtectedStack<>(nul);
 
     protected HashMap<String, List<Symbol>> dict =
             new HashMap<>();
@@ -50,7 +51,7 @@ public class Main {
     private BufferedReader br;
     private InputStream toClose;
 
-    protected Stack<Boolean> macroEscape = new ProtectedStack<>();
+    protected Stack<Boolean> macroEscape = new ProtectedStack<>(true);
     protected boolean chaining = false;
 
     //========================================== ENTRY / EXIT
@@ -111,11 +112,11 @@ public class Main {
     }
 
     void userAbort(boolean a) {
-        print(ANSI_WARN + "User aborted process.");
+        print(ANSI_WARN + errorFact.getString("abort"));
         println();
         first = a?0:1;//bash polarity
         if (html) {
-            throw new RuntimeException("User abort.");
+            throw new RuntimeException();
         } else {
             System.exit(first);//generate user abort exit code
         }
@@ -419,6 +420,7 @@ public class Main {
         while(m.firstString() == null) {
             m.shift();
             if(m.ended()) m = sm.pop();
+            if(m == nul) break;//better no loop
         }
         String s = m.firstString();
         if(!next && !shiftSkip) m.shift();
@@ -809,9 +811,13 @@ public class Main {
     }
 
     void printSymbolized(String s) {
-        if(s == null) return;
-        print(ANSI_LIT);
-        printLiteral(join(singleton(s)));//Mutex entry form
+        if(s == null) {
+            print(ANSI_WARN);
+            printLiteral("nothing");
+        } else {
+            print(ANSI_LIT);
+            printLiteral(join(singleton(s)));//Mutex entry form
+        }
         print(" ");
     }
 

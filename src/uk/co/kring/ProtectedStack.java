@@ -10,6 +10,11 @@ public class ProtectedStack<T> extends Stack<T> {
 
     public final int STACK_MAX = 1024;
     private int count = 0;
+    private T under;
+
+    public ProtectedStack(T onUnder) {
+        under = onUnder;
+    }
 
     @Override
     public T push(T t) {
@@ -20,7 +25,10 @@ public class ProtectedStack<T> extends Stack<T> {
 
     @Override
     public synchronized T pop() {
-        if(empty()) Main.getMain().setError(Main.ERR_UNDER, this);
+        if(empty()) {
+            Main.getMain().setError(Main.ERR_UNDER, this);
+            return under;
+        }
         count--;
         return super.pop();
     }
