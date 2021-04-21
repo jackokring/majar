@@ -462,6 +462,10 @@ public class Main {
             }
         } while(!macroEscape.peek());
         macroEscape.pop();
+        return fromList(ls);
+    }
+
+    String[] fromList(List<String> ls) {
         Object[] o = ls.toArray();
         String[] s = new String[o.length];
         for(int i = 0; i < o.length; i++) {
