@@ -51,6 +51,7 @@ public class Main {
     private InputStream toClose;
 
     protected Stack<Boolean> macroEscape = new ProtectedStack<>();
+    protected boolean chaining = false;
 
     //========================================== ENTRY / EXIT
 
@@ -71,6 +72,7 @@ public class Main {
             m.flusher.start();//flush timing ...
             m.execute(new Multex(args), m);
         } catch(Exception e) {
+            m.putError(false);
             if(!m.ret.empty()) {
                 m.stackTrace(m.ret);//destructive print
             }
@@ -80,7 +82,9 @@ public class Main {
         m.err.flush();
         if(m.html) {
             m.print("</span></span>");
-            m.out.flush();
+            synchronized(m.out) {
+                m.out.flush();
+            }
         } else {
             m.out.flush();
             System.exit(m.first);//a nice ... exit on first finished thread?
@@ -96,7 +100,7 @@ public class Main {
         Main m = newMain();
         main(m.readString(s).basis);
         int first = m.first;
-        threads.remove(Thread.currentThread());//possible saving but sequential reinitialization
+        if(!m.chaining) threads.remove(Thread.currentThread());//possible saving but sequential reinitialization
         return first;
     }
 
@@ -428,6 +432,10 @@ public class Main {
         return s;
     }
 
+    void setChaining() {
+        chaining = true;
+    }
+
     //only call this from within a macro
     void setMacroEscape(boolean escape, Macro m) {
         if(macroEscape.empty()) {
@@ -639,7 +647,9 @@ public class Main {
     //========================================= PRINTING
 
     private void putError(boolean error) {
-        put.flush();
+        synchronized(put) {
+            put.flush();
+        }
         if(error) {
             put = err;
             if(out != err && html) {
@@ -739,7 +749,9 @@ public class Main {
 
     private void print(String s) {
         if(s == null) return;
-        put.print(s);
+        synchronized(put) {
+            put.print(s);
+        }
     }
 
     void printSymbolName(Symbol s) {
@@ -851,10 +863,12 @@ public class Main {
     }
 
     private void println() {
-        if(html) {
-            put.print("<br /></span><span>");//quick!!
-        } else {
-            put.println(ANSI_RESET);
+        synchronized(put) {
+            if (html) {
+                put.print("<br /></span><span>");//quick!!
+            } else {
+                put.println(ANSI_RESET);
+            }
         }
     }
 
@@ -867,7 +881,9 @@ public class Main {
 
     private Thread flusher = new Thread(() -> {
         while(!out.checkError() && running) {
-            out.flush();
+            synchronized (out) {
+                out.flush();
+            }
             try {
                 Thread.sleep(5000);
             } catch (Exception e) {
@@ -1017,7 +1033,7 @@ public class Main {
             Main m = Main.makeSafe("env", params);
             m.reg(new Var("task", String.valueOf(idx)));
             Main.run(with);//may not exhaustively use input what
-            out.close();
+            out.drainAndClose(what);
         }), idx);
     }
 
@@ -1052,7 +1068,6 @@ public class Main {
                     }
                 }
                 Waiter.drainAndClose(what);
-                out.close();
             } catch (Exception e) {
                 //stream error
             }
@@ -1089,7 +1104,6 @@ public class Main {
                     }
                 }
                 Waiter.drainAndClose(what);
-                out.close();
             } catch(Exception e) {
                 //stream error
             }
@@ -1115,7 +1129,7 @@ public class Main {
                 w = Waiter.stream(input, new PrintStream((OutputStream) instance));
                 ((OutputStream) instance).flush();//don't close as that's the waiter's job.
                 //that would close the waiter stream as a cascade.
-                w.close();
+                Waiter.drainAndClose(input);
             } catch (Exception e) {
                 //end thread on exception
             }

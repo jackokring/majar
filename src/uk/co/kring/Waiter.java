@@ -136,15 +136,6 @@ public class Waiter {
     }
 
     /**
-     * Close a waiter if the stream is no longer required.
-     */
-    public synchronized void close() {
-        s.close();//close stream
-        Main.threads.remove(t);//helps with gc
-        t = null;//close stream and cancel wait
-    }
-
-    /**
      * Drain and close an input stream.
      * @param in the stream.
      */
