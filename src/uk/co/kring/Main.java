@@ -404,27 +404,31 @@ public class Main {
         int i;
         while((i = s.indexOf("$")) != -1) {
 
-            String j = topMost(dat, false).replace("$", para);//recursive
+            String j = topMost(dat, false, false).replace("$", para);//recursive
             s = s.substring(0, i) + j + s.substring(i + 1);
         }
         return s.replace(para, "$");
     }
 
-    static String topMost(Stack<Multex> sm, boolean next) {
+    private boolean shiftSkip = false;
+    private int cancelFor = 0;
+
+    static String topMost(Stack<Multex> sm, boolean next, boolean shiftSkip) {
         Multex m = sm.peek();
-        if(next) m.shift();
+        if(next && !shiftSkip) m.shift();
         while(m.firstString() == null) {
             m.shift();
             if(m.ended()) m = sm.pop();
         }
         String s = m.firstString();
-        if(!next) m.shift();
+        if(!next && !shiftSkip) m.shift();
         return s;
     }
 
     String literal() {
         Multex m = ret.pop();//executive context
-        String s = topMost(ret, true);
+        String s = topMost(ret, true, shiftSkip);
+        shiftSkip = false;//cancel literal macro
         if(!fast) {
             printSymbolized(s);
         }
@@ -446,13 +450,22 @@ public class Main {
         macroEscape.push(escape);
     }
 
+    void setMacroLiteral() {
+        shiftSkip = true;//reinterpret as literal
+        cancelFor = 2;//macro and following
+    }
+
+    boolean skipOne() {//allows "lit delay macro" => return "delay" as "lit macro" in multi-literal
+        return cancelFor-- > 0;
+    }
+
     String[] multiLiteral(Main m) {
         LinkedList<String> ls = new LinkedList<>();
         macroEscape.push(false);
         do {
             String s = literal();
             Symbol f = find(s, false);//not an error if it's not
-            if(f instanceof Macro) {
+            if(!skipOne() && f instanceof Macro) {
                 if(!fast) {
                     printSymbol(f);
                 }
@@ -476,7 +489,7 @@ public class Main {
 
     static String parameter(Stack<Multex> sm, boolean next) {
         Multex m = sm.pop();
-        String s = topMost(sm, next);
+        String s = topMost(sm, next, false);
         sm.push(m);
         return s;
     }
