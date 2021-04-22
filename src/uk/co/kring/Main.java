@@ -27,7 +27,7 @@ public class Main {
         return t;
     }
 
-    private boolean running = true;
+    private int exitAck = 0;//do exit flusher
 
     private int errorExit, last, first;//primary error code
     public static final Symbol nul = new Nul();
@@ -51,7 +51,7 @@ public class Main {
     private BufferedReader br;
     private InputStream toClose;
 
-    protected Stack<Boolean> macroEscape = new ProtectedStack<>(true);
+    protected Stack<Frame> macroEscape = new ProtectedStack<>(null);
     protected boolean chaining = false;
 
     //========================================== ENTRY / EXIT
@@ -82,16 +82,14 @@ public class Main {
                 m.stackTrace(m.ret);//destructive print
             }
         }
-        m.running = false;
+        m.exitFlusher();
         m.printErrorSummary();
-        m.err.flush();
         if(m.html) {
             m.print("</span></span>");
             synchronized(m.out) {
                 m.out.flush();
             }
         } else {
-            m.out.flush();
             System.exit(m.first);//a nice ... exit on first finished thread?
         }
     }
@@ -112,13 +110,17 @@ public class Main {
     //========================================== USER ABORT
 
     void userAbort() {
+        userAbort(true);
+    }
+
+    void userExit() {
         userAbort(false);
     }
 
-    void userAbort(boolean a) {
+    private void userAbort(boolean a) {
         print(ANSI_WARN + errorFact.getString("abort"));
         println();
-        first = a?0:1;//bash polarity
+        first = a?1:0;//bash polarity
         if (html) {
             throw new RuntimeException();
         } else {
@@ -132,7 +134,8 @@ public class Main {
         return fast;
     }
 
-    private Book switchContext(Book b) {
+    Book switchContext(Book b) {
+        if(b == null) return context;
         if(b.in == null) {
             if(!(b instanceof Bible)) {
                 setError(ERR_CON_BAD, b);
@@ -145,6 +148,7 @@ public class Main {
     }
 
     void execute(Multex s, Main m) {
+        if(s == null) return;
         s = s.optionReplace();
         ret.push(s);
         while(!s.ended()) {
@@ -164,7 +168,8 @@ public class Main {
     }
 
     void reg(Symbol s, Book current) {
-        if(s == null || s == nul) {
+        if(s == null) return;
+        if(s == nul) {
             setError(ERR_NUL, nul);
         }
         List<Symbol> ls = unReg(s, current);
@@ -188,6 +193,7 @@ public class Main {
     }
 
     List<Symbol> unReg(Symbol s, Book current, boolean reserved) {
+        if(s == null) return null;
         if(s.named == null) {
             setError(ERR_NAME, s);
             return null;
@@ -220,7 +226,7 @@ public class Main {
             unReg(find(i, false), b);
         }
         if(b.in.executeIn == b) {
-            b.in.executeIn = null;
+            b.in.executeIn = null;//clear lazy eval
         }
         b.in = null;//hide context chain for future
         if(b == current) {
@@ -243,7 +249,6 @@ public class Main {
 
     Symbol find(String t, boolean error) {
         if(t == null) {
-            setError(Main.ERR_NUL, nul);
             return null;
         }
         List<Symbol> s = dict.get(t);
@@ -326,7 +331,7 @@ public class Main {
     Multex readString(String s) {
         boolean quote = false;
         int j = -1;
-        if(s == null) s = "";
+        if(s == null) return new Multex((String[])null);//blank
         s = s.replace("\\\"", para);
         if(html) s = s.replace("&", htmlPara);//input render
         s = s.replace("\n", " ");
@@ -373,7 +378,9 @@ public class Main {
      * @param s array to internalize.
      */
     public static void intern(String[] s) {
+        if(s == null) return;
         for(int i = 0; i < s.length; i++) {
+            if(s[i] == null) continue;
             s[i] = s[i].intern();//pointers??
         }
     }
@@ -383,7 +390,8 @@ public class Main {
      * @param s a string to escape.
      * @return escaped sting.
      */
-    public static String escapeHTML(String s) {
+    public static String escapeHTML(String s) {//TODO maybe no intern needed
+        if(s == null) return null;
         return s.codePoints().mapToObj(c -> c > 127 || "\"'<>&".indexOf(c) != -1 ?
                 "&#" + c + ";" : new String(Character.toChars(c)))
                 .collect(Collectors.joining());
@@ -394,7 +402,8 @@ public class Main {
      * @param s a string to escape.
      * @return escaped sting.
      */
-    public static String escapeQuote(String s) {
+    public static String escapeQuote(String s) {//TODO maybe no intern needed
+        if(s == null) return null;
         return s.codePoints().mapToObj(c -> c < 128 && "\"'".indexOf(c) != -1 ?
                 "\\" + c : new String(Character.toChars(c)))
                 .collect(Collectors.joining());
@@ -407,23 +416,20 @@ public class Main {
      */
     public static String[] singleton(String s) {
         String[] sa = new String[1];
-        //sa[0] = s.intern();
+        sa[0] = s;
         return sa;
     }
 
-    String dollar(String s) {
+    String dollar(String s) {//TODO maybe no intern needed
+        if(s == null) return null;
         s = s.replace("\\$", para);
         int i;
         while((i = s.indexOf("$")) != -1) {
-
             String j = topMost(dat, false, false).replace("$", para);//recursive
             s = s.substring(0, i) + j + s.substring(i + 1);
         }
         return s.replace(para, "$");
     }
-
-    private boolean shiftSkip = false;
-    private int cancelFor = 0;
 
     static String topMost(Stack<Multex> sm, boolean next, boolean shiftSkip) {
         Multex m = sm.peek();
@@ -443,8 +449,8 @@ public class Main {
 
     String literal() {
         Multex m = ret.pop();//executive context
-        String s = topMost(ret, true, shiftSkip);
-        shiftSkip = false;//cancel literal macro
+        String s = topMost(ret, true, macroEscape.peek().shiftSkip);
+        macroEscape.peek().shiftSkip = false;//cancel literal macro
         if(!fast) {
             printSymbolized(s);
         }
@@ -457,29 +463,39 @@ public class Main {
     }
 
     //only call this from within a macro
-    void setMacroEscape(boolean escape, Macro m) {
+    void setMacroEscape(int escape, Macro m) {
         if(macroEscape.empty()) {
             setError(ERR_BRACKET, m);
         } else {
-            macroEscape.pop();
+            Frame f = macroEscape.peek();
+            f.open -= escape;
+            if(f.open < 0) {
+                setError(ERR_BRACKET, m);
+            }
         }
-        macroEscape.push(escape);
     }
 
-    void setMacroLiteral() {
-        shiftSkip = true;//reinterpret as literal
-        cancelFor = 2;//macro and following
+    void setMacroLiteral(int forLength) {
+        macroEscape.peek().shiftSkip = true;//reinterpret as literal
+        macroEscape.peek().cancelFor = forLength;//macro and following
     }
 
     boolean skipOne() {//allows "lit delay macro" => return "delay" as "lit macro" in multi-literal
-        return cancelFor-- > 0;
+        return macroEscape.peek().cancelFor-- > 0;
+    }
+
+    static class Frame {
+        boolean shiftSkip = false;
+        int cancelFor = 0;
+        int open = 1;
     }
 
     String[] multiLiteral(Main m) {
         LinkedList<String> ls = new LinkedList<>();
-        macroEscape.push(false);
+        macroEscape.push(new Frame());
         do {
             String s = literal();
+            if(s == null) break;//end literal stream
             Symbol f = find(s, false);//not an error if it's not
             if(!skipOne() && f instanceof Macro) {
                 if(!fast) {
@@ -487,10 +503,9 @@ public class Main {
                 }
                 ((Macro) f).macroExecute(m);//the macro must potentially set macro escape
             } else {
-                if(s == null) break;//end literal stream
                 ls.addLast(s);
             }
-        } while(!macroEscape.peek());
+        } while(macroEscape.peek().open > 0);
         macroEscape.pop();
         return fromList(ls);
     }
@@ -524,6 +539,7 @@ public class Main {
      * @return joined string.
      */
     public static String join(String[] s) {
+        if(s == null) return null;
         StringBuilder t = new StringBuilder();
         boolean f = false;
         for(String i: s) {
@@ -725,8 +741,13 @@ public class Main {
         println();
         while(!s.empty()) {
             //trace
-            print(ANSI_ERR + "@ ");
-            printLiteral(s.pop().firstString());
+            Multex m = s.pop();
+            if(m != null) {
+                print(ANSI_ERR + "@ ");
+                printLiteral(m.firstString());
+            } else {
+                print(ANSI_ERR + "@@");//a void on the stack
+            }
             println();
         }
         println();
@@ -763,8 +784,7 @@ public class Main {
         "WARN"
     };
 
-    private void print(String s) {
-        if(s == null) return;
+    private void print(String s) {//private so final not used outside
         synchronized(put) {
             put.print(s);
         }
@@ -832,16 +852,15 @@ public class Main {
 
     void printSymbolized(String s) {
         if(s == null) {
-            print(ANSI_WARN);
-            printLiteral("nothing");
-        } else {
-            print(ANSI_LIT);
-            printLiteral(join(singleton(s)));//Mutex entry form
+            return;
         }
+        print(ANSI_LIT);
+        printLiteral(join(singleton(s)));//Mutex entry form
         print(" ");
     }
 
     void printLiteral(String s) {
+        if(s == null) return;
         if(html) {
             print(escapeHTML(s).replace(htmlPara, "&"));//fix up HTML
         } else {
@@ -850,6 +869,7 @@ public class Main {
     }
 
     void printHTML(String s) {
+        if(s == null) return;
         if(html) {
             print(s.replace(htmlPara, "&"));//fix up HTML
         } else {
@@ -858,6 +878,7 @@ public class Main {
     }
 
     void printTag(String name, String classOpen, Symbol nameValue) {//else close
+        if(name == null) return;
         print("<");
         if(classOpen == null) print("/");
         printLiteral(name);
@@ -878,6 +899,7 @@ public class Main {
     }
 
     void printSpecialTag(String name) {
+        if(name == null) return;
         print("<");
         printLiteral(name);
         print(" />");
@@ -901,9 +923,11 @@ public class Main {
     }
 
     void startFlusher() {
-        running = true;
         Thread flusher = new Thread(() -> {
-            while(!out.checkError() && running) {
+            while(exitAck > 0) {
+                Thread.yield();
+            }
+            while(!out.checkError() && exitAck == 0) {
                 synchronized (out) {
                     out.flush();
                 }
@@ -913,8 +937,13 @@ public class Main {
                     //loop
                 }
             }
+            exitAck--;
         });
         flusher.start();
+    }
+
+    void exitFlusher() {
+        exitAck++;
     }
 
     //=========================================== ADAPTION UTILS

@@ -20,6 +20,7 @@ public class ProtectedStack<T> extends Stack<T> {
     public T push(T t) {
         //null is fine
         if(t == Main.nul) {
+            Main.getMain().setError(Main.ERR_NUL, this);
             clear();
             count = 0;
             return t;//prevents nul flood
