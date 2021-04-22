@@ -74,7 +74,7 @@ public class Main {
                 m.reg(m.bible);
                 ((Bible) m.bible).build().fix();
             }
-            m.flusher.start();//flush timing ...
+            m.startFlusher();
             m.execute(new Multex(args), m);
         } catch(Exception e) {
             m.putError(false);
@@ -900,18 +900,22 @@ public class Main {
         }
     }
 
-    private Thread flusher = new Thread(() -> {
-        while(!out.checkError() && running) {
-            synchronized (out) {
-                out.flush();
+    void startFlusher() {
+        running = true;
+        Thread flusher = new Thread(() -> {
+            while(!out.checkError() && running) {
+                synchronized (out) {
+                    out.flush();
+                }
+                try {
+                    Thread.sleep(5000);
+                } catch (Exception e) {
+                    //loop
+                }
             }
-            try {
-                Thread.sleep(5000);
-            } catch (Exception e) {
-
-            }
-        }
-    });
+        });
+        flusher.start();
+    }
 
     //=========================================== ADAPTION UTILS
 
