@@ -1,14 +1,13 @@
 package uk.co.kring.kodek;
 
-import java.io.IOException;
+import java.io.FilterOutputStream;
 import java.io.OutputStream;
-
 /**
  * A steam to write output written blocks.
  */
-public class BlockOutputStream extends OutputStream {
-    @Override
-    public void write(int i) throws IOException {
+public class BlockOutputStream extends FilterOutputStream {
 
+    public BlockOutputStream(OutputStream outputStream) {
+        super(outputStream);
     }
 }
