@@ -62,14 +62,18 @@ public class Main {
      */
     public static void main(String[] args) {
         Main m = getMain();
+        intern(args);//first
         try {
             if(m.html) {
                 m.print("<span class=\"majar\"><span>");
             }
-            m.clearErrors();
-            intern(args);//first
-            m.reg(m.bible);
-            ((Bible)m.bible).build().fix();
+            if(m.chaining) {
+                m.chaining = false;
+            } else {
+                m.clearErrors();
+                m.reg(m.bible);
+                ((Bible) m.bible).build().fix();
+            }
             m.flusher.start();//flush timing ...
             m.execute(new Multex(args), m);
         } catch(Exception e) {
