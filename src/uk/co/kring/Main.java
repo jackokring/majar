@@ -27,7 +27,7 @@ public class Main {
         return t;
     }
 
-    private int exitAck = 0;//do exit flusher
+    private Thread flusher;//flusher counter
 
     private int errorExit, last, first;//primary error code
     public static final Symbol nul = new Nul();
@@ -923,11 +923,8 @@ public class Main {
     }
 
     void startFlusher() {
-        Thread flusher = new Thread(() -> {
-            while(exitAck > 0) {
-                Thread.yield();
-            }
-            while(!out.checkError() && exitAck == 0) {
+        flusher = new Thread(() -> {
+            while(!out.checkError() && flusher == Thread.currentThread()) {
                 synchronized (out) {
                     out.flush();
                 }
@@ -937,13 +934,12 @@ public class Main {
                     //loop
                 }
             }
-            exitAck--;
         });
-        flusher.start();
+        flusher.start();//new thread id used as survivor
     }
 
     void exitFlusher() {
-        exitAck++;
+        flusher = null;
     }
 
     //=========================================== ADAPTION UTILS
