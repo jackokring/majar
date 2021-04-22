@@ -17,7 +17,7 @@ public class Errors extends ListResourceBundle {
                 { "1", "Stack underflow. Not enough data was provided to some word" }, //1
                 { "2", "Out of memory. Maybe the stack overflowed" },  //2
                 { "3", "Closing \" missing. Check your code" },      //3
-                { "4", "External process error." },//4
+                { "4", "External process error" },//4
                 { "5", "Word not found. The word is not defined and in a book" },       //5
                 { "6", "Protected f'ing bible. The bible book has reserved words in" },//6
                 { "7", "Raise you an irrefutable. Yes, the bible can't be revoked, but can be expanded" },//7
@@ -34,7 +34,7 @@ public class Errors extends ListResourceBundle {
                 { "18", "Can't multi-thread this. Something refused to duplicate and provide unique per thread storage" }, //18
                 { "19", "Macro terminal excess. Some words must have preceding words. Like code brackets" }, //19
                 { "20", "Nul terminal problems. You're crazy. Stop pretending things are still on stacks" },   //20
-                { "21", "Chaos in progress. Given your fancy for using nul, here goes ..."}, //21
+                { "21", "Chaos in progress. Given your fancy for using nul, here goes .."}, //21
 
                 { "abort", "User aborted process." },
         };

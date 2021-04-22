@@ -5,5 +5,5 @@ package uk.co.kring.keybase;
  */
 public abstract class Owner extends Key {
 
-    Owner deemMaster;
+    Owner deemMaster;//agent
 }
