@@ -15,7 +15,7 @@ public class Safe extends Book {
         Multex s = m.find(m.literal(), false);
         if(s == null) {
             //no value stack balance
-            m.dat.push(new Multex(new String[0]));//blank
+            m.dat.push(new Multex((String[])null));//blank
         }
         m.dat.push(new Multex(s.basis));//place the recalled value
         m.current = in;

@@ -11,14 +11,14 @@ public class Nul extends Symbol {
      */
     protected void run(Main m) {
         m.setError(Main.ERR_NUL, this);//exactly
-        return;
+        m.ret.pop();
     }
 
     /**
      * Create a null.
      */
     public Nul() {
-        super("nul", Main.singleton(""));
+        super("nul", (String[])null);
     }
 
     /**

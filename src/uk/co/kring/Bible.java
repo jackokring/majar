@@ -14,7 +14,7 @@ public class Bible extends Book {
     String[] reserved = {
             //0. Virtual Reserved
             //===================
-            "env", "task",
+            "env", "task", "nul",
     };
 
     void fix() {
@@ -41,7 +41,7 @@ public class Bible extends Book {
             protected void def(Main m) {
                 String name = m.literal();
                 if(name == null) {
-                    m.setError(Main.ERR_NUL, nul);
+                    return;
                 }
                 Book b;
                 reg(b = new Book(name));
