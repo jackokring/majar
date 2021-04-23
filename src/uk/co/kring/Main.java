@@ -1083,14 +1083,16 @@ public class Main {
                 while(true) {
                     int i = what.read();
                     if (i != -1) sb.append(i);
-                    if (sb.substring(sb.length() - tag2.length()).equals(tag2) || i == -1) {
-                        InputStream insert = processHTML(null, run, params, id);//start
-                        out = Waiter.stream(insert, Waiter.stream(
-                                new ByteArrayInputStream(sb.toString().getBytes()),
-                                out.getPrintStream()).getPrintStream());//insert
-                        if (i == -1) break;
-                        out = Waiter.stream(atSpecialTag(what, tag, run, params, id++), out.getPrintStream());//nest insert
-                        break;
+                    if(i == '>' || i == -1) {
+                        if (sb.substring(sb.length() - tag2.length()).equals(tag2) || i == -1) {
+                            InputStream insert = processHTML(null, run, params, id);//start
+                            out = Waiter.stream(insert, Waiter.stream(
+                                    new ByteArrayInputStream(sb.toString().getBytes()),
+                                    out.getPrintStream()).getPrintStream());//insert
+                            if (i == -1) break;
+                            out = Waiter.stream(atSpecialTag(what, tag, run, params, id++), out.getPrintStream());//nest insert
+                            break;
+                        }
                     }
                 }
                 Waiter.drainAndClose(what);
@@ -1120,13 +1122,15 @@ public class Main {
                 while(true) {
                     int i = what.read();
                     if(i != -1) sb.append(i);
-                    if(sb.substring(sb.length() - tag2.length()).equals(tag2) || i == -1) {
-                        InputStream insert = processHTML(new ByteArrayInputStream(sb.toString().getBytes()),
-                                run, params, id);//start
-                        out = Waiter.stream(insert, out.getPrintStream());
-                        if(i == -1) break;
-                        out = Waiter.stream(printSpliterator(what, tag, run, params, id++), out.getPrintStream());//nest
-                        break;
+                    if(i == '>' || i == -1) {
+                        if (sb.substring(sb.length() - tag2.length()).equals(tag2) || i == -1) {
+                            InputStream insert = processHTML(new ByteArrayInputStream(sb.toString().getBytes()),
+                                    run, params, id);//start
+                            out = Waiter.stream(insert, out.getPrintStream());
+                            if (i == -1) break;
+                            out = Waiter.stream(printSpliterator(what, tag, run, params, id++), out.getPrintStream());//nest
+                            break;
+                        }
                     }
                 }
                 Waiter.drainAndClose(what);
