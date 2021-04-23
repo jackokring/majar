@@ -75,7 +75,7 @@ public class Main {
                 ((Bible) m.bible).build().fix();
             }
             m.startFlusher();
-            m.execute(new Multex(args), m);
+            m.execute(new Multex(args));
         } catch(Exception e) {
             m.putError(false);
             if(!m.ret.empty()) {
@@ -147,16 +147,29 @@ public class Main {
         return c;
     }
 
-    void execute(Multex s, Main m) {
+    void execute(Multex s) {
         if(s == null) return;
-        s = s.optionReplace();
-        ret.push(s);
-        while(!s.ended()) {
-            s.run(m);
-            s.shift();
+        stackForRun(s);
+        while(!ret.empty()) {
+            runNext();
             if(errOver()) break;//prime errors
         }
-        ret.pop();
+    }
+
+    void stackForRun(Multex s) {
+        s = s.optionReplace();//new index required?
+        ret.push(s);//place on stack
+    }
+
+    void runNext() {//fetch and execute
+        String s = topMost(ret);
+        if(s == null) return;//end of code
+        ret.peek().shift();//post fetch
+        Symbol m = find(s, true);//errors
+        if(!fast) {
+            printSymbolName(m);
+        }
+        m.run(this);//run in context
     }
 
     void profile(Symbol s) {
@@ -431,9 +444,8 @@ public class Main {
         return s.replace(para, "$");
     }
 
-    static String topMost(Stack<Multex> sm, boolean next, boolean shiftSkip) {
+    static String topMost(Stack<Multex> sm) {
         Multex m = sm.peek();
-        if(next && !shiftSkip) m.shift();
         while(m.firstString() == null) {
             m.shift();
             if(m.ended()) m = sm.pop();
@@ -443,13 +455,14 @@ public class Main {
             }
         }
         String s = m.firstString();
-        if(!next && !shiftSkip) m.shift();
+        if(!shiftSkip) m.shift();
         return s;
     }
 
     String literal() {
         Multex m = ret.pop();//executive context
-        String s = topMost(ret, true, macroEscape.peek().shiftSkip);
+        String s = topMost(ret)
+        , macroEscape.peek().shiftSkip);
         macroEscape.peek().shiftSkip = false;//cancel literal macro
         if(!fast) {
             printSymbolized(s);
@@ -517,20 +530,6 @@ public class Main {
             s[i] = (String)o[i];
         }
         return s;
-    }
-
-    static String parameter(Stack<Multex> sm, boolean next) {
-        Multex m = sm.pop();
-        String s = topMost(sm, next, false);
-        sm.push(m);
-        return s;
-    }
-
-    static void swap(Stack<Multex> sm) {
-        Multex m = sm.pop();
-        Multex t = sm.pop();
-        sm.push(m);
-        sm.push(t);
     }
 
     /**

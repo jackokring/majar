@@ -9,7 +9,9 @@ import java.lang.reflect.Constructor;
 public abstract class Prim extends Symbol {
 
     protected final void run(Main m) {
+        Book b = m.switchContext(executeIn);
         def(m);
+        m.switchContext(b);
         m.ret.pop();//and leave execution frame
     }
 
