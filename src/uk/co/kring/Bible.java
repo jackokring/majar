@@ -14,7 +14,7 @@ public class Bible extends Book {
     String[] reserved = {
             //0. Virtual Reserved
             //===================
-            "env", "task", "nul",
+            "env", "task",
     };
 
     void fix() {
@@ -57,6 +57,7 @@ public class Bible extends Book {
 
         //2. Variables
         //============
+        reg(nul);//a nul value for terminals behaves in strange way
 
         //3. Input and Output
         //===================

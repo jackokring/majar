@@ -447,14 +447,14 @@ public class Main {
                 sm.pop();//pop null
                 m = sm.peek();
             } else {
+                if (m == nul) {
+                    Main.getMain().setError(ERR_NUL, m);
+                    return null;
+                }
                 m.shift();
                 if (m.ended()) {
                     sm.pop();
                     m = sm.peek();
-                }
-                if (m == nul) {
-                    Main.getMain().setError(ERR_NUL, m);
-                    return null;
                 }
             }
         }

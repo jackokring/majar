@@ -27,7 +27,7 @@ public class Var extends Symbol {
     }
 
     public String firstString() {
-        return named;
+        return Main.join(basis);//return the literal value
     }
 
     public boolean ended() {
