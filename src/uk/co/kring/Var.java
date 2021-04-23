@@ -7,7 +7,6 @@ public class Var extends Symbol {
 
     protected void run(Main m) {
         m.dat.push(new Multex(basis));
-        m.ret.pop();//exit exec
     }
 
     public Var(String name, Multex m) {
@@ -22,8 +21,8 @@ public class Var extends Symbol {
         return this;//NO
     }
 
-    public void shift() {
-        //nothing
+    public void shift(Main m) {
+        m.ret.pop();
     }
 
     /**

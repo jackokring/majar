@@ -165,7 +165,7 @@ public class Main {
         Multex m = ret.peek();
         if(m == null) return;//end of code
         m.run(this);
-        m.shift();//post fetch
+        m.shift(this);//post fetch
     }
 
     void profile(Symbol s) {
@@ -440,7 +440,7 @@ public class Main {
         return s.replace(para, "$");
     }
 
-    static String topMost(Stack<Multex> sm) {//null at end
+    String topMost(Stack<Multex> sm) {//null at end
         Multex m = sm.peek();
         while(m == null || m.firstString() == null) {
             if(m == null) {
@@ -451,9 +451,8 @@ public class Main {
                     Main.getMain().setError(ERR_NUL, m);
                     return null;
                 }
-                m.shift();
+                m.shift(this);
                 if (m.ended()) {
-                    sm.pop();
                     m = sm.peek();
                 }
             }
@@ -464,7 +463,7 @@ public class Main {
 
     String literal() {
         Multex m = ret.pop();//executive context
-        if(macroEscape.peek().shiftSkip) ret.peek().shift();//move onto literals
+        if(macroEscape.peek().shiftSkip) ret.peek().shift(this);//move onto literals
         String s = topMost(ret);//obtain a literal
         //after word execution the final shift is done by runNext()
         macroEscape.peek().shiftSkip = false;//cancel literal macro for reabsorption

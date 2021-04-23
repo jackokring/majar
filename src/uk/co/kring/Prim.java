@@ -12,7 +12,6 @@ public abstract class Prim extends Symbol {
         Book b = m.switchContext(executeIn);
         def(m);
         m.switchContext(b);
-        m.ret.pop();//and leave execution frame
     }
 
     /**
@@ -52,8 +51,8 @@ public abstract class Prim extends Symbol {
         }
     }
 
-    public void shift() {
-        //nothing
+    public void shift(Main m) {
+        m.ret.pop();
     }
 
     public String firstString() {

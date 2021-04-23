@@ -11,7 +11,6 @@ public class Nul extends Symbol {
      */
     protected void run(Main m) {
         m.setError(Main.ERR_NUL, this);//exactly
-        m.ret.pop();
     }
 
     /**
@@ -32,8 +31,8 @@ public class Nul extends Symbol {
     /**
      * Shifts to the next executive string (isn't one)..
      */
-    public void shift() {
-
+    public void shift(Main m) {
+        m.ret.pop();
     }
 
     /**

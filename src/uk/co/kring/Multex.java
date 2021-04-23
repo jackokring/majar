@@ -10,10 +10,6 @@ public class Multex {
      * @param m context.
      */
     protected void run(Main m) {
-        if(ended()) {
-            m.ret.pop();
-            return;
-        }
         if(firstString() == null) return;//no fail null
         Symbol s = m.find(firstString(), executeIn, true);
         if(s != null) {
@@ -62,8 +58,11 @@ public class Multex {
     /**
      * Shifts to the next executive string.
      */
-    public void shift() {
+    public void shift(Main m) {
         idx++;
+        if(ended()) {
+            m.ret.pop();
+        }
     }
 
     /**

@@ -11,8 +11,7 @@ public class Book extends Symbol {
 
     protected void run(Main m) {
         m.current = this;
-        this.in.executeIn = this;//cache
-        m.ret.pop();//and leave execution frame
+        this.in.executeIn = this;//cachee
     }
 
     protected Multex optionReplace() {
@@ -23,8 +22,8 @@ public class Book extends Symbol {
         return named;
     }
 
-    public void shift() {
-        //nothing
+    public void shift(Main m) {
+        m.ret.pop();
     }
 
     public boolean ended() {
