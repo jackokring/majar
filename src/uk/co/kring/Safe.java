@@ -6,6 +6,10 @@ package uk.co.kring;
  */
 public class Safe extends Book {
 
+    /**
+     * Make an empty safe.
+     * @param name the name.
+     */
     public Safe(String name) {
         super(name);//empty to start
     }

@@ -26,8 +26,12 @@ public class Var extends Symbol {
         //nothing
     }
 
+    /**
+     * Return the value as a string so that variables can be parameterized.
+     * @return the input for of the variable.
+     */
     public String firstString() {
-        return Main.join(basis);//return the literal value
+        return Main.join(basis).intern();//return the literal value
     }
 
     public boolean ended() {

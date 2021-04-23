@@ -13,9 +13,23 @@ public abstract class Macro extends Prim {
      */
     protected Prim onLiteral;//the macro behaviour
 
+    /**
+     * Execute immediate macro primitive.
+     * @param m context.
+     */
     public final void macroExecute(Main m) {
         if(onLiteral == null) onLiteral = this;//default sensible
         onLiteral.executeIn = executeIn;
         onLiteral.run(m);//run macro in same context
+    }
+
+    /**
+     * Create a macro with an immediate behaviour as well as being a normal primitive.
+     * @param name name to use.
+     * @param immediate the immediate macro behaviour.
+     */
+    public Macro(String name, Prim immediate) {
+        super(name);//get name
+        onLiteral = immediate;
     }
 }
