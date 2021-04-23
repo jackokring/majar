@@ -811,12 +811,18 @@ public class Main {
         if(m instanceof Book) {
             context = (Book)m;//set self to view
         }
-        for(String i: m.basis) {
-            Symbol x = find(i, false);
+        for(int i = 0; i < m.basis.length; i++) {
+            if(!(m instanceof UnitSymbol)) {
+                if(i == m.idx) {
+                    //cursor
+                    printSymbolized("@");
+                }
+            }
+            Symbol x = find(m.basis[i], false);
             if(x != null) {
                 printSymbolName(x);
             } else {
-                printSymbolized(i);//not found in context
+                printSymbolized(m.basis[i]);//not found in context
             }
         }
         context = c;

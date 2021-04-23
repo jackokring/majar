@@ -54,6 +54,18 @@ public class Bible extends Book {
                 m.current = m.context;//author context
             }
         });
+        reg(new Prim("context") {
+            @Override
+            protected void def(Main m) {
+                m.printContext();
+            }
+        });
+        reg(new Prim("current") {
+            @Override
+            protected void def(Main m) {
+                m.list(m.current);
+            }
+        });
 
         //2. Variables
         //============
