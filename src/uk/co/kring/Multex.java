@@ -51,7 +51,7 @@ public class Multex {
      * @return the executive string.
      */
     public String firstString() {
-        if(ended()) return null;
+        if(idx >= basis.length) return null;
         return basis[idx];
     }
 
@@ -60,13 +60,9 @@ public class Multex {
      */
     public boolean shift(Main m) {
         idx++;
-        if(ended()) {
+        if(idx >= basis.length) {
             m.ret.pop();
         }
-        return ended();
-    }
-
-    private boolean ended() {
         return idx >= basis.length;
     }
 }

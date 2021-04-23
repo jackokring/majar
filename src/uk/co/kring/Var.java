@@ -3,7 +3,7 @@ package uk.co.kring;
 /**
  * A class to represent a variable recall mechanism.
  */
-public class Var extends Symbol {
+public class Var extends UnitSymbol {
 
     protected void run(Main m) {
         m.dat.push(new Multex(basis));
@@ -17,20 +17,12 @@ public class Var extends Symbol {
         super(name, value);//parse
     }
 
-    protected Multex optionReplace() {
-        return this;//NO
-    }
-
-    public boolean shift(Main m) {
-        m.ret.pop();
-        return true;
-    }
-
     /**
      * Return the value as a string so that variables can be parameterized.
      * @return the input for of the variable.
      */
     public String firstString() {
-        return Main.join(basis).intern();//return the literal value
+        return Main.join(basis);
+        //.intern();//return the literal value better to do this on dynamic variable name assign
     }
 }

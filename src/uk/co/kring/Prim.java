@@ -6,7 +6,7 @@ import java.lang.reflect.Constructor;
  * An abstract class representing a primitive Java operation. Primitives can be loaded from the "plug"
  * sub-package automatically by using the simple class name with a lowercase first letter (like a method name).
  */
-public abstract class Prim extends Symbol {
+public abstract class Prim extends UnitSymbol {
 
     protected final void run(Main m) {
         Book b = m.switchContext(executeIn);
@@ -49,14 +49,5 @@ public abstract class Prim extends Symbol {
             Main.getMain().setError(Main.ERR_THREAD, this);
             return this;
         }
-    }
-
-    public boolean shift(Main m) {
-        m.ret.pop();
-        return true;
-    }
-
-    public String firstString() {
-        return named;
     }
 }

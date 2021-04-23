@@ -3,7 +3,7 @@ package uk.co.kring;
 /**
  * A book class to store symbols in to have a context and multex associations to words.
  */
-public class Book extends Symbol {
+public class Book extends UnitSymbol {
 
     public Book(String name) {
         super(name, new String[0]);//empty to start
@@ -12,19 +12,6 @@ public class Book extends Symbol {
     protected void run(Main m) {
         m.current = this;
         this.in.executeIn = this;//cachee
-    }
-
-    protected Multex optionReplace() {
-        return this;//NO
-    }
-
-    public String firstString() {
-        return named;
-    }
-
-    public boolean shift(Main m) {
-        m.ret.pop();
-        return true;
     }
 
     /**
