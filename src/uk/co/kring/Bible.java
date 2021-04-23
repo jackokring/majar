@@ -58,6 +58,7 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 m.printContext();
+                m.list(m.context);//and print top level
             }
         });
         reg(new Prim("current") {
