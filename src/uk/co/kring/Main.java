@@ -86,7 +86,7 @@ public class Main {
         m.printErrorSummary();
         if(m.html) {
             m.print("</span></span>");
-            synchronized(m.out) {
+            synchronized(m) {
                 m.out.flush();
             }
         } else {
@@ -499,7 +499,7 @@ public class Main {
             Symbol f = find(s, false);//not an error if it's not
             if(!skipOne() && f instanceof Macro) {
                 if(!fast) {
-                    printSymbol(f);
+                    printSymbolName(f);
                 }
                 ((Macro) f).macroExecute(m);//the macro must potentially set macro escape
             } else {
@@ -635,8 +635,7 @@ public class Main {
         long e = errorExit;
         if(first < 1) first = t;
         last = t;
-        err.println();//bang tidy!
-        errorPlump(ANSI_ERR, t, o);
+        errorPlump(ANSI_ERR, t, o, true);//on a new line
         t = errorCode[t];//map
         mapErrors(e * t);
     }
@@ -648,12 +647,9 @@ public class Main {
             return html?escapeHTML(s):s;
         }
         s = ((Symbol)o).named;
-        if(o instanceof Prim) return ANSI_PRIM + o.getClass().getName() +
-                "[" + withinError(s) + ANSI_PRIM + "]";
-        if(o instanceof Book) return ANSI_BOOK + o.getClass().getName() +
-                "[" + withinError(s) + ANSI_BOOK + "]";
-        if(o instanceof Symbol) return ANSI_SYMBOL + o.getClass().getName() +
-                "[" + withinError(s) + ANSI_SYMBOL + "]";
+        if(o instanceof Prim) return ANSI_PRIM + withinError(s);
+        if(o instanceof Book) return ANSI_BOOK + withinError(s);
+        if(o instanceof Symbol) return ANSI_SYMBOL + withinError(s);
         if(o instanceof Multex) return ANSI_MULTEX + withinError(join(((Multex) o).basis));
         return ANSI_CLASS + o.getClass().getName() + "[" +
                 Integer.toHexString(o.hashCode()) + "]";
@@ -678,10 +674,8 @@ public class Main {
 
     //========================================= PRINTING
 
-    private void putError(boolean error) {
-        synchronized(put) {
-            put.flush();
-        }
+    private synchronized void putError(boolean error) {
+        put.flush();
         if(error) {
             put = err;
             if(out != err && html) {
@@ -698,8 +692,7 @@ public class Main {
     void printErrorSummary() {
         if(last != -1) {
             putError(true);
-            println();
-            errorPlump(ANSI_ERR, last, "Error summary follows:");
+            errorPlump(ANSI_ERR, last, "Error summary follows:", true);//on newline
             String c = ANSI_WARN;
             if(errOver()) c = ANSI_ERR;//many errors
             else {
@@ -710,7 +703,7 @@ public class Main {
             for(int i = 0; i < errorFact.keySet().size(); i++) {
                 if(errorExit == 1) break;
                 if(errorExit % errorCode[i] == 0) {
-                    errorPlump(c, i, null);
+                    errorPlump(c, i, null, false);//already newline
                     errorExit /= errorCode[i];
                 }
             }
@@ -723,7 +716,8 @@ public class Main {
         //TODO
     }
 
-    void errorPlump(String prefix, int code, Object o) {
+    void errorPlump(String prefix, int code, Object o, boolean newline) {
+        if(newline) println();
         print(prefix);
         print("[" + errorCode[code] + "]");
         printLiteral(errorFact.getString(String.valueOf(code)));//indexed by code
@@ -733,22 +727,24 @@ public class Main {
         } else {
             print(".");
         }
-        println();
+        println();//final align
     }
 
     void stackTrace(Stack<Multex> s) {
         putError(true);
-        println();
         while(!s.empty()) {
             //trace
             Multex m = s.pop();
             if(m != null) {
                 print(ANSI_ERR + "@ ");
-                printLiteral(m.firstString());
+                if(m instanceof Symbol) {
+                    printSymbolName((Symbol)m);
+                } else {
+                    list(m);
+                }
             } else {
                 print(ANSI_ERR + "@@");//a void on the stack
             }
-            println();
         }
         println();
         putError(false);
@@ -784,10 +780,8 @@ public class Main {
         "WARN"
     };
 
-    private void print(String s) {//private so final not used outside
-        synchronized(put) {
-            put.print(s);
-        }
+    private synchronized void print(String s) {//private so final not used outside
+        put.print(s);
     }
 
     void printSymbolName(Symbol s) {
@@ -821,14 +815,15 @@ public class Main {
         println();
     }
 
-    void printSymbol(Symbol s) {
-        if(s == null) return;
-        if(s instanceof Prim) printSymbolName(s);
+    void list(Multex m) {
+        if(m == null) return;
+        println();
+        if(m instanceof Prim) printSymbolName((Symbol)m);
         Book c = context;
-        if(s instanceof Book) {
-            context = (Book)s;//set self to view
+        if(m instanceof Book) {
+            context = (Book)m;//set self to view
         }
-        for(String i: s.basis) {
+        for(String i: m.basis) {
             Symbol x = find(i, false);
             if(x != null) {
                 printSymbolName(x);
@@ -840,20 +835,8 @@ public class Main {
         print(" ");
     }
 
-    void list(Multex m) {
-        if(m == null) return;
-        println();
-        if(m instanceof Symbol) {
-            printSymbol((Symbol)m);
-        } else {
-            printSymbolized(join(m.basis));//as multex
-        }
-    }
-
     void printSymbolized(String s) {
-        if(s == null) {
-            return;
-        }
+        if(s == null) return;
         print(ANSI_LIT);
         printLiteral(join(singleton(s)));//Mutex entry form
         print(" ");
@@ -905,13 +888,11 @@ public class Main {
         print(" />");
     }
 
-    private void println() {
-        synchronized(put) {
-            if (html) {
-                put.print("<br /></span><span>");//quick!!
-            } else {
-                put.println(ANSI_RESET);
-            }
+    private synchronized void println() {
+        if (html) {
+            put.print("<br /></span><span>");//quick!!
+        } else {
+            put.println(ANSI_RESET);
         }
     }
 
@@ -923,9 +904,10 @@ public class Main {
     }
 
     void startFlusher() {
+        Main m = this;
         flusher = new Thread(() -> {
             while(!out.checkError() && flusher == Thread.currentThread()) {
-                synchronized (out) {
+                synchronized(m) {
                     out.flush();
                 }
                 try {

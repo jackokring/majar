@@ -17,8 +17,11 @@ public class Symbol extends Multex {
         named = name;
     }
 
-    public Symbol(Multex m) {
-        super(m.basis);
-        named = ("Symbol#" + Integer.toHexString(m.hashCode())).intern();
+    public Symbol(Symbol s) {
+        this(s.named, s.basis);
+    }
+
+    protected Multex optionReplace() {
+        return new Symbol(this);
     }
 }
