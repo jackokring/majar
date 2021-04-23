@@ -19,12 +19,16 @@ public class Book extends Symbol {
         return this;//NO
     }
 
+    public String firstString() {
+        return named;
+    }
+
     public void shift() {
         //nothing
     }
 
     public boolean ended() {
-        return false;//never ending story
+        return true;//never ending story
     }
 
     /**

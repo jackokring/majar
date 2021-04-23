@@ -26,7 +26,11 @@ public class Var extends Symbol {
         //nothing
     }
 
+    public String firstString() {
+        return named;
+    }
+
     public boolean ended() {
-        return false;//never ending story
+        return true;//never ending story
     }
 }

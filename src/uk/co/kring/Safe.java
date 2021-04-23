@@ -12,12 +12,13 @@ public class Safe extends Book {
 
     protected final void run(Main m) {
         m.current = this;
-        Multex s = m.find(m.literal(), false);
+        Symbol s = m.find(m.literal(), false);
         if(s == null) {
             //no value stack balance
             m.dat.push(new Multex((String[])null));//blank
+        } else {
+            m.dat.push(new Multex(s.basis));//place the recalled value
         }
-        m.dat.push(new Multex(s.basis));//place the recalled value
         m.current = in;
         m.ret.pop();//and leave execution frame
     }

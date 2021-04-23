@@ -10,6 +10,10 @@ public class Multex {
      * @param m context.
      */
     protected void run(Main m) {
+        if(ended()) {
+            m.ret.pop();
+            return;
+        }
         if(firstString() == null) return;//no fail null
         Symbol s = m.find(firstString(), executeIn, true);
         if(s != null) {
@@ -69,4 +73,6 @@ public class Multex {
     public boolean ended() {
         return idx >= basis.length;
     }
+
+
 }

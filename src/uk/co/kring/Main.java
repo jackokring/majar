@@ -442,12 +442,20 @@ public class Main {
 
     static String topMost(Stack<Multex> sm) {//null at end
         Multex m = sm.peek();
-        while(m.firstString() == null) {
-            m.shift();
-            if(m.ended()) m = sm.pop();
-            if(m == nul) {
-                Main.getMain().setError(ERR_NUL, m);
-                break;//better no loop
+        while(m == null || m.firstString() == null) {
+            if(m == null) {
+                sm.pop();//pop null
+                m = sm.peek();
+            } else {
+                m.shift();
+                if (m.ended()) {
+                    sm.pop();
+                    m = sm.peek();
+                }
+                if (m == nul) {
+                    Main.getMain().setError(ERR_NUL, m);
+                    return null;
+                }
             }
         }
         String s = m.firstString();

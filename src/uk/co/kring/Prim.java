@@ -22,7 +22,7 @@ public abstract class Prim extends Symbol {
     protected abstract void def(Main m);
 
     public Prim(String name) {
-        super(name, Main.singleton(name));//get name
+        super(name, (String[])null);//get name
     }
 
     public Prim() {
@@ -56,7 +56,11 @@ public abstract class Prim extends Symbol {
         //nothing
     }
 
+    public String firstString() {
+        return named;
+    }
+
     public boolean ended() {
-        return false;//never ending story
+        return true;//never ending story
     }
 }
