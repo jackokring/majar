@@ -162,14 +162,10 @@ public class Main {
     }
 
     void runNext() {//fetch and execute
-        String s = topMost(ret);
-        if(s == null) return;//end of code
-        ret.peek().shift();//post fetch
-        Symbol m = find(s, true);//errors
-        if(!fast) {
-            printSymbolName(m);
-        }
-        m.run(this);//run in context
+        Multex m = ret.peek();
+        if(m == null) return;//end of code
+        m.run(this);
+        m.shift();//post fetch
     }
 
     void profile(Symbol s) {
@@ -438,13 +434,13 @@ public class Main {
         s = s.replace("\\$", para);
         int i;
         while((i = s.indexOf("$")) != -1) {
-            String j = topMost(dat, false, false).replace("$", para);//recursive
+            String j = topMost(dat).replace("$", para);//recursive
             s = s.substring(0, i) + j + s.substring(i + 1);
         }
         return s.replace(para, "$");
     }
 
-    static String topMost(Stack<Multex> sm) {
+    static String topMost(Stack<Multex> sm) {//null at end
         Multex m = sm.peek();
         while(m.firstString() == null) {
             m.shift();
@@ -455,15 +451,15 @@ public class Main {
             }
         }
         String s = m.firstString();
-        if(!shiftSkip) m.shift();
         return s;
     }
 
     String literal() {
         Multex m = ret.pop();//executive context
-        String s = topMost(ret)
-        , macroEscape.peek().shiftSkip);
-        macroEscape.peek().shiftSkip = false;//cancel literal macro
+        if(macroEscape.peek().shiftSkip) ret.peek().shift();//move onto literals
+        String s = topMost(ret);//obtain a literal
+        //after word execution the final shift is done by runNext()
+        macroEscape.peek().shiftSkip = false;//cancel literal macro for reabsorption
         if(!fast) {
             printSymbolized(s);
         }
@@ -736,11 +732,7 @@ public class Main {
             Multex m = s.pop();
             if(m != null) {
                 print(ANSI_ERR + "@ ");
-                if(m instanceof Symbol) {
-                    printSymbolName((Symbol)m);
-                } else {
-                    list(m);
-                }
+                printSymbolName(m);
             } else {
                 print(ANSI_ERR + "@@");//a void on the stack
             }
@@ -783,16 +775,17 @@ public class Main {
         put.print(s);
     }
 
-    void printSymbolName(Symbol s) {
+    void printSymbolName(Multex s) {
         if(s == null) return;
         String c = ANSI_SYMBOL;
         if(s instanceof Prim) c = ANSI_PRIM;
         if(s instanceof Book) c = ANSI_BOOK;
-        if(s.named != null) {
+        if(s instanceof Symbol && ((Symbol)s).named != null) {
             print(c);
-            printLiteral(s.named);
+            printLiteral(((Symbol) s).named);
             print(" ");
         }
+        list(s);
     }
 
     void printContext() {
@@ -817,7 +810,7 @@ public class Main {
     void list(Multex m) {
         if(m == null) return;
         println();
-        if(m instanceof Prim) printSymbolName((Symbol)m);
+        if(m instanceof Prim) printSymbolName(m);
         Book c = context;
         if(m instanceof Book) {
             context = (Book)m;//set self to view

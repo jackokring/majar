@@ -17,8 +17,8 @@ public class Multex {
                 m.printSymbolName(s);
                 m.profile(s);
             }
-            m.execute(s, m);//Threading ...
-            s.idx++;//Simple profiling
+            m.stackForRun(s);//Threading ...
+            s.idx++;//Simple profiling of things which got cloned if important to clone
         }
     }
 

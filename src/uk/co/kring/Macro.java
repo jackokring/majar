@@ -11,10 +11,11 @@ public abstract class Macro extends Prim {
     /**
      * Contains the macro immediate effect
      */
-    protected Multex onLiteral;//the macro behaviour
+    protected Prim onLiteral;//the macro behaviour
 
     public final void macroExecute(Main m) {
         if(onLiteral == null) onLiteral = this;//default sensible
-        m.execute(onLiteral, m);//run the macro
+        onLiteral.executeIn = executeIn;
+        onLiteral.run(m);//run macro in same context
     }
 }
