@@ -641,21 +641,6 @@ public class Main {
         mapErrors(e * t);
     }
 
-    String withinError(Object o) {
-        String s;
-        if(o instanceof String) {
-            s = join(singleton((String)o));
-            return html?escapeHTML(s):s;
-        }
-        s = ((Symbol)o).named;
-        if(o instanceof Prim) return ANSI_PRIM + withinError(s);
-        if(o instanceof Book) return ANSI_BOOK + withinError(s);
-        if(o instanceof Symbol) return ANSI_SYMBOL + withinError(s);
-        if(o instanceof Multex) return ANSI_MULTEX + withinError(join(((Multex) o).basis));
-        return ANSI_CLASS + o.getClass().getName() + "[" +
-                Integer.toHexString(o.hashCode()) + "]";
-    }
-
     void mapErrors(long e) {
         for(int i = 0; i < errorComposites.length; i += 2) {
             if(e % errorComposites[i] == 0) {
@@ -724,10 +709,13 @@ public class Main {
         printLiteral(errorFact.getString(String.valueOf(code)));//indexed by code
         if(o != null) {
             print(":");
-            print(withinError(o));//may contain escape codes
-        } else {
-            print(".");
+            if(o instanceof Multex) {
+                printSymbolName((Multex)o);
+            } else {
+                print(ANSI_JAVA + o.getClass().getCanonicalName());                ;
+            }
         }
+        print(".");
         println();//final align
     }
 
@@ -759,8 +747,8 @@ public class Main {
 
     public String ANSI_SYMBOL = ANSI_BLUE;
     public String ANSI_PRIM = ANSI_YELLOW;
-    public String ANSI_CLASS = ANSI_PURPLE;
-    public String ANSI_MULTEX = ANSI_GREEN;
+    public String ANSI_MACRO = ANSI_PURPLE;
+    public String ANSI_JAVA = ANSI_GREEN;
     public String ANSI_BOOK = ANSI_CYAN;
     public String ANSI_LIT = ANSI_RED;
     public String ANSI_ERR = ANSI_RED;
@@ -769,8 +757,8 @@ public class Main {
     static final String[] reflect = {
         "SYMBOL",
         "PRIM",
-        "CLASS",
-        "MULTEX",
+        "MACRO",
+        "JAVA",
         "BOOK",
         "LIT",
         "ERR",
@@ -784,6 +772,7 @@ public class Main {
     void printSymbolName(Multex s) {
         if(s == null) return;
         String c = ANSI_SYMBOL;
+        if(s instanceof Macro) c = ANSI_MACRO;
         if(s instanceof Prim) c = ANSI_PRIM;
         if(s instanceof Book) c = ANSI_BOOK;
         if(s instanceof Symbol && ((Symbol)s).named != null) {
@@ -795,21 +784,22 @@ public class Main {
     }
 
     void printContext() {
-        print("[");
+        println();
+        print(ANSI_RESET + "[");
         printSymbolName(current);
-        print("] ");
+        print(ANSI_RESET + "] ");
         Book c = context;
         do {
             printSymbolName(c);
             c = c.in;
         } while(c.in != null);
-        print("[");
+        print(ANSI_RESET + "[");
         c = context;
         while(c.executeIn != null) {
             c = c.executeIn;
             printSymbolName(c);
         }
-        print("]");
+        print(ANSI_RESET + "]");
         println();
     }
 
@@ -860,7 +850,7 @@ public class Main {
 
     void printTag(String name, String classOpen, Symbol nameValue) {//else close
         if(name == null) return;
-        print("<");
+        print("</span><");
         if(classOpen == null) print("/");
         printLiteral(name);
         if(classOpen != null) {
@@ -876,19 +866,19 @@ public class Main {
             printLiteral(join(nameValue.basis));
             print("\"");
         }
-        print(">");
+        print("><span>");
     }
 
     void printSpecialTag(String name) {
         if(name == null) return;
-        print("<");
+        print("</span><");
         printLiteral(name);
-        print(" />");
+        print(" /><span>");
     }
 
     private synchronized void println() {
         if (html) {
-            put.print("<br /></span><span>");//quick!!
+            put.print("</span><br /><span>");//quick!!
         } else {
             put.println(ANSI_RESET);
         }
