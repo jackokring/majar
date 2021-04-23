@@ -31,15 +31,8 @@ public class Nul extends Symbol {
     /**
      * Shifts to the next executive string (isn't one)..
      */
-    public void shift(Main m) {
+    public boolean shift(Main m) {
         m.ret.pop();
-    }
-
-    /**
-     * There are no more executive strings.
-     * @return end of strings.
-     */
-    public boolean ended() {
         return true;
     }
 }

@@ -451,8 +451,7 @@ public class Main {
                     Main.getMain().setError(ERR_NUL, m);
                     return null;
                 }
-                m.shift(this);
-                if (m.ended()) {
+                if (m.shift(this)) {
                     m = sm.peek();
                 }
             }

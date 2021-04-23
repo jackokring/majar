@@ -58,20 +58,15 @@ public class Multex {
     /**
      * Shifts to the next executive string.
      */
-    public void shift(Main m) {
+    public boolean shift(Main m) {
         idx++;
         if(ended()) {
             m.ret.pop();
         }
+        return ended();
     }
 
-    /**
-     * There are no more executive strings.
-     * @return end of strings.
-     */
-    public boolean ended() {
+    private boolean ended() {
         return idx >= basis.length;
     }
-
-
 }

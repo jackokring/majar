@@ -21,8 +21,9 @@ public class Var extends Symbol {
         return this;//NO
     }
 
-    public void shift(Main m) {
+    public boolean shift(Main m) {
         m.ret.pop();
+        return true;
     }
 
     /**
@@ -31,9 +32,5 @@ public class Var extends Symbol {
      */
     public String firstString() {
         return Main.join(basis).intern();//return the literal value
-    }
-
-    public boolean ended() {
-        return true;//never ending story
     }
 }

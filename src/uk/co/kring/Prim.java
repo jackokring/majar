@@ -51,15 +51,12 @@ public abstract class Prim extends Symbol {
         }
     }
 
-    public void shift(Main m) {
+    public boolean shift(Main m) {
         m.ret.pop();
+        return true;
     }
 
     public String firstString() {
         return named;
-    }
-
-    public boolean ended() {
-        return true;//never ending story
     }
 }

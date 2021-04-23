@@ -22,12 +22,9 @@ public class Book extends Symbol {
         return named;
     }
 
-    public void shift(Main m) {
+    public boolean shift(Main m) {
         m.ret.pop();
-    }
-
-    public boolean ended() {
-        return true;//never ending story
+        return true;
     }
 
     /**
