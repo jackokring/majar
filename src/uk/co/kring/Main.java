@@ -1165,4 +1165,23 @@ public class Main {
             }
         }), 0);
     }
+
+    /**
+     * Allows use of an input filter stream on a print stream.
+     * @param output the print stream to adapt.
+     * @param clazz the filter input stream class.
+     * @return a new print stream.
+     */
+    public static PrintStream filterInputStream(PrintStream output,
+                                                 Class<? extends FilterInputStream> clazz) {
+        PipedOutputStream o = new PipedOutputStream();
+        try {
+            Constructor<?> constructor = clazz.getConstructor(InputStream.class);
+            Object instance = constructor.newInstance(new PipedInputStream(o));
+            Waiter.stream((InputStream) instance, output);
+        } catch (Exception e) {
+            //end thread on exception
+        }
+        return new PrintStream(o);
+    }
 }
