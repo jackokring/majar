@@ -745,25 +745,55 @@ public class Main {
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
 
-    public String ANSI_SYMBOL = ANSI_BLUE;
-    public String ANSI_PRIM = ANSI_YELLOW;
-    public String ANSI_MACRO = ANSI_PURPLE;
-    public String ANSI_JAVA = ANSI_GREEN;
-    public String ANSI_BOOK = ANSI_CYAN;
-    public String ANSI_LIT = ANSI_RED;
-    public String ANSI_ERR = ANSI_RED;
-    public String ANSI_WARN = ANSI_YELLOW;
+    public static final String ANSI_BOLD = "\u001B[1m";
+    public static final String ANSI_ITALIC = "\u001B[3m";
+    public static final String ANSI_UNDER = "\u001B[4m";
+
+    public String ANSI_Object = ANSI_RED;
+    public String ANSI_ERR = ANSI_RED + ANSI_BOLD;
+    public String ANSI_String = ANSI_RED + ANSI_ITALIC;
+
+    public String ANSI_Symbol = ANSI_GREEN;
+    ?public String ANSI_ERR = ANSI_GREEN + ANSI_BOLD;
+    public String ANSI_Ref = ANSI_GREEN + ANSI_ITALIC;
+
+    public String ANSI_NewRaNetPrim = ANSI_BLUE;
+    ?public String ANSI_ERR = ANSI_BLUE + ANSI_BOLD;
+    public String ANSI_Nul = ANSI_BLUE + ANSI_ITALIC;
+
+    public String ANSI_Prim = ANSI_YELLOW;
+    public String ANSI_WARN = ANSI_YELLOW + ANSI_BOLD;
+    public String ANSI_Macro = ANSI_YELLOW + ANSI_ITALIC;
+
+    ?public String ANSI_Prim = ANSI_PURPLE;
+    ?public String ANSI_WARN = ANSI_PURPLE + ANSI_BOLD;
+    ?public String ANSI_Macro = ANSI_PURPLE + ANSI_ITALIC;
+
+    public String ANSI_Book = ANSI_CYAN;
+    public String ANSI_Bible = ANSI_CYAN + ANSI_BOLD;
+    public String ANSI_Safe = ANSI_CYAN + ANSI_ITALIC;
 
     static final String[] reflect = {
-        "SYMBOL",
-        "PRIM",
-        "MACRO",
-        "JAVA",
-        "BOOK",
-        "LIT",
-        "ERR",
-        "WARN"
+        "Object", "ERR", "String",
+        "Symbol", "", "Ref",
+        "NewRaNetPrim", "", "Nul",
+        "Prim", "WARN", "Macro",
+        "", "", "",
+        "Book", "Bible", "Safe",
     };
+
+    public String getColor(Object object) {
+        Class c = object.getClass();
+        while(true) {
+            try {
+                Field f = c.getField("ANSI_" + c.getName());
+                return (String)f.get(object);
+            } catch(Exception e) {
+                //try next
+                c = c.getSuperclass();
+            }
+        }
+    }
 
     private synchronized void print(String s) {//private so final not used outside
         put.print(s);
@@ -957,7 +987,7 @@ public class Main {
             Class<?> c = Main.class;
             try {
                 Field f = c.getField("ANSI_" + i);
-                f.set(c, "</span><span class=\"" + i + "\">");
+                f.set(m, "</span><span class=\"" + i + "\">");
             } catch (Exception e) {
                 m.err.println("Can't set color field");
             }
