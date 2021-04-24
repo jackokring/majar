@@ -1,5 +1,7 @@
 package uk.co.kring;
 
+import java.util.Stack;
+
 import static uk.co.kring.Main.nul;
 
 /**
@@ -129,7 +131,30 @@ public class Bible extends Book {
         reg(new Prim("input") {
             @Override
             protected void def(Main m) {
-                m.dat.push(new Multex(m.readReader(m.getIn(), null)));
+                m.dat.push(m.readReader(m.getIn(), null));
+            }
+        });
+        reg(new Prim("direct") {
+            @Override
+            protected void def(Main m) {
+                Multex in;
+                Stack<Multex> r = m.ret;
+                m.ret = new ProtectedStack<>(Main.nul);
+                while(true) {
+                    if(m.exitLoop) break;
+                    in = m.readReader(m.getIn(), null);
+                    if(in == null) break;
+                    m.execute(in);
+                };
+                m.exitLoop = false;
+                m.ret = r;
+            }
+        });
+        reg(new Prim("exit") {
+            @Override
+            protected void def(Main m) {
+                m.exitLoop = true;
+                m.ret.push(nul);//fast stack clear
             }
         });
 

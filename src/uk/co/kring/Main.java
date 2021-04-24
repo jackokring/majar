@@ -53,6 +53,7 @@ public class Main {
 
     protected Stack<Frame> macroEscape = new ProtectedStack<>(null);
     protected boolean chaining = false;
+    protected boolean exitLoop = false;
 
     private String givenName = "majar";
 
@@ -343,7 +344,7 @@ public class Main {
     Multex readString(String s) {
         boolean quote = false;
         int j = -1;
-        if(s == null) return new Multex((String[])null);//blank
+        if(s == null) return null;//blank
         s = s.replace("\\\"", para);
         if(html) s = s.replace("&", htmlPara);//input render
         s = s.replace("\n", " ");
