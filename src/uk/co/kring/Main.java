@@ -774,7 +774,7 @@ public class Main {
     public String ANSI_Ref = ANSI_GREEN + ANSI_ITALIC;
 
     public String ANSI_NewRaNetPrim = ANSI_BLUE;
-    public String ANSI_Y = ANSI_BLUE + ANSI_BOLD;
+    public String ANSI_Time = ANSI_BLUE + ANSI_BOLD;
     public String ANSI_Nul = ANSI_BLUE + ANSI_ITALIC;
 
     public String ANSI_Prim = ANSI_YELLOW;
@@ -792,14 +792,14 @@ public class Main {
     static final String[] reflect = {
         "Object", "ERR", "String",
         "Symbol", "Space", "Ref",
-        "NewRaNetPrim", "", "Nul",
+        "NewRaNetPrim", "Time", "Nul",
         "Prim", "WARN", "Macro",
         "", "", "",
         "Book", "Bible", "Safe",
     };
 
     public void printColor(Object object) {
-        Class c = object.getClass();
+        Class<? extends Object> c = object.getClass();
         while(true) {
             try {
                 Field f = c.getField("ANSI_" + c.getName());

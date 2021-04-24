@@ -117,6 +117,12 @@ public class Bible extends Book {
                 reg(new Space(m.literal()));
             }
         });
+        reg(new Macro("time", delay) {
+            @Override
+            protected void def(Main m) {
+                reg(new Time(m.literal(), m.dat.pop()));
+            }
+        });
 
         //3. Input and Output
         //===================
