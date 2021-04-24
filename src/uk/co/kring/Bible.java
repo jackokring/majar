@@ -67,6 +67,37 @@ public class Bible extends Book {
                 m.list(m.current, true);
             }
         });
+        Prim delay = new Prim() {
+            @Override
+            protected void def(Main m) {
+                m.setMacroLiteral(2);
+            }
+        };
+        reg(new Macro("lit", delay) {
+            @Override
+            protected void def(Main m) {
+                m.dat.push(new Multex(m.literal()));
+            }
+        });
+        reg(new Macro("find", delay) {
+            @Override
+            protected void def(Main m) {
+                m.dat.push(m.find(m.literal(), true));//with errors
+            }
+        });
+        reg(new Macro("delay", delay) {
+            @Override
+            protected void def(Main m) {
+                //nop to allow following macro to be postponed
+            }
+        });
+        reg(new Prim("eval") {
+            @Override
+            protected void def(Main m) {
+                m.ret.pop();//pop self
+                m.stackForRun(m.dat.pop());
+            }
+        });
 
         //2. Variables
         //============

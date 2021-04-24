@@ -40,6 +40,10 @@ public class Multex {
         basis = s;
     }
 
+    public Multex(String s) {
+        this(Main.getMain().readString(s));
+    }
+
     public Multex(Multex m) {//new idx
         this(m.basis);
         idx = 0;//duplicate work? no error

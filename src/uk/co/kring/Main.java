@@ -1099,7 +1099,7 @@ public class Main {
             Main.setIO(what, out.getPrintStream());
             Main.setHTML();//as it needs this for no system exit
             Main m = Main.makeSafe("env", params);
-            m.reg(new Ref("task", String.valueOf(idx)));
+            m.reg(new Ref("task", new Multex(String.valueOf(idx))));
             Main.run(with);//may not exhaustively use input what
             out.drainAndClose(what);
         }), idx);
