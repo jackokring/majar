@@ -157,6 +157,18 @@ public class Bible extends Book {
                 m.ret.push(nul);//fast stack clear
             }
         });
+        reg(new Prim("abort") {
+            @Override
+            protected void def(Main m) {
+                m.userAbort();//the big return to master with error
+            }
+        });
+        reg(new Prim("party") {
+            @Override
+            protected void def(Main m) {
+                m.userExit();
+            }
+        });
 
         //4. Control Structures
         //=====================
