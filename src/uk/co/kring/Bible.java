@@ -105,6 +105,18 @@ public class Bible extends Book {
         //2. Variables
         //============
         reg(nul);//a nul value for terminals behaves in strange way
+        reg(new Macro("ref", delay) {
+            @Override
+            protected void def(Main m) {
+                reg(new Ref(m.literal(), m.dat.peek()));
+            }
+        });
+        reg(new Macro("space", delay) {
+            @Override
+            protected void def(Main m) {
+                reg(new Space(m.literal()));
+            }
+        });
 
         //3. Input and Output
         //===================
