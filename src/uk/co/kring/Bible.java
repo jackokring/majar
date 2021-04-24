@@ -126,6 +126,12 @@ public class Bible extends Book {
 
         //3. Input and Output
         //===================
+        reg(new Prim("input") {
+            @Override
+            protected void def(Main m) {
+                m.dat.push(new Multex(m.readReader(m.getIn(), null)));
+            }
+        });
 
         //4. Control Structures
         //=====================

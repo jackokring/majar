@@ -576,6 +576,10 @@ public class Main {
         }
     }
 
+    InputStream getIn() {
+        return in;
+    }
+
     //================================================== ERRORS
 
     static ResourceBundle errorFact =
