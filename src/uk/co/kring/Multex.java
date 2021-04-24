@@ -28,7 +28,9 @@ public class Multex {
      * @return the replacement or this self for no replacement.
      */
     protected Multex optionReplace() {
-        return new Multex(this);
+        Multex m = new Multex(this);
+        m.executeIn = executeIn;
+        return m;
     }
 
     String[] basis;

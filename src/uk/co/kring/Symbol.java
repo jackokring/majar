@@ -21,6 +21,7 @@ public class Symbol extends Multex {
 
     public Symbol(Symbol s) {
         this(s.named, s.basis);
+        in = s.in;
     }
 
     protected Multex optionReplace() {
