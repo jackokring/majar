@@ -26,17 +26,26 @@ public class Bible extends Book {
     }
 
     Bible build() {
+        //this allows many words with a fixed literal intake to be embedded in escaped literals
+        //of an unknown size. If not made into macros the strange condition of "word macro rest"
+        //has the interpretation of "word rest" with a macro performed in the escaped literal.
+        Prim delay = new Prim() {
+            @Override
+            protected void def(Main m) {
+                m.setMacroLiteral(2);
+            }
+        };
         //TODO main bible hook point
 
         //1. Word Management
         //==================
-        reg(new Prim("list") {
+        reg(new Macro("list", delay) {
             @Override
             protected void def(Main m) {
                 m.list(m.find(m.literal(), true), true);
             }
         });
-        reg(new Prim("book") {
+        reg(new Macro("book", delay) {
             @Override
             protected void def(Main m) {
                 String name = m.literal();
@@ -67,12 +76,6 @@ public class Bible extends Book {
                 m.list(m.current, true);
             }
         });
-        Prim delay = new Prim() {
-            @Override
-            protected void def(Main m) {
-                m.setMacroLiteral(2);
-            }
-        };
         reg(new Macro("lit", delay) {
             @Override
             protected void def(Main m) {

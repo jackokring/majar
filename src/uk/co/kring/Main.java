@@ -770,7 +770,7 @@ public class Main {
     public String ANSI_String = ANSI_RED + ANSI_ITALIC;
 
     public String ANSI_Symbol = ANSI_GREEN;
-    public String ANSI_X = ANSI_GREEN + ANSI_BOLD;
+    public String ANSI_Space = ANSI_GREEN + ANSI_BOLD;
     public String ANSI_Ref = ANSI_GREEN + ANSI_ITALIC;
 
     public String ANSI_NewRaNetPrim = ANSI_BLUE;
@@ -791,7 +791,7 @@ public class Main {
 
     static final String[] reflect = {
         "Object", "ERR", "String",
-        "Symbol", "", "Ref",
+        "Symbol", "Space", "Ref",
         "NewRaNetPrim", "", "Nul",
         "Prim", "WARN", "Macro",
         "", "", "",
