@@ -1,0 +1,73 @@
+span.majar {
+    span.Object {
+        color: red;
+    }
+    span.ERR {
+        color: red;
+        font-weight: bold;
+    }
+    span.String {
+        color: red;
+        font-style: italic;
+    }
+
+    span.Symbol {
+        color: green;
+    }
+    span.X {
+        color: green;
+        font-weight: bold;
+    }
+    span.Ref {
+        color: green;
+        font-style: italic;
+    }
+
+    span.NewRaNetPrim {
+        color: blue;
+    }
+    span.Y {
+        color: blue;
+        font-weight: bold;
+    }
+    span.Nul {
+        color: blue;
+        font-style: italic;
+    }
+
+    span.Prim {
+        color: yellow;
+    }
+    span.WARN {
+        color: yellow;
+        font-weight: bold;
+    }
+    span.Macro {
+        color: yellow;
+        font-style: italic;
+    }
+
+    span.A {
+        color: purple;
+    }
+    span.B {
+        color: purple;
+        font-weight: bold;
+    }
+    span.C {
+        color: purple;
+        font-style: italic;
+    }
+
+    span.Book {
+        color: cyan;
+    }
+    span.Bible {
+        color: cyan;
+        font-weight: bold;
+    }
+    span.Safe {
+        color: cyan;
+        font-style: italic;
+    }
+}

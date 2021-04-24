@@ -33,7 +33,7 @@ public class Bible extends Book {
         reg(new Prim("list") {
             @Override
             protected void def(Main m) {
-                m.list(m.find(m.literal(), true));
+                m.list(m.find(m.literal(), true), true);
             }
         });
         reg(new Prim("book") {
@@ -58,13 +58,13 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 m.printContext();
-                m.list(m.context);//and print top level
+                m.list(m.context, true);//and print top level
             }
         });
         reg(new Prim("current") {
             @Override
             protected void def(Main m) {
-                m.list(m.current);
+                m.list(m.current, true);
             }
         });
 

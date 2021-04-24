@@ -1,19 +1,19 @@
 package uk.co.kring;
 
 /**
- * A class to represent a variable recall mechanism.
+ * A class to represent a reference.
  */
-public class Var extends UnitSymbol {
+public class Ref extends UnitSymbol {
 
     protected void run(Main m) {
         m.dat.push(new Multex(basis));
     }
 
-    public Var(String name, Multex m) {
+    public Ref(String name, Multex m) {
         super(name, m.basis);
     }
 
-    public Var(String name, String value) {
+    public Ref(String name, String value) {
         super(name, value);//parse
     }
 

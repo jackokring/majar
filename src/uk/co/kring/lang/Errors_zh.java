@@ -37,6 +37,7 @@ public class Errors_zh extends ListResourceBundle {
                 { "21", "混乱进行中。鉴于您喜欢使用nul，这里有 ..."}, //21
 
                 { "abort", "用户中止的过程." },
+                { "summary", "错误摘要如下："},
         };
     }
 }

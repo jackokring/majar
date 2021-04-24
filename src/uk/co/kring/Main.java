@@ -54,6 +54,8 @@ public class Main {
     protected Stack<Frame> macroEscape = new ProtectedStack<>(null);
     protected boolean chaining = false;
 
+    private String givenName = "majar";
+
     //========================================== ENTRY / EXIT
 
     /**
@@ -63,9 +65,10 @@ public class Main {
     public static void main(String[] args) {
         Main m = getMain();
         intern(args);//first
+        if(args.length > 0) m.givenName = args[0];
         try {
             if(m.html) {
-                m.print("<span class=\"majar\"><span>");
+                m.print("<span class=\"" + m.givenName + "\"><span>");
             }
             if(m.chaining) {
                 m.chaining = false;
@@ -658,18 +661,18 @@ public class Main {
         return ((long) errorExit << 2) > Integer.MAX_VALUE;
     }
 
-    //========================================= PRINTING
+    //========================================= PRINTING ERROR
 
     private synchronized void putError(boolean error) {
         put.flush();
         if(error) {
             put = err;
             if(out != err && html) {
-                print("<span>");
+                print("<span class=\"" + givenName + "\"><span>");
             }
         } else {
             if(out != err && html) {
-                print("</span>");
+                print("</span></span>");
             }
             put = out;
         }
@@ -678,7 +681,7 @@ public class Main {
     void printErrorSummary() {
         if(last != -1) {
             putError(true);
-            errorPlump(ANSI_ERR, last, "Error summary follows:", true);//on newline
+            errorPlump(ANSI_ERR, last, errorFact.getString("summary"), true);//on newline
             String c = ANSI_WARN;
             if(errOver()) c = ANSI_ERR;//many errors
             else {
@@ -710,11 +713,17 @@ public class Main {
         if(o != null) {
             print(":");
             if(o instanceof Multex) {
-                printSymbolName((Multex)o);
+                if(o instanceof Symbol) {
+                    printSymbolName((Symbol) o);
+                } else {
+                    list((Multex)o, false);
+                }
             } else {
-                print(ANSI_JAVA + o.getClass().getCanonicalName());                ;
+                printColor(o);
+                print(o.getClass().getCanonicalName());                ;
             }
         }
+        print(prefix);
         print(".");
         println();//final align
     }
@@ -724,9 +733,14 @@ public class Main {
         while(!s.empty()) {
             //trace
             Multex m = s.pop();
+            println();
             if(m != null) {
                 print(ANSI_ERR + "@ ");
-                printSymbolName(m);
+                if(m instanceof Symbol) {
+                    printSymbolName((Symbol)m);
+                } else {
+                    list(m, false);
+                }
             } else {
                 print(ANSI_ERR + "@@");//a void on the stack
             }
@@ -734,6 +748,8 @@ public class Main {
         println();
         putError(false);
     }
+
+    //======================================== PRINTING
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[30m";
@@ -754,20 +770,20 @@ public class Main {
     public String ANSI_String = ANSI_RED + ANSI_ITALIC;
 
     public String ANSI_Symbol = ANSI_GREEN;
-    ?public String ANSI_ERR = ANSI_GREEN + ANSI_BOLD;
+    public String ANSI_X = ANSI_GREEN + ANSI_BOLD;
     public String ANSI_Ref = ANSI_GREEN + ANSI_ITALIC;
 
     public String ANSI_NewRaNetPrim = ANSI_BLUE;
-    ?public String ANSI_ERR = ANSI_BLUE + ANSI_BOLD;
+    public String ANSI_Y = ANSI_BLUE + ANSI_BOLD;
     public String ANSI_Nul = ANSI_BLUE + ANSI_ITALIC;
 
     public String ANSI_Prim = ANSI_YELLOW;
     public String ANSI_WARN = ANSI_YELLOW + ANSI_BOLD;
     public String ANSI_Macro = ANSI_YELLOW + ANSI_ITALIC;
 
-    ?public String ANSI_Prim = ANSI_PURPLE;
-    ?public String ANSI_WARN = ANSI_PURPLE + ANSI_BOLD;
-    ?public String ANSI_Macro = ANSI_PURPLE + ANSI_ITALIC;
+    public String ANSI_A = ANSI_PURPLE;
+    public String ANSI_B = ANSI_PURPLE + ANSI_BOLD;
+    public String ANSI_C = ANSI_PURPLE + ANSI_ITALIC;
 
     public String ANSI_Book = ANSI_CYAN;
     public String ANSI_Bible = ANSI_CYAN + ANSI_BOLD;
@@ -782,12 +798,13 @@ public class Main {
         "Book", "Bible", "Safe",
     };
 
-    public String getColor(Object object) {
+    public void printColor(Object object) {
         Class c = object.getClass();
         while(true) {
             try {
                 Field f = c.getField("ANSI_" + c.getName());
-                return (String)f.get(object);
+                print((String)f.get(object));
+                return;
             } catch(Exception e) {
                 //try next
                 c = c.getSuperclass();
@@ -799,18 +816,13 @@ public class Main {
         put.print(s);
     }
 
-    void printSymbolName(Multex s) {
+    void printSymbolName(Symbol s) {
         if(s == null) return;
-        String c = ANSI_SYMBOL;
-        if(s instanceof Macro) c = ANSI_MACRO;
-        if(s instanceof Prim) c = ANSI_PRIM;
-        if(s instanceof Book) c = ANSI_BOOK;
-        if(s instanceof Symbol && ((Symbol)s).named != null) {
-            print(c);
-            printLiteral(((Symbol) s).named);
+        if(((Symbol)s).named != null) {
+            printColor(s);
+            printLiteral(s.named);
             print(" ");
         }
-        list(s);
     }
 
     void printContext() {
@@ -833,10 +845,10 @@ public class Main {
         println();
     }
 
-    void list(Multex m) {
+    void list(Multex m, boolean newline) {
         if(m == null) return;
-        println();
-        if(m instanceof Prim) printSymbolName(m);
+        if(newline) println();
+        if(m instanceof Symbol) printSymbolName((Symbol)m);
         Book c = context;
         if(m instanceof Book) {
             context = (Book)m;//set self to view
@@ -861,7 +873,7 @@ public class Main {
 
     void printSymbolized(String s) {
         if(s == null) return;
-        print(ANSI_LIT);
+        printColor(s);
         printLiteral(join(singleton(s)));//Mutex entry form
         print(" ");
     }
@@ -1087,7 +1099,7 @@ public class Main {
             Main.setIO(what, out.getPrintStream());
             Main.setHTML();//as it needs this for no system exit
             Main m = Main.makeSafe("env", params);
-            m.reg(new Var("task", String.valueOf(idx)));
+            m.reg(new Ref("task", String.valueOf(idx)));
             Main.run(with);//may not exhaustively use input what
             out.drainAndClose(what);
         }), idx);
