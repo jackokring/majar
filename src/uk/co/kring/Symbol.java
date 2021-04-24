@@ -1,5 +1,7 @@
 package uk.co.kring;
 
+import static uk.co.kring.Main.nul;
+
 /**
  * A named multex to store in books.
  */
@@ -10,10 +12,10 @@ public class Symbol extends Multex {
 
     public Symbol(String name, String[] s) {
         super(s);
-        named = name;
-    }
-    public Symbol(String name, String source) {
-        super(Main.getMain().readString(source));
+        if(name == null) {
+            Main.getMain().setError(Main.ERR_NUL, nul);
+            name = nul.named;//exception?
+        }
         named = name;
     }
 

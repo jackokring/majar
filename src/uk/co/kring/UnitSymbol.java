@@ -9,10 +9,6 @@ public abstract class UnitSymbol extends Symbol {
         super(name, s);
     }
 
-    public UnitSymbol(String name, String source) {
-        super(name, source);
-    }
-
     public UnitSymbol(Symbol s) {
         super(s);
     }
