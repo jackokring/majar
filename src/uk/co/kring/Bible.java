@@ -51,9 +51,6 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 String name = m.literal();
-                if(name == null) {
-                    return;
-                }
                 Book b;
                 reg(b = new Book(name));
                 m.current = b;//make ready
@@ -127,6 +124,31 @@ public class Bible extends Book {
                 reg(new Time(m.literal(), m.dat.pop()));
             }
         });
+        reg(new Macro("safe", delay) {
+            @Override
+            protected void def(Main m) {
+                Safe s = new Safe(m.literal());
+                m.lastSafe = s;
+                reg(s);
+            }
+        });
+        reg(new Macro("store", delay) {
+            @Override
+            protected void def(Main m) {
+                Book c = m.switchContext(m.lastSafe);
+                Multex x = m.dat.pop();
+                String name = m.literal();
+                Symbol s;
+                if(!(x instanceof Symbol)) {
+                    s = new Symbol(name, x.basis);
+                } else {
+                    s = new Ref(name, x);//by object reference
+                }
+                reg(s);
+                m.switchContext(c);//restore
+            }
+        });
+        reg(Main.getMain().lastSafe);//and the environmental safe
 
         //3. Input and Output
         //===================

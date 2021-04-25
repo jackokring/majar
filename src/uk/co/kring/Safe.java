@@ -15,15 +15,15 @@ public class Safe extends Book {
     }
 
     protected final void run(Main m) {
-        m.current = this;
+        Book c = m.switchContext(this);
         Symbol s = m.find(m.literal(), false);
         if(s == null) {
             //no value stack balance
-            m.dat.push(new Multex((String[])null));//blank
+            m.dat.push(null);//blank
         } else {
-            m.dat.push(new Multex(s.basis));//place the recalled value
+            m.dat.push(s);//place the recalled value
         }
-        m.current = in;
-        m.ret.pop();//and leave execution frame
+        m.switchContext(c);
+        m.lastSafe = this;
     }
 }

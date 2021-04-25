@@ -56,7 +56,8 @@ public class Main {
     protected boolean exitLoop = false;
 
     private String givenName = "majar";
-    Symbol truth;//a hook link not to be used for other purposes. See definition of true in Bible
+    protected Symbol truth;//a hook link not to be used for other purposes. See definition of true in Bible
+    protected Safe lastSafe = new Safe("env");//the environmental safe
 
     //========================================== ENTRY / EXIT
 
@@ -520,7 +521,11 @@ public class Main {
                 }
                 ((Macro) f).macroExecute(m);//the macro must potentially set macro escape
             } else {
-                ls.addLast(s);
+                if(f instanceof Safe) {
+                    setMacroLiteral(2);//an implicit safe macro for variable names
+                } else {
+                    ls.addLast(s);
+                }
             }
         } while(macroEscape.peek().open > 0);
         macroEscape.pop();
@@ -830,15 +835,16 @@ public class Main {
 
     void printContext() {
         println();
-        print(ANSI_RESET + "[");
+        print(ANSI_RESET + "[ ");
         printSymbolName(current);
+        printSymbolName(lastSafe);
         print(ANSI_RESET + "] ");
         Book c = context;
         do {
             printSymbolName(c);
             c = c.in;
         } while(c.in != null);
-        print(ANSI_RESET + "[");
+        print(ANSI_RESET + "[ ");
         c = context;
         while(c.executeIn != null) {
             c = c.executeIn;
@@ -1072,17 +1078,14 @@ public class Main {
 
     /**
      * Make a safe storage of a map in the interpreter.
-     * @param safeName name of the safe to make in the context book (not the programmatic current book).
      * @param params the parameter map.
      * @return the main instance.
      */
-    public static Main makeSafe(String safeName, Map<String, String[]> params) {
+    public static Main makeSafe(Map<String, String[]> params) {
         Main m = getMain();
-        Safe s = new Safe(safeName.intern());//safes do not evaluate or execute anything inside
-        m.reg(s, m.context);
         for(String i: params.keySet()) {//serves you right if you did not clean parameters as no intern()
             Symbol key = new Symbol(i, params.get(i));
-            m.reg(key, s);//register keys in safe
+            m.reg(key, m.lastSafe);//register keys in safe
         }
         return m;
     }
@@ -1101,10 +1104,10 @@ public class Main {
             Waiter out = Waiter.bind();
             Main.setIO(what, out.getPrintStream());
             Main.setHTML();//as it needs this for no system exit
-            Main m = Main.makeSafe("env", params);
+            Main m = Main.makeSafe(params);
             m.reg(new Ref("task", new Multex(String.valueOf(idx))));
             Main.run(with);//may not exhaustively use input what
-            out.drainAndClose(what);
+            Waiter.drainAndClose(what);
         }), idx);
     }
 
