@@ -18,9 +18,9 @@ public class Time extends UnitSymbol {
             ml.execute(null);
         });
         t.start();
-        m.dat.push(new Prim(named) {
+        m.dat.push(new UnitSymbol(named, null) {
             @Override
-            protected void def(Main m) {
+            protected void run(Main m) {
                 try {
                     t.join();
                     Main ml = Main.threads.get(t);
