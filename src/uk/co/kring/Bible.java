@@ -31,10 +31,31 @@ public class Bible extends Book {
         //this allows many words with a fixed literal intake to be embedded in escaped literals
         //of an unknown size. If not made into macros the strange condition of "word macro rest"
         //has the interpretation of "word rest" with a macro performed in the escaped literal.
-        Prim delay = new Prim() {
+        Prim delay = new Prim("delay") {
             @Override
             protected void def(Main m) {
                 m.setMacroLiteral(2);
+            }
+        };
+        Prim singleOpen = new Macro("begin", null) {
+            @Override
+            protected void def(Main m) {
+                m.setMacroLiteral(1);
+                m.setMacroEscape(-1, this);//open
+            }
+        };
+        Prim delayOpen = new Macro("def", null) {
+            @Override
+            protected void def(Main m) {
+                m.setMacroLiteral(2);
+                m.setMacroEscape(-1, this);//open
+            }
+        };
+        Prim singleClose = new Macro("end", null) {
+            @Override
+            protected void def(Main m) {
+                m.setMacroLiteral(1);
+                m.setMacroEscape(1, this);//close
             }
         };
         //TODO main bible hook point
@@ -109,19 +130,19 @@ public class Bible extends Book {
         reg(new Macro("ref", delay) {
             @Override
             protected void def(Main m) {
-                reg(new Ref(m.literal(), m.dat.peek()));
+                m.reg(new Ref(m.literal(), m.dat.peek()));
             }
         });
         reg(new Macro("space", delay) {
             @Override
             protected void def(Main m) {
-                reg(new Space(m.literal()));
+                m.reg(new Space(m.literal()));
             }
         });
         reg(new Macro("time", delay) {
             @Override
             protected void def(Main m) {
-                reg(new Time(m.literal(), m.dat.pop()));
+                m.reg(new Time(m.literal(), m.dat.pop()));
             }
         });
         reg(new Macro("safe", delay) {
@@ -129,7 +150,7 @@ public class Bible extends Book {
             protected void def(Main m) {
                 Safe s = new Safe(m.literal());
                 m.lastSafe = s;
-                reg(s);
+                m.reg(s);
             }
         });
         reg(new Macro("store", delay) {
@@ -144,7 +165,7 @@ public class Bible extends Book {
                 } else {
                     s = new Ref(name, x);//by object reference
                 }
-                reg(s);
+                m.reg(s);
                 m.switchContext(c);//restore
             }
         });
@@ -272,6 +293,26 @@ public class Bible extends Book {
                     return;
                 }
                 m.dat.push(null);//push false
+            }
+        });
+        reg(new Macro("begin", singleOpen) {
+            @Override
+            protected void def(Main m) {
+                m.dat.push(new Multex(m.multiLiteral(m)));//get a balanced multex
+            }
+        });
+        reg(new Macro("end", singleClose) {
+            @Override
+            protected void def(Main m) {
+                m.checkMacro(this);//real execution checks macro state
+            }
+        });
+        reg(new Macro("def", delayOpen) {
+            @Override
+            protected void def(Main m) {
+                String name = m.literal();
+                Symbol s = new Symbol(name, m.multiLiteral(m));
+                m.reg(s);
             }
         });
 

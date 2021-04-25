@@ -480,16 +480,19 @@ public class Main {
         chaining = true;
     }
 
-    //only call this from within a macro
     void setMacroEscape(int escape, Macro m) {
         if(macroEscape.empty()) {
             setError(ERR_BRACKET, m);
         } else {
             Frame f = macroEscape.peek();
             f.open -= escape;
-            if(f.open < 0) {
-                setError(ERR_BRACKET, m);
-            }
+        }
+    }
+
+    void checkMacro(Macro m) {
+        Frame f = macroEscape.pop();
+        if(f == null || f.open != 0) {
+            setError(ERR_BRACKET, m);
         }
     }
 
@@ -527,8 +530,8 @@ public class Main {
                     ls.addLast(s);
                 }
             }
-        } while(macroEscape.peek().open > 0);
-        macroEscape.pop();
+        } while(!macroEscape.empty() && macroEscape.peek().open > 0);
+        //macroEscape.pop(); -- do in check
         return fromList(ls);
     }
 
