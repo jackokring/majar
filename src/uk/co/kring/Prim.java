@@ -1,7 +1,5 @@
 package uk.co.kring;
 
-import java.lang.reflect.Constructor;
-
 /**
  * An abstract class representing a primitive Java operation. Primitives can be loaded from the "plug"
  * sub-package automatically by using the simple class name with a lowercase first letter (like a method name).
@@ -25,8 +23,8 @@ public abstract class Prim extends UnitSymbol {
     }
 
     public Prim() {
-        this(null);
-    }
+        this("");
+    }//temp name which gets clobbered as null name not allowed
 
     /**
      * Defines the simple state of not needing threading.
@@ -42,9 +40,11 @@ public abstract class Prim extends UnitSymbol {
         if(simple()) return this;
         try {
             Class<?> clazz = this.getClass();
-            Constructor<?> constructor = clazz.getConstructor(String.class);
-            Object instance = constructor.newInstance(named);
-            return (Prim)instance;//yes
+            Prim instance = (Prim)clazz.newInstance();
+            instance.named = named;
+            instance.in = in;
+            instance.executeIn = executeIn;
+            return instance;//yes
         } catch(Exception e) {
             Main.getMain().setError(Main.ERR_THREAD, this);
             return this;

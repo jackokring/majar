@@ -290,10 +290,7 @@ public class Main {
                 Object instance = clazz.newInstance();
                 if (instance instanceof Prim) {
                     ((Prim) instance).named = t;//quick hack to put Prim on a default constructor
-                    Book b = current;
-                    current = context;
-                    reg((Symbol) instance);
-                    current = b;//N.B. important to bring into context to RUN!!
+                    reg((Symbol) instance, context);
                     //as a system definition, it by nature would be later available in the same context
                     //current therefore is for user definitions in majar and not Java
                     //this has implications for multiple instances
