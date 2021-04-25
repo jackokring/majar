@@ -99,8 +99,10 @@ public class Bible extends Book {
         reg(new Prim("eval") {
             @Override
             protected void def(Main m) {
-                m.ret.pop();//pop self
+                if(m.dat.peek() == null) return;//the null eval
+                Multex x = m.ret.pop();//pop self
                 m.stackForRun(m.dat.pop());
+                m.ret.push(x);
             }
         });
 
@@ -172,6 +174,84 @@ public class Bible extends Book {
 
         //4. Control Structures
         //=====================
+        reg(new Prim("false") {
+            @Override
+            protected void def(Main m) {
+                m.dat.push(null);//push false
+            }
+        });
+        reg(Main.getMain().truth = new Prim("true") {
+            @Override
+            protected void def(Main m) {
+                m.dat.push(m.truth);//push true terminal
+            }
+        });
+        reg(new Prim("not") {
+            @Override
+            protected void def(Main m) {
+                if(m.dat.pop() == null) {
+                    m.dat.push(m.truth);
+                    return;
+                }
+                m.dat.push(null);//push false
+            }
+        });
+        reg(new Prim("xor") {
+            @Override
+            protected void def(Main m) {
+                Multex q = m.dat.pop();
+                Multex p = m.dat.pop();
+                if(q != null && p == null) {
+                    m.dat.push(q);
+                    return;
+                }
+                if(q == null && p != null) {
+                    m.dat.push(p);
+                    return;
+                }
+                m.dat.push(null);//push false
+            }
+        });
+        reg(new Prim("or") {
+            @Override
+            protected void def(Main m) {
+                Multex q = m.dat.pop();
+                Multex p = m.dat.pop();
+                if(q != null) {//last is best
+                    m.dat.push(q);
+                    return;
+                }
+                m.dat.push(p);//push false
+            }
+        });
+        reg(new Prim("and") {
+            @Override
+            protected void def(Main m) {
+                Multex q = m.dat.pop();
+                Multex p = m.dat.pop();
+                if(q != null && p != null) {//on p true then q eval
+                    m.dat.push(q);
+                    return;
+                }
+                m.dat.push(null);//push false
+            }
+        });
+        reg(new Prim("imp") {
+            @Override
+            protected void def(Main m) {
+                Multex q = m.dat.pop();
+                Multex p = m.dat.pop();
+                if(q != null && p != null) {//on p then q eval
+                    m.dat.push(q);
+                    return;
+                }
+                if(p == null) {//on not p truth
+                    m.dat.push(m.truth);
+                    return;
+                }
+                m.dat.push(null);//push false
+            }
+        });
 
         //5. Numerics
         //===========

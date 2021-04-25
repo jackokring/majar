@@ -56,6 +56,7 @@ public class Main {
     protected boolean exitLoop = false;
 
     private String givenName = "majar";
+    Symbol truth;//a hook link not to be used for other purposes. See definition of true in Bible
 
     //========================================== ENTRY / EXIT
 
