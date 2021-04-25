@@ -139,10 +139,12 @@ public class Bible extends Book {
                 m.reg(new Space(m.literal()));
             }
         });
-        reg(new Macro("time", delay) {
+        reg(new Macro("time", delayOpen) {
             @Override
             protected void def(Main m) {
-                m.reg(new Time(m.literal(), m.dat.pop()));
+                String name = m.literal();
+                Symbol s = new Time(name, m.multiLiteral(m));
+                m.reg(s);
             }
         });
         reg(new Macro("safe", delay) {

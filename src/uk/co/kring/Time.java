@@ -8,13 +8,11 @@ import static uk.co.kring.Main.nul;
  */
 public class Time extends UnitSymbol {
 
-    Multex ref;
-
     protected void run(Main m) {
         Thread t = new Thread(() -> {
             Main ml = Main.getMain();
             ml.dat.push(m.dat.pop());//input
-            ml.stackForRun(ref);
+            ml.stackForRun(new Multex(basis));
             ml.execute(null);
         });
         t.start();
@@ -33,8 +31,7 @@ public class Time extends UnitSymbol {
         });
     }
 
-    public Time(String name, Multex m) {
-        super(name, (String[])null);
-        ref = m;
+    public Time(String name, String[] s) {
+        super(name, s);
     }
 }
