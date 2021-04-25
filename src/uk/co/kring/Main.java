@@ -645,6 +645,10 @@ public class Main {
         first = 0;
     }
 
+    boolean hadError() {
+        return errorExit != 1;
+    }
+
     void setError(int t, Object o) {
         String s;
         long e = errorExit;

@@ -214,6 +214,12 @@ public class Bible extends Book {
                 m.userExit();
             }
         });
+        reg(new Prim("print") {
+            @Override
+            protected void def(Main m) {
+                m.list(m.dat.pop(), false);//print encoded form
+            }
+        });
 
         //4. Control Structures
         //=====================
@@ -313,6 +319,34 @@ public class Bible extends Book {
                 String name = m.literal();
                 Symbol s = new Symbol(name, m.multiLiteral(m));
                 m.reg(s);
+            }
+        });
+        reg(new Prim("para") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.ret.pop();
+                m.dat.push(new Multex(m.literal()));
+                m.ret.push(x);
+            }
+        });
+        reg(new Prim("many") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.ret.pop();
+                m.dat.push(new Multex(m.multiLiteral(m)));//get a balanced multex
+                m.ret.push(x);
+            }
+        });
+        reg(new Macro("omit", delay) {
+            @Override
+            protected void def(Main m) {
+                if(m.hadError()) m.literal();//skip it
+            }
+        });
+        reg(new Macro("catch", delay) {
+            @Override
+            protected void def(Main m) {
+                if(!m.hadError()) m.literal();//skip it
             }
         });
 
