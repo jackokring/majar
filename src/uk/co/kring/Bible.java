@@ -344,10 +344,11 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 Multex x = m.ret.pop();
-                Symbol s = m.find(m.literal(), false);
+                String y = m.literal();
+                Symbol s = m.find(y, false);
                 //consume begin token to balance nesting without illogical situation
                 if(s != begin) {
-                    m.setError(Main.ERR_BEGIN, this);
+                    m.setError(Main.ERR_BEGIN, s != null ? s : y);
                     m.dat.push(null);
                     m.ret.push(x);
                 }
