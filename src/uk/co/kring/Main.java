@@ -735,8 +735,12 @@ public class Main {
                     list((Multex)o, false);
                 }
             } else {
-                printColor(o);
-                print(o.getClass().getCanonicalName());                ;
+                if(o instanceof String) {
+                    printSymbolized((String)o);
+                } else {
+                    printColor(o);
+                    print(o.getClass().getCanonicalName());
+                };
             }
         }
         print(prefix);
