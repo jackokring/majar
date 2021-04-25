@@ -615,6 +615,7 @@ public class Main {
     public static final int ERR_BRACKET = 19;
     public static final int ERR_NUL = 20;
     //21
+    public static final int ERR_BEGIN = 22;
 
     /**
      * The error code primes for indexing.

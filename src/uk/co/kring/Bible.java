@@ -301,7 +301,8 @@ public class Bible extends Book {
                 m.dat.push(null);//push false
             }
         });
-        reg(new Macro("begin", singleOpen) {
+        Macro begin;
+        reg(begin = new Macro("begin", singleOpen) {
             @Override
             protected void def(Main m) {
                 m.dat.push(new Multex(m.multiLiteral(m)));//get a balanced multex
@@ -329,10 +330,27 @@ public class Bible extends Book {
                 m.ret.push(x);
             }
         });
+        reg(new Prim("meta") {//consider how a while loop is implemented
+            @Override
+            protected void def(Main m) {
+                Multex x = m.ret.pop();
+                Multex y = m.ret.pop();
+                m.dat.push(new Multex(m.literal()));
+                m.ret.push(y);
+                m.ret.push(x);
+            }
+        });
         reg(new Prim("many") {
             @Override
             protected void def(Main m) {
                 Multex x = m.ret.pop();
+                Symbol s = m.find(m.literal(), false);
+                //consume begin token to balance nesting without illogical situation
+                if(s != begin) {
+                    m.setError(Main.ERR_BEGIN, this);
+                    m.dat.push(null);
+                    m.ret.push(x);
+                }
                 m.dat.push(new Multex(m.multiLiteral(m)));//get a balanced multex
                 m.ret.push(x);
             }
