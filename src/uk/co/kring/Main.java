@@ -809,7 +809,7 @@ public class Main {
         "Symbol", "Space", "Ref",
         "NewRaNetPrim", "Time", "Nul",
         "Prim", "WARN", "Macro",
-        "", "", "",
+        "UnitSymbol", "", "",
         "Book", "Bible", "Safe",
     };
 

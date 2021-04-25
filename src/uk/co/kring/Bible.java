@@ -349,6 +349,34 @@ public class Bible extends Book {
                 if(!m.hadError()) m.literal();//skip it
             }
         });
+        reg(new Prim("ok") {
+            @Override
+            protected void def(Main m) {
+                m.clearErrors();
+            }
+        });
+        reg(new Macro("while", singleOpen) {
+            @Override
+            protected void def(Main m) {
+                String[] x = m.multiLiteral(m);
+                if(m.dat.pop() != null) {
+                    Multex self = m.ret.pop();
+                    m.ret.push(new UnitSymbol("while", x) {//creates a non literal while iterator
+                        @Override
+                        protected void run(Main m) {
+                            if(m.dat.pop() != null) {
+                                Multex self = m.ret.pop();
+                                m.ret.push(this);//recursive
+                                m.ret.push(new Multex(x));//the loop
+                                m.ret.push(self);//for exit
+                            }
+                        }
+                    });
+                    m.ret.push(new Multex(x));//the loop
+                    m.ret.push(self);//for exit
+                }
+            }
+        });
 
         //5. Numerics
         //===========
