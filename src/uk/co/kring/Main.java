@@ -85,6 +85,10 @@ public class Main {
                 m.clearErrors();
                 m.reg(m.bible);
                 ((Bible) m.bible).build().fix();
+                if(!m.fast) {
+                    m.list(m.bible, true);
+                    m.println();
+                }
             }
             if(!m.fast) m.print("Starting ...\n");
             m.startFlusher();
@@ -100,9 +104,9 @@ public class Main {
                 m.stackTrace(m.ret);//destructive print
             }
         }
+        if(!m.fast) m.print("Exiting ...\n");
         m.exitFlusher();
         m.printErrorSummary();
-        if(!m.fast) m.print("Exiting ...\n");
         if(m.html) {
             m.print("</span></span>");
             synchronized(m) {
@@ -199,18 +203,19 @@ public class Main {
         if(s == null) return;
         List<Symbol> ls = unReg(s, current);
         if(ls == null) return;
-        if(s != bible) {
-            s.in = current;
-            s.in.basis = Arrays.copyOf(s.in.basis, s.in.basis.length + 1);
-            s.in.basis[s.in.basis.length - 1] = s.named;
-        } else {//bible ...
-            s.in = null;//or kill context
-        }
+        s.in = current;
+        s.in.basis = Arrays.copyOf(s.in.basis, s.in.basis.length + 1);
+        s.in.basis[s.in.basis.length - 1] = s.named;
+        s.executeIn = context;//keep context
         if(s instanceof Book) {
             s.executeIn = null;//clear recent cache
         }
-        s.executeIn = context;//keep context
         ls.add(s);//new
+        if(!fast) {
+            print("Registered ... ");
+            printSymbolName(s);
+            println();
+        }
     }
 
     List<Symbol> unReg(Symbol s, Book current) {
@@ -267,7 +272,7 @@ public class Main {
     Symbol find(String t, Book b, boolean error) {
         if(b == null) b = context;
         Book c = switchContext(b);
-        Symbol s = find(t, true);//default
+        Symbol s = find(t, error);//default
         switchContext(c);//restore
         return s;
     }
@@ -277,7 +282,7 @@ public class Main {
             return null;
         }
         List<Symbol> s = dict.get(t);
-        Book c;
+        Book b, c;
         if(s != null) {
             c = context;
             do {
@@ -286,15 +291,19 @@ public class Main {
                         return i;
                     }
                 }
+                b = c;
                 c = c.in;//next higher context
-            } while(c != null);
-            if(error) setError(Main.ERR_CONTEXT, context);
+            } while(c != b);//terminal self
         }
         if(error) {//if finding for errors then try class any lazy context too
             //class loading bootstrap of Class named as method camelCase
             String p = Character.toUpperCase(t.charAt(0)) + t.substring(1);//make run method!!
             p = p.intern();//make findable
             String name = Main.class.getPackage().getName() + ".plug." + p;
+            if(!fast) {
+                print("Plug load: " + name);
+                println();
+            }
             try {
                 Class<?> clazz = Class.forName(name);
                 //Constructor<?> constructor = clazz.getConstructor(String.class);
@@ -312,6 +321,10 @@ public class Main {
                     return null;
                 }
             } catch (Exception e) {
+                if(!fast) {
+                    print("Lazy mode: " + t);
+                    println();
+                }
                 //lazy mode
                 //if (context.executeIn != null) {//try recent used books
                 //    return find(t, context.executeIn, true);
@@ -706,12 +719,15 @@ public class Main {
             }
             put = out;
         }
+        put.flush();
     }
 
     void printErrorSummary() {
         if(last != -1) {
             putError(true);
-            errorPlump(ANSI_ERR, last, errorFact.getString("summary"), true);//on newline
+            print(ANSI_ERR);
+            print(errorFact.getString("summary"));
+            println();
             String c = ANSI_WARN;
             if(errOver()) c = ANSI_ERR;//many errors
             else {
@@ -764,10 +780,9 @@ public class Main {
         while(!s.empty()) {
             //trace
             Multex m = s.pop();
-            println();
             if(m != null) {
                 print(ANSI_ERR + "@ ");
-                list(m, false);
+                list(m, true);
             } else {
                 print(ANSI_ERR + "@@");//a void on the stack
             }
@@ -826,7 +841,7 @@ public class Main {
     };
 
     public void printColor(Object object) {
-        Class<? extends Object> c = object.getClass();
+        /* Class<? extends Object> c = object.getClass();
         String n = c.getName();
         while(true) {
             try {
@@ -840,7 +855,7 @@ public class Main {
                 //
                 throw new RuntimeException();
             }
-        }
+        } */
     }
 
     private synchronized void print(String s) {//private so final not used outside
@@ -885,9 +900,10 @@ public class Main {
         if(m instanceof Book) {
             context = (Book)m;//set self to view
         }
-        if(!(m instanceof UnitSymbol)) {
+        if(!(m instanceof UnitSymbol) || m instanceof Book) {
+            println();
             for (int i = 0; i < m.basis.length; i++) {
-                if (i == m.idx) {
+                if (i == m.idx && !(m instanceof UnitSymbol)) {
                     //cursor
                     printSymbolized("@");
                 }
