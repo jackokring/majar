@@ -197,9 +197,6 @@ public class Main {
 
     void reg(Symbol s, Book current) {
         if(s == null) return;
-        if(s == nul) {
-            setError(ERR_NUL, nul);
-        }
         List<Symbol> ls = unReg(s, current);
         if(ls == null) return;
         if(s != bible) {
@@ -316,15 +313,14 @@ public class Main {
                 }
             } catch (Exception e) {
                 //lazy mode
-                if (context.executeIn != null) {//try recent used books
-                    return find(t, context.executeIn, error);
-                } else {
+                //if (context.executeIn != null) {//try recent used books
+                //    return find(t, context.executeIn, true);
+                //} else {
                     setError(Main.ERR_FIND, t);
                     return null;
-                }
+                //}
             }
         } else {
-            setError(Main.ERR_FIND, t);
             return null;
         }
     }
@@ -830,15 +826,19 @@ public class Main {
     };
 
     public void printColor(Object object) {
-        Class<? extends Object> c = "xx".getClass();
+        Class<? extends Object> c = object.getClass();
+        String n = c.getName();
         while(true) {
             try {
-                Field f = c.getField("ANSI_" + c.getName());
+                Field f = c.getField("ANSI_" + n);
                 print((String)f.get(object));
                 return;
-            } catch(Exception e) {
+            } catch(NoSuchFieldException e) {
                 //try next
                 c = c.getSuperclass();
+            } catch (IllegalAccessException f) {
+                //
+                throw new RuntimeException();
             }
         }
     }
