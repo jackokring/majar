@@ -454,13 +454,13 @@ public class Main {
     }
 
     String topMost(Stack<Multex> sm) {//null at end
-        if(sm.empty()) return null;//end
+        if(sm.empty()) return null;//end//TODO error
         Multex m = sm.peek();
-        list(m, true);//TODO
         while(m == null || m.firstString() == null) {
+            //list(m, true);//TODO
             if(m == null) {
                 sm.pop();//pop null
-                if(sm.empty()) return null;//end
+                if(sm.empty()) return null;//end//TODO error
                 m = sm.peek();
             } else {
                 m.literalShift(this);
