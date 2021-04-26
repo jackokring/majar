@@ -204,6 +204,7 @@ public class Bible extends Book {
                 m.ret = new ProtectedStack<>(Main.nul);
                 while(true) {
                     if(m.exitLoop) break;
+                    m.println();//clean line
                     in = m.readReader(m.getIn(), null);
                     if(in == null) break;
                     m.execute(new Multex(in));

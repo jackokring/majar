@@ -43,6 +43,7 @@ public class Main {
 
     private boolean fast = false;
     private boolean html = false;
+    private boolean abortClean = false;
 
     private InputStream in = System.in;
     private PrintStream out = System.out;
@@ -89,25 +90,32 @@ public class Main {
             if(!m.fast) m.print("Starting ...\n");
             m.startFlusher();
             m.execute(new Multex(args));
-            if(!m.fast) m.print("\nCompleted ...\n");
+            if(!m.fast) {
+                m.println();
+                m.print("Completed ...\n");
+            }
         } catch(Exception e) {
             m.putError(false);
-            if(!m.fast) {
+            if(!m.fast && !m.abortClean) {
                 m.print("Exception ...\n");
                 e.printStackTrace();
             }
-            if(!m.ret.empty()) {
-                m.stackTrace(m.ret);//destructive print
+            if(!m.abortClean) {
+                if (!m.ret.empty()) {
+                    m.stackTrace(m.ret);//destructive print
+                }
             }
         }
         if(!m.fast) m.print("Exiting ...\n");
         m.exitFlusher();
-        m.printErrorSummary();
+        if(!m.abortClean) m.printErrorSummary();
+        m.abortClean = false;
         if(m.html) {
             m.print("</span></span>");
             synchronized(m) {
                 m.out.flush();
             }
+            if(!m.chaining) threads.remove(Thread.currentThread());
         } else {
             System.exit(m.first);//a nice ... exit on first finished thread?
         }
@@ -140,11 +148,8 @@ public class Main {
         print(ANSI_WARN + errorFact.getString("abort"));
         println();
         first = a?1:0;//bash polarity
-        if (html) {
-            throw new RuntimeException();
-        } else {
-            System.exit(first);//generate user abort exit code
-        }
+        abortClean = true;
+        throw new RuntimeException();
     }
 
     //========================================== INTERPRETER
@@ -961,7 +966,7 @@ public class Main {
         print(" /><span>");
     }
 
-    private synchronized void println() {
+    synchronized void println() {
         if (html) {
             put.print("</span><br /><span>");//quick!!
         } else {
