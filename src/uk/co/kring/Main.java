@@ -188,7 +188,7 @@ public class Main {
     void runNext() {//fetch and execute
         Multex m = ret.peek();
         if(m == null) return;//end of code
-        m.run(this);
+        m.run(this);//definite no shift in execution planned
         m.shift(this);//post fetch if didn't do own shift
     }
 
@@ -456,18 +456,15 @@ public class Main {
     String topMost(Stack<Multex> sm) {//null at end
         if(sm.empty()) return null;//end
         Multex m = sm.peek();
+        list(m, true);//TODO
         while(m == null || m.firstString() == null) {
             if(m == null) {
                 sm.pop();//pop null
+                if(sm.empty()) return null;//end
+                m = sm.peek();
             } else {
-                if (m == nul) {//null error and stack under
-                    Main.getMain().setError(ERR_NUL, m);
-                    return null;
-                }
                 m.literalShift(this);
             }
-            if(sm.empty()) return null;//end
-            m = sm.peek();
         }
         String s = m.firstString();
         return s;
@@ -479,7 +476,7 @@ public class Main {
         if(f != null && f.shiftSkip) {
             //special so skip shift to absorb next macro as literal
         } else {
-            ret.peek().literalShift(this);
+            ret.peek().literalShift(this);//as no shift in run(), and called before shift()
         }
         String s = topMost(ret);//obtain a literal
         //after word execution the final shift is done by runNext()
