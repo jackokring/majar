@@ -16,7 +16,7 @@ public class Bible extends Book {
     String[] reserved = {
             //0. Virtual Reserved
             //===================
-            "env", "task",
+            "task",
     };
 
     void fix() {
@@ -178,20 +178,24 @@ public class Bible extends Book {
         reg(new Prim("input") {
             @Override
             protected void def(Main m) {
-                m.dat.push(m.readReader(m.getIn(), null));
+                Multex x = new Multex(m.readReader(m.getIn(), null));
+                if(x.basis == null) {
+                    x = null;
+                }
+                m.dat.push(x);
             }
         });
         reg(new Prim("direct") {
             @Override
             protected void def(Main m) {
-                Multex in;
+                String[] in;
                 Stack<Multex> r = m.ret;
                 m.ret = new ProtectedStack<>(Main.nul);
                 while(true) {
                     if(m.exitLoop) break;
                     in = m.readReader(m.getIn(), null);
                     if(in == null) break;
-                    m.execute(in);
+                    m.execute(new Multex(in));
                 };
                 m.exitLoop = false;
                 m.ret = r;
@@ -220,6 +224,12 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 m.list(m.dat.pop(), false);//print encoded form
+            }
+        });
+        reg(new Prim("markup") {
+            @Override
+            protected void def(Main m) {
+                Main.setHTML();//for tests
             }
         });
 

@@ -12,8 +12,4 @@ public class Nul extends UnitSymbol {
     public Nul() {
         super("nul", (String[])null);
     }
-
-    public String firstString() {
-        return null;
-    }
 }

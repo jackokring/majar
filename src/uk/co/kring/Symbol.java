@@ -19,12 +19,10 @@ public class Symbol extends Multex {
         named = name;
     }
 
-    public Symbol(Symbol s) {
-        this(s.named, s.basis);
-        in = s.in;
-    }
-
     protected Multex optionReplace() {
-        return new Symbol(this);
+        Symbol s = new Symbol(named, basis);
+        s.in = in;
+        s.executeIn = executeIn;
+        return s;
     }
 }

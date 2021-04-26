@@ -9,10 +9,6 @@ public abstract class UnitSymbol extends Symbol {
         super(name, s);
     }
 
-    public UnitSymbol(Symbol s) {
-        super(s);
-    }
-
     protected Multex optionReplace() {
         return this;//NO
     }

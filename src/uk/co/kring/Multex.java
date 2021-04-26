@@ -28,7 +28,7 @@ public class Multex {
      * @return the replacement or this self for no replacement.
      */
     protected Multex optionReplace() {
-        Multex m = new Multex(this);
+        Multex m = new Multex(this.basis);
         m.executeIn = executeIn;
         return m;
     }
@@ -40,16 +40,11 @@ public class Multex {
     public Multex(String[] s) {
         idx = 0;
         basis = s;
+        //executeIn = Main.getMain().context;
     }
 
     public Multex(String s) {
         this(Main.getMain().readString(s));
-    }
-
-    public Multex(Multex m) {//new idx
-        this(m.basis);
-        idx = 0;//duplicate work? no error
-        executeIn = m.executeIn;
     }
 
     /**

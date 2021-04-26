@@ -68,7 +68,12 @@ public class Main {
     public static void main(String[] args) {
         Main m = getMain();
         intern(args);//first
-        if(args.length > 0) m.givenName = args[0];
+        if(args.length > 0) {
+            m.givenName = args[0];
+        } else {
+            //go for direct mode
+            args = singleton("direct");
+        }
         try {
             if(m.html) {
                 m.print("<span class=\"" + m.givenName + "\"><span>");
@@ -76,20 +81,28 @@ public class Main {
             if(m.chaining) {
                 m.chaining = false;
             } else {
+                if(!m.fast) m.print("Initializing ...\n");
                 m.clearErrors();
                 m.reg(m.bible);
                 ((Bible) m.bible).build().fix();
             }
+            if(!m.fast) m.print("Starting ...\n");
             m.startFlusher();
             m.execute(new Multex(args));
+            if(!m.fast) m.print("Completed ...\n");
         } catch(Exception e) {
             m.putError(false);
+            if(!m.fast) {
+                m.print("Exception ...\n");
+                e.printStackTrace();
+            }
             if(!m.ret.empty()) {
                 m.stackTrace(m.ret);//destructive print
             }
         }
         m.exitFlusher();
         m.printErrorSummary();
+        if(!m.fast) m.print("Exiting ...\n");
         if(m.html) {
             m.print("</span></span>");
             synchronized(m) {
@@ -107,7 +120,7 @@ public class Main {
      */
     public static int run(String s) {//per thread running from text
         Main m = newMain();
-        main(m.readString(s).basis);
+        main(m.readString(s));
         int first = m.first;
         if(!m.chaining) threads.remove(Thread.currentThread());//possible saving but sequential reinitialization
         return first;
@@ -189,17 +202,17 @@ public class Main {
         }
         List<Symbol> ls = unReg(s, current);
         if(ls == null) return;
-        s.executeIn = context;//keep context
-        s.in.basis = Arrays.copyOf(s.in.basis, s.in.basis.length + 1);
-        s.in.basis[s.in.basis.length - 1] = s.named;
         if(s != bible) {
             s.in = current;
+            s.in.basis = Arrays.copyOf(s.in.basis, s.in.basis.length + 1);
+            s.in.basis[s.in.basis.length - 1] = s.named;
         } else {//bible ...
             s.in = null;//or kill context
         }
         if(s instanceof Book) {
             s.executeIn = null;//clear recent cache
         }
+        s.executeIn = context;//keep context
         ls.add(s);//new
     }
 
@@ -317,9 +330,9 @@ public class Main {
     }
 
     static final String para = "\u009B";//quirk of the shell unused representation of "\[["
-    static final String htmlPara = "\u0085";//technically NEL, but ...
+    static final String htmlPara = "\u0018E";//technically NEL, but ... quirk of usage for compaction
 
-    Multex readReader(InputStream input, String alternate) {
+    String[] readReader(InputStream input, String alternate) {
         try {
             if(input != toClose && input != null) {
                 //yes a different stream
@@ -340,9 +353,10 @@ public class Main {
         }
     }
 
-    Multex readString(String s) {
+    String[] readString(String s) {
         boolean quote = false;
         int j = -1;
+        if(s.equals("")) s = null;
         if(s == null) return null;//blank
         s = s.replace("\\\"", para);
         if(html) s = s.replace("&", htmlPara);//input render
@@ -376,10 +390,10 @@ public class Main {
         }
         if(quote) setError(ERR_QUOTE, args[j]);
         intern(args);//pointers??
-        return new Multex(args);
+        return args;
     }
 
-    Multex readInput() {
+    String[] readInput() {
         return readReader(in, null);
     }
 
@@ -535,7 +549,12 @@ public class Main {
         return fromList(ls);
     }
 
-    String[] fromList(List<String> ls) {
+    /**
+     * Get a string array form of a list of string.
+     * @param ls the list of strings.
+     * @return the string array.
+     */
+    public String[] fromList(List<String> ls) {
         Object[] o = ls.toArray();
         String[] s = new String[o.length];
         for(int i = 0; i < o.length; i++) {
@@ -569,14 +588,13 @@ public class Main {
             }
         }
         return t.toString();
-        //return String.join(" ", s);
     }
 
     //========================================== CMD UTIL
 
-    void silentExec(Multex s) {
+    void silentExec(String[] s) {
         try {
-            int x = Runtime.getRuntime().exec(join(s.basis)).waitFor();
+            int x = Runtime.getRuntime().exec(join(s)).waitFor();
             if(x != 0) setError(ERR_PROCESS, s);
         } catch(Exception e) {
             setError(ERR_PROCESS, s);
@@ -727,20 +745,17 @@ public class Main {
         print("[" + errorCode[code] + "]");
         printLiteral(errorFact.getString(String.valueOf(code)));//indexed by code
         if(o != null) {
-            print(":");
+            print(". ");
             if(o instanceof Multex) {
-                if(o instanceof Symbol) {
-                    printSymbolName((Symbol) o);
-                } else {
-                    list((Multex)o, false);
-                }
+                list((Multex)o, false);
             } else {
                 if(o instanceof String) {
                     printSymbolized((String)o);
                 } else {
                     printColor(o);
                     print(o.getClass().getCanonicalName());
-                };
+                    print(" ");//consistent
+                }
             }
         }
         print(prefix);
@@ -756,11 +771,7 @@ public class Main {
             println();
             if(m != null) {
                 print(ANSI_ERR + "@ ");
-                if(m instanceof Symbol) {
-                    printSymbolName((Symbol)m);
-                } else {
-                    list(m, false);
-                }
+                list(m, false);
             } else {
                 print(ANSI_ERR + "@@");//a void on the stack
             }
@@ -819,7 +830,7 @@ public class Main {
     };
 
     public void printColor(Object object) {
-        Class<? extends Object> c = object.getClass();
+        Class<? extends Object> c = "xx".getClass();
         while(true) {
             try {
                 Field f = c.getField("ANSI_" + c.getName());
@@ -838,7 +849,7 @@ public class Main {
 
     void printSymbolName(Symbol s) {
         if(s == null) return;
-        if(((Symbol)s).named != null) {
+        if(s.named != null) {
             printColor(s);
             printLiteral(s.named);
             print(" ");
@@ -849,8 +860,8 @@ public class Main {
         println();
         print(ANSI_RESET + "[ ");
         printSymbolName(current);
-        printSymbolName(lastSafe);
         print(ANSI_RESET + "] ");
+        printSymbolName(lastSafe);
         Book c = context;
         do {
             printSymbolName(c);
@@ -874,22 +885,24 @@ public class Main {
         if(m instanceof Book) {
             context = (Book)m;//set self to view
         }
-        for(int i = 0; i < m.basis.length; i++) {
-            if(!(m instanceof UnitSymbol)) {
-                if(i == m.idx) {
+        if(!(m instanceof UnitSymbol)) {
+            for (int i = 0; i < m.basis.length; i++) {
+                if (i == m.idx) {
                     //cursor
                     printSymbolized("@");
                 }
+                Symbol x = find(m.basis[i], false);
+                if (x != null) {
+                    printSymbolName(x);
+                } else {
+                    printSymbolized(m.basis[i]);//not found in context
+                }
             }
-            Symbol x = find(m.basis[i], false);
-            if(x != null) {
-                printSymbolName(x);
-            } else {
-                printSymbolized(m.basis[i]);//not found in context
-            }
+        } else {
+            //unit symbol specials
+            if(m instanceof Time) list(new Multex(m.basis), false);
         }
         context = c;
-        print(" ");
     }
 
     void printSymbolized(String s) {
