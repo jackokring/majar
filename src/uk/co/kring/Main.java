@@ -454,24 +454,34 @@ public class Main {
     }
 
     String topMost(Stack<Multex> sm) {//null at end
+        if(sm.empty()) return null;//end
         Multex m = sm.peek();
         while(m == null || m.firstString() == null) {
-            print(m.basis.toString());//TODO
             if(m == null) {
                 sm.pop();//pop null
-                m = sm.peek();
             } else {
-                if (m == nul) {
+                if (m == nul) {//null error and stack under
                     Main.getMain().setError(ERR_NUL, m);
                     return null;
                 }
-                if (m.shift(this)) {
-                    m = sm.peek();
-                }
+                literalShift(m, ret);
             }
+            if(sm.empty()) return null;//end
+            m = sm.peek();
         }
         String s = m.firstString();
         return s;
+    }
+
+    void literalShift(Multex m, Stack<Multex> sm) {
+        //list(m, true);
+        if(m instanceof UnitSymbol) {
+            m.shift(this);//not in para as don't nest on stack
+        } else {
+            sm.push(null);
+            m.shift(this); //must push as shift drop in para
+            sm.pop();
+        }
     }
 
     String literal() {
@@ -480,7 +490,8 @@ public class Main {
         if(f != null && f.shiftSkip) {
             //special so skip shift to absorb next macro as literal
         } else {
-            ret.peek().shift(this);//move onto literals from an un-shifted run context
+            //literalShift(ret.peek(), ret);//move onto literals from an un-shifted run context
+            print(ret.toString());
         }
         String s = topMost(ret);//obtain a literal
         //after word execution the final shift is done by runNext()

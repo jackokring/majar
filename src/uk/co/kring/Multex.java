@@ -63,13 +63,12 @@ public class Multex {
     /**
      * Shifts to the next executive string.
      */
-    public boolean shift(Main m) {
+    public void shift(Main m) {
         idx++;
         if(idx >= basis.length) {
             Multex x = m.ret.pop();//in para
             m.ret.pop();//as the run word is placed atop it!!
             m.ret.push(x);
         }
-        return idx >= basis.length;
     }
 }

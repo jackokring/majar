@@ -13,9 +13,8 @@ public abstract class UnitSymbol extends Symbol {
         return this;//NO
     }
 
-    public boolean shift(Main m) {
+    public void shift(Main m) {
         m.ret.pop();
-        return true;
     }
 
     protected void run(Main m) {
