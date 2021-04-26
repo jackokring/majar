@@ -1,5 +1,7 @@
 package uk.co.kring;
 
+import java.util.Stack;
+
 /**
  * A class to contain an array of strings with some connection to an execution efficiency concept.
  */
@@ -70,5 +72,15 @@ public class Multex {
             m.ret.pop();//as the run word is placed atop it!!
             m.ret.push(x);
         }
+    }
+
+    /**
+     * Shift in a literal context.
+     * @param m a context.
+     */
+    public void literalShift(Main m) {
+        m.ret.push(null);
+        shift(m); //must push as shift drop in para
+        m.ret.pop();
     }
 }

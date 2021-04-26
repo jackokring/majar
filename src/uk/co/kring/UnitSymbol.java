@@ -24,4 +24,8 @@ public abstract class UnitSymbol extends Symbol {
     public String firstString() {
         return named;
     }
+
+    public void literalShift(Main m) {
+        shift(m);//not in para as don't nest on stack
+    }
 }
