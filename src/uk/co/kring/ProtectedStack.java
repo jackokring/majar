@@ -39,4 +39,11 @@ public class ProtectedStack<T> extends Stack<T> {
         count--;
         return super.pop();
     }
+
+    public T peek() {
+        if(empty()) {
+            return under;
+        }
+        return super.peek();
+    }
 }

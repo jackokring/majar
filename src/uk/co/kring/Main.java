@@ -450,6 +450,7 @@ public class Main {
     String topMost(Stack<Multex> sm) {//null at end
         Multex m = sm.peek();
         while(m == null || m.firstString() == null) {
+            print(m.basis.toString());//TODO
             if(m == null) {
                 sm.pop();//pop null
                 m = sm.peek();
@@ -469,10 +470,15 @@ public class Main {
 
     String literal() {
         Multex m = ret.pop();//executive context
-        if(macroEscape.peek().shiftSkip) ret.peek().shift(this);//move onto literals
+        Frame f = macroEscape.peek();
+        if(f != null && f.shiftSkip) {
+            //special so skip shift to absorb next macro as literal
+        } else {
+            ret.peek().shift(this);//move onto literals from an un-shifted run context
+        }
         String s = topMost(ret);//obtain a literal
         //after word execution the final shift is done by runNext()
-        macroEscape.peek().shiftSkip = false;//cancel literal macro for reabsorption
+        if(f != null) f.shiftSkip = false;//cancel literal macro for reabsorption
         if(!fast) {
             printSymbolized(s);
         }
