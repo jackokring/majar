@@ -20,5 +20,6 @@ public class Safe extends Book {
         m.dat.push(s);//blank
         m.switchContext(c);
         m.lastSafe = this;
+        m.ret.pop();
     }
 }

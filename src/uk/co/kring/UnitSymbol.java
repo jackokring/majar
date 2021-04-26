@@ -13,10 +13,6 @@ public abstract class UnitSymbol extends Symbol {
         return this;//NO
     }
 
-    public void shift(Main m) {
-        m.ret.pop();
-    }
-
     protected void run(Main m) {
         //shift out by default
     }
@@ -26,6 +22,6 @@ public abstract class UnitSymbol extends Symbol {
     }
 
     public void literalShift(Main m) {
-        shift(m);//not in para as don't nest on stack
+        m.ret.pop();//not in para as don't nest on stack
     }
 }

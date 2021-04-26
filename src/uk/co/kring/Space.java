@@ -12,6 +12,7 @@ public class Space extends UnitSymbol {
 
     protected void run(Main m) {
         m.dat = ref;//restore
+        m.ret.pop();
     }
 
     public Space(String name) {

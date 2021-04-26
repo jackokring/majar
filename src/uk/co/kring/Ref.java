@@ -9,6 +9,7 @@ public class Ref extends UnitSymbol {
 
     protected void run(Main m) {
         m.dat.push(ref);
+        m.ret.pop();
     }
 
     public Ref(String name, Multex m) {

@@ -28,6 +28,7 @@ public class Time extends UnitSymbol {
                 }
             }
         });
+        m.ret.pop();
     }
 
     public Time(String name, String[] s) {

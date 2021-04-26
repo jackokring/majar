@@ -12,6 +12,7 @@ public class Book extends UnitSymbol {
     protected void run(Main m) {
         m.current = this;
         this.in.executeIn = this;//cache
+        m.ret.pop();
     }
 
     /**

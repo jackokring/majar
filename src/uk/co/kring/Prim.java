@@ -10,6 +10,7 @@ public abstract class Prim extends UnitSymbol {
         Book b = m.switchContext(executeIn);
         def(m);
         m.switchContext(b);
+        m.ret.pop();
     }
 
     /**

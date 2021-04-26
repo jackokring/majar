@@ -26,6 +26,12 @@ public class Multex {
         } else {
             m.ret.push(null);//nothing
         }
+        idx++;//TODO
+        if(idx >= basis.length) {
+            Multex x = m.ret.pop();//in para
+            m.ret.pop();//as the run word is placed atop it!!
+            m.ret.push(x);
+        }
     }
 
     /**
@@ -63,24 +69,13 @@ public class Multex {
     }
 
     /**
-     * Shifts to the next executive string.
-     */
-    public void shift(Main m) {
-        idx++;
-        if(idx >= basis.length) {
-            Multex x = m.ret.pop();//in para
-            m.ret.pop();//as the run word is placed atop it!!
-            m.ret.push(x);
-        }
-    }
-
-    /**
      * Shift in a literal context.
      * @param m a context.
      */
     public void literalShift(Main m) {
-        m.ret.push(null);
-        shift(m); //must push as shift drop in para
-        m.ret.pop();
+        idx++;
+        if(idx >= basis.length) {
+            m.ret.pop();//as the run word is placed atop it!!
+        }
     }
 }
