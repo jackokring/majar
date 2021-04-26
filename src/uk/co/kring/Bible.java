@@ -242,6 +242,7 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 Main.setHTML();//for tests
+                m.printHTML("<span class=\"" + m.getName() + "\"><span>");
             }
         });
 

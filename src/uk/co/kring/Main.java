@@ -606,6 +606,10 @@ public class Main {
         return in;
     }
 
+    String getName() {
+        return givenName;
+    }
+
     //================================================== ERRORS
 
     static ResourceBundle errorFact =
@@ -620,7 +624,7 @@ public class Main {
     public static final int ERR_FIND = 5;
     public static final int ERR_BIBLE = 6;
     //7
-    public static final int ERR_CONTEXT = 8;
+    public static final int ERR_CONTEXT = 8;//TODO not used
     public static final int ERR_PLUG = 9;
     //10
     public static final int ERR_ESCAPE = 11;
@@ -833,12 +837,14 @@ public class Main {
     };
 
     public void printColor(Object object) {
-        /* Class<? extends Object> c = object.getClass();
-        String n = c.getName();
+        Class<? extends Object> c = object.getClass();
+        while(c.isAnonymousClass()) c = c.getSuperclass();
+        String n = c.getSimpleName();
         while(true) {
             try {
-                Field f = c.getField("ANSI_" + n);
-                print((String)f.get(object));
+                Field f = this.getClass().getField("ANSI_" + n);
+                f.setAccessible(true);
+                print((String)f.get(this));
                 return;
             } catch(NoSuchFieldException e) {
                 //try next
@@ -847,7 +853,7 @@ public class Main {
                 //
                 throw new RuntimeException();
             }
-        } */
+        }
     }
 
     private synchronized void print(String s) {//private so final not used outside
@@ -1038,9 +1044,10 @@ public class Main {
         Main m = getMain();
         m.html = true;
         for(String i: reflect) {
-            Class<?> c = Main.class;
+            Class<? extends Object> c = m.getClass();
             try {
                 Field f = c.getField("ANSI_" + i);
+                f.setAccessible(true);
                 f.set(m, "</span><span class=\"" + i + "\">");
             } catch (Exception e) {
                 m.err.println("Can't set color field");
