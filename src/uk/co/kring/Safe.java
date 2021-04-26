@@ -14,16 +14,12 @@ public class Safe extends Book {
         super(name);//empty to start
     }
 
-    protected final void run(Main m) {
+    protected final boolean run(Main m) {
         Book c = m.switchContext(this);
         Symbol s = m.find(m.literal(), false);
-        if(s == null) {
-            //no value stack balance
-            m.dat.push(null);//blank
-        } else {
-            m.dat.push(s);//place the recalled value
-        }
+        m.dat.push(s);//blank
         m.switchContext(c);
         m.lastSafe = this;
+        return false;
     }
 }

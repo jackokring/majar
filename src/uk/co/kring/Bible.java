@@ -199,7 +199,6 @@ public class Bible extends Book {
         reg(new Prim("direct") {
             @Override
             protected void def(Main m) {
-                m.list(this, true);//TODO
                 String[] in;
                 Stack<Multex> r = m.ret;
                 m.ret = new ProtectedStack<>(Main.nul);

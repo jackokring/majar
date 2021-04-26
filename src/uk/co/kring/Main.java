@@ -48,8 +48,8 @@ public class Main {
     private PrintStream out = System.out;
     private PrintStream err = System.err;
     private PrintStream put = out;
-    private BufferedReader br;
-    private InputStream toClose;
+    private BufferedReader br = new BufferedReader(new InputStreamReader(in));
+    private InputStream toClose = in;
 
     protected Stack<Frame> macroEscape = new ProtectedStack<>(null);
     protected boolean chaining = false;
@@ -183,7 +183,6 @@ public class Main {
     void runNext() {//fetch and execute
         Multex m = ret.peek();
         if(m == null) return;//end of code
-        //list(m, true);
         if(!m.run(this)) m.shift(this);//post fetch if didn't do own shift
     }
 
@@ -215,11 +214,8 @@ public class Main {
 
     List<Symbol> unReg(Symbol s, Book current, boolean reserved) {
         if(s == null) return null;
-        List<Symbol> ls = dict.get(s.named);
-        if(ls == null) {
-            ls = new LinkedList<>();
-            dict.put(s.named, ls);//and make avail
-        }
+        List<Symbol> ls = dict.computeIfAbsent(s.named, k -> new LinkedList<>());
+        //and make avail
         for(Symbol i: ls) {
             if(i.in == current) {
                 if(i.in instanceof Bible && !reserved) {
@@ -331,17 +327,15 @@ public class Main {
 
     String[] readReader(InputStream input, String alternate) {
         try {
-            if(input != toClose && input != null) {
-                //yes a different stream
-                br.close();
-                br = null;
-            }
-            if(br == null && input != null) {
-                br = new BufferedReader(new InputStreamReader(input));//open on demand
-                toClose = input;
-            }
-            if(br == null) {
+            if(input == null) {
                 return readString(alternate);
+            } else {
+                if(input != toClose) {
+                    //yes a different stream
+                    br.close();
+                    br = new BufferedReader(new InputStreamReader(input));//open on demand
+                    toClose = input;
+                }
             }
             return readString(br.readLine());
         } catch (Exception e) {
@@ -353,8 +347,7 @@ public class Main {
     String[] readString(String s) {
         boolean quote = false;
         int j = -1;
-        if(s.equals("")) s = null;
-        if(s == null) return null;//blank
+        if(s == null || s.equals("")) return null;//blank
         s = s.replace("\\\"", para);
         if(html) s = s.replace("&", htmlPara);//input render
         s = s.replace("\n", " ");
