@@ -189,6 +189,7 @@ public class Main {
         Multex m = ret.peek();
         if(m == null) return;//end of code
         m.run(this);//definite no shift in execution planned
+        m = ret.peek();//may have been a shift
         m.shift(this);//post fetch if didn't do own shift
     }
 
