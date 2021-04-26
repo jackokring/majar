@@ -12,6 +12,7 @@ public class Multex {
      * @param m context.
      */
     protected void run(Main m) {
+        idx++;
         if(firstString() == null) {
             m.ret.push(null);//nothing
         }
@@ -26,8 +27,7 @@ public class Multex {
         } else {
             m.ret.push(null);//nothing
         }
-        idx++;//TODO
-        if(idx >= basis.length) {
+        if(idx >= basis.length - 1) {
             Multex x = m.ret.pop();//in para
             m.ret.pop();//as the run word is placed atop it!!
             m.ret.push(x);
@@ -50,7 +50,7 @@ public class Multex {
     Book executeIn;
 
     public Multex(String[] s) {
-        idx = 0;
+        idx = -1;
         basis = s;
         //executeIn = Main.getMain().context;
     }
