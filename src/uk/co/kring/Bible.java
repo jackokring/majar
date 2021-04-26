@@ -185,9 +185,21 @@ public class Bible extends Book {
                 m.dat.push(x);
             }
         });
+        reg(new Macro("accept", delay) {//like input but accepts the default following literal
+            @Override
+            protected void def(Main m) {
+                String s = m.literal();
+                Multex x = new Multex(m.readReader(m.getIn(), s));
+                if(x.basis == null) {
+                    x = null;
+                }
+                m.dat.push(x);
+            }
+        });
         reg(new Prim("direct") {
             @Override
             protected void def(Main m) {
+                m.list(this, true);//TODO
                 String[] in;
                 Stack<Multex> r = m.ret;
                 m.ret = new ProtectedStack<>(Main.nul);

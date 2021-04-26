@@ -7,6 +7,7 @@ package uk.co.kring;
 public abstract class Prim extends UnitSymbol {
 
     protected final void run(Main m) {
+        m.printSymbolized(".....");//TODO
         Book b = m.switchContext(executeIn);
         def(m);
         m.switchContext(b);

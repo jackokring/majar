@@ -14,7 +14,7 @@ public class Multex {
         Symbol s = m.find(firstString(), executeIn, true);
         if(s != null) {
             if(!m.runningFast()) {
-                m.printSymbolName(s);
+                m.printSymbolName(s);//ok
                 m.profile(s);
             }
             m.stackForRun(s);//Threading ...

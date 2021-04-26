@@ -85,15 +85,11 @@ public class Main {
                 m.clearErrors();
                 m.reg(m.bible);
                 ((Bible) m.bible).build().fix();
-                if(!m.fast) {
-                    m.list(m.bible, true);
-                    m.println();
-                }
             }
             if(!m.fast) m.print("Starting ...\n");
             m.startFlusher();
             m.execute(new Multex(args));
-            if(!m.fast) m.print("Completed ...\n");
+            if(!m.fast) m.print("\nCompleted ...\n");
         } catch(Exception e) {
             m.putError(false);
             if(!m.fast) {
@@ -187,6 +183,7 @@ public class Main {
     void runNext() {//fetch and execute
         Multex m = ret.peek();
         if(m == null) return;//end of code
+        //list(m, true);
         m.run(this);
         m.shift(this);//post fetch
     }
@@ -211,11 +208,6 @@ public class Main {
             s.executeIn = null;//clear recent cache
         }
         ls.add(s);//new
-        if(!fast) {
-            print("Registered ... ");
-            printSymbolName(s);
-            println();
-        }
     }
 
     List<Symbol> unReg(Symbol s, Book current) {
@@ -224,13 +216,10 @@ public class Main {
 
     List<Symbol> unReg(Symbol s, Book current, boolean reserved) {
         if(s == null) return null;
-        if(s.named == null) {
-            setError(ERR_NAME, s);
-            return null;
-        }
         List<Symbol> ls = dict.get(s.named);
         if(ls == null) {
             ls = new LinkedList<>();
+            dict.put(s.named, ls);//and make avail
         }
         for(Symbol i: ls) {
             if(i.in == current) {
@@ -326,12 +315,12 @@ public class Main {
                     println();
                 }
                 //lazy mode
-                //if (context.executeIn != null) {//try recent used books
-                //    return find(t, context.executeIn, true);
-                //} else {
+                if (context.executeIn != null) {//try recent used books
+                    return find(t, context.executeIn, true);
+                } else {
                     setError(Main.ERR_FIND, t);
                     return null;
-                //}
+                }
             }
         } else {
             return null;
