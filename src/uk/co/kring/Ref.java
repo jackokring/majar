@@ -7,9 +7,8 @@ public class Ref extends UnitSymbol {
 
     Multex ref;
 
-    protected boolean run(Main m) {
+    protected void run(Main m) {
         m.dat.push(ref);
-        return false;
     }
 
     public Ref(String name, Multex m) {

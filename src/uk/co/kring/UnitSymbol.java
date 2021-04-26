@@ -18,8 +18,8 @@ public abstract class UnitSymbol extends Symbol {
         return true;
     }
 
-    protected boolean run(Main m) {
-        return false;//shift out by default
+    protected void run(Main m) {
+        //shift out by default
     }
 
     public String firstString() {

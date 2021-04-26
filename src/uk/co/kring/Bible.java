@@ -206,7 +206,6 @@ public class Bible extends Book {
                     if(m.exitLoop) break;
                     m.println();//clean line
                     in = m.readReader(m.getIn(), null);
-                    if(in == null) break;
                     m.execute(new Multex(in));
                 };
                 m.exitLoop = false;
@@ -217,7 +216,6 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 m.exitLoop = true;
-                m.ret.push(nul);//fast stack clear
             }
         });
         reg(new Prim("abort") {
@@ -407,12 +405,13 @@ public class Bible extends Book {
                     Multex self = m.ret.pop();
                     m.ret.push(new UnitSymbol("while", x) {//creates a non literal while iterator
                         @Override
-                        protected boolean run(Main m) {
+                        protected void run(Main m) {
                             if(m.dat.pop() != null) {
+                                Multex self = m.ret.pop();
                                 m.ret.push(this);//recursive
                                 m.ret.push(new Multex(x));//the loop
+                                m.ret.push(self);
                             }
-                            return true;
                         }
                     });
                     m.ret.push(new Multex(x));//the loop

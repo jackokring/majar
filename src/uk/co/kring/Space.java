@@ -10,9 +10,8 @@ public class Space extends UnitSymbol {
 
     Stack<Multex> ref;
 
-    protected boolean run(Main m) {
+    protected void run(Main m) {
         m.dat = ref;//restore
-        return false;
     }
 
     public Space(String name) {

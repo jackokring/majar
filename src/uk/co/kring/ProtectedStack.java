@@ -19,13 +19,13 @@ public class ProtectedStack<T> extends Stack<T> {
     @Override
     public T push(T t) {
         //null is fine
-        if(t == Main.nul) {
-            Main.getMain().setError(Main.ERR_NUL, this);
+        if(t == under) {
+            Main.getMain().setError(Main.ERR_NUL, under);
             clear();
             count = 0;
             return t;//prevents nul flood
         }
-        if(count++ > STACK_MAX) Main.getMain().setError(Main.ERR_OVER, this);
+        if(count++ > STACK_MAX) Main.getMain().setError(Main.ERR_OVER, null);
         return super.push(t);
 
     }
@@ -33,7 +33,7 @@ public class ProtectedStack<T> extends Stack<T> {
     @Override
     public synchronized T pop() {
         if(empty()) {
-            Main.getMain().setError(Main.ERR_UNDER, this);
+            Main.getMain().setError(Main.ERR_UNDER, under);
             return under;
         }
         count--;

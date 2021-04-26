@@ -8,22 +8,22 @@ public class Multex {
     /**
      * The default executive run.
      * @param m context.
-     * @return did own shift.
      */
-    protected boolean run(Main m) {
-        if(firstString() == null) return false;//no fail null
+    protected void run(Main m) {
+        if(firstString() == null) {
+            m.ret.push(null);//nothing
+        }
         Symbol s = m.find(firstString(), executeIn, true);
         if(s != null) {
             if(!m.runningFast()) {
                 m.printSymbolName(s);//ok
                 m.profile(s);
             }
-            shift(m);//shift out before stack drop
             m.stackForRun(s);//Threading ...
             s.idx++;//Simple profiling of things which got cloned if important to clone
-            return true;
+        } else {
+            m.ret.push(null);//nothing
         }
-        return false;
     }
 
     /**
@@ -66,7 +66,9 @@ public class Multex {
     public boolean shift(Main m) {
         idx++;
         if(idx >= basis.length) {
-            m.ret.pop();
+            Multex x = m.ret.pop();//in para
+            m.ret.pop();//as the run word is placed atop it!!
+            m.ret.push(x);
         }
         return idx >= basis.length;
     }

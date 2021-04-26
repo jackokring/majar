@@ -188,7 +188,8 @@ public class Main {
     void runNext() {//fetch and execute
         Multex m = ret.peek();
         if(m == null) return;//end of code
-        if(!m.run(this)) m.shift(this);//post fetch if didn't do own shift
+        m.run(this);
+        m.shift(this);//post fetch if didn't do own shift
     }
 
     void profile(Symbol s) {
@@ -819,7 +820,7 @@ public class Main {
     public String ANSI_WARN = ANSI_YELLOW + ANSI_BOLD;
     public String ANSI_Macro = ANSI_YELLOW + ANSI_ITALIC;
 
-    public String ANSI_A = ANSI_PURPLE;
+    public String ANSI_UnitSymbol = ANSI_PURPLE;
     public String ANSI_B = ANSI_PURPLE + ANSI_BOLD;
     public String ANSI_C = ANSI_PURPLE + ANSI_ITALIC;
 
@@ -832,7 +833,7 @@ public class Main {
         "Symbol", "Space", "Ref",
         "NewRaNetPrim", "Time", "Nul",
         "Prim", "WARN", "Macro",
-        "UnitSymbol", "", "",
+        "UnitSymbol", "", "",       //TODO set colors error on blanks
         "Book", "Bible", "Safe",
     };
 
