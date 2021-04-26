@@ -8,17 +8,16 @@ import static uk.co.kring.Main.nul;
  */
 public class Time extends UnitSymbol {
 
-    protected void run(Main m) {
+    protected boolean run(Main m) {
         Thread t = new Thread(() -> {
             Main ml = Main.getMain();
             ml.dat.push(m.dat.pop());//input
-            ml.stackForRun(new Multex(basis));
-            ml.execute(null);
+            ml.execute(new Multex(basis));
         });
         t.start();
         m.dat.push(new UnitSymbol(named, null) {
             @Override
-            protected void run(Main m) {
+            protected boolean run(Main m) {
                 try {
                     t.join();
                     Main ml = Main.threads.get(t);
@@ -27,8 +26,10 @@ public class Time extends UnitSymbol {
                 } catch(Exception e) {
                     //no worries
                 }
+                return false;
             }
         });
+        return false;
     }
 
     public Time(String name, String[] s) {

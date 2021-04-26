@@ -184,8 +184,7 @@ public class Main {
         Multex m = ret.peek();
         if(m == null) return;//end of code
         //list(m, true);
-        m.run(this);
-        m.shift(this);//post fetch
+        if(!m.run(this)) m.shift(this);//post fetch if didn't do own shift
     }
 
     void profile(Symbol s) {

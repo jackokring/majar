@@ -1,7 +1,7 @@
 package uk.co.kring;
 
 /**
- * A abstract unitary symbol.
+ * A abstract unitary symbol. Also for some internal forms.
  */
 public abstract class UnitSymbol extends Symbol {
 
@@ -16,6 +16,10 @@ public abstract class UnitSymbol extends Symbol {
     public boolean shift(Main m) {
         m.ret.pop();
         return true;
+    }
+
+    protected boolean run(Main m) {
+        return false;//shift out by default
     }
 
     public String firstString() {

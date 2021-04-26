@@ -406,13 +406,12 @@ public class Bible extends Book {
                     Multex self = m.ret.pop();
                     m.ret.push(new UnitSymbol("while", x) {//creates a non literal while iterator
                         @Override
-                        protected void run(Main m) {
+                        protected boolean run(Main m) {
                             if(m.dat.pop() != null) {
-                                Multex self = m.ret.pop();
                                 m.ret.push(this);//recursive
                                 m.ret.push(new Multex(x));//the loop
-                                m.ret.push(self);//for exit
                             }
+                            return true;
                         }
                     });
                     m.ret.push(new Multex(x));//the loop

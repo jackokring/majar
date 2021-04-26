@@ -5,8 +5,9 @@ package uk.co.kring;
  */
 public class Nul extends UnitSymbol {
 
-    protected void run(Main m) {
+    protected boolean run(Main m) {
         m.setError(Main.ERR_NUL, this);//exactly
+        return false;
     }
 
     public Nul() {

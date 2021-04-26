@@ -9,9 +9,10 @@ public class Book extends UnitSymbol {
         super(name, new String[0]);//empty to start
     }
 
-    protected void run(Main m) {
+    protected boolean run(Main m) {
         m.current = this;
         this.in.executeIn = this;//cache
+        return false;
     }
 
     /**
