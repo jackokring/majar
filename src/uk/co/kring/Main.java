@@ -76,6 +76,9 @@ public class Main {
             //go for direct mode
             args = singleton("direct");
         }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            //interrupted by system
+        }));
         try {
             if(m.html) {
                 m.print("<span class=\"" + m.givenName + "\"><span>");
