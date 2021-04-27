@@ -15,7 +15,6 @@ public class Multex {
         idx++;
         if(basis == null) {
             m.userAbort();
-            throw new RuntimeException();
         }
         if(idx >= basis.length) {
             m.ret.pop();

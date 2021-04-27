@@ -78,6 +78,9 @@ public class Main {
         }
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             //interrupted by system
+            synchronized(m) {
+                m.err.println("\nSystem abort due to shutdown.");
+            }
         }));
         try {
             if(m.html) {
@@ -1067,7 +1070,7 @@ public class Main {
                 f.setAccessible(true);
                 f.set(m, "</span><span class=\"" + i + "\">");
             } catch (Exception e) {
-                m.err.println("Can't set color field");
+                //
             }
         }
         return m;
@@ -1094,7 +1097,7 @@ public class Main {
                 f.setAccessible(true);
                 f.set(m, s);
             } catch (Exception e) {
-                m.err.println("Can't set color field");
+                //
             }
         }
         return m;
