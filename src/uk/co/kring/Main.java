@@ -83,6 +83,7 @@ public class Main {
             if(m.chaining) {
                 m.chaining = false;
             } else {
+                setANSI();//ansi default
                 m.clearErrors();
                 m.reg(m.bible);
                 ((Bible) m.bible).build().fix();
@@ -801,29 +802,29 @@ public class Main {
     public static final String ANSI_ITALIC = "\u001B[3m";
     public static final String ANSI_UNDER = "\u001B[4m";
 
-    public String ANSI_Object = ANSI_RED;
-    public String ANSI_ERR = ANSI_RED + ANSI_BOLD;
-    public String ANSI_String = ANSI_RED + ANSI_ITALIC;
+    public String ANSI_Object;
+    public String ANSI_ERR;
+    public String ANSI_String;
 
-    public String ANSI_Symbol = ANSI_GREEN;
-    public String ANSI_Space = ANSI_GREEN + ANSI_BOLD;
-    public String ANSI_Ref = ANSI_GREEN + ANSI_ITALIC;
+    public String ANSI_Symbol;
+    public String ANSI_Space;
+    public String ANSI_Ref;
 
-    public String ANSI_NewRaNetPrim = ANSI_BLUE;
-    public String ANSI_Time = ANSI_BLUE + ANSI_BOLD;
-    public String ANSI_Nul = ANSI_BLUE + ANSI_ITALIC;
+    public String ANSI_NewRaNetPrim;
+    public String ANSI_Time;
+    public String ANSI_Nul;
 
-    public String ANSI_Prim = ANSI_YELLOW;
-    public String ANSI_WARN = ANSI_YELLOW + ANSI_BOLD;
-    public String ANSI_Macro = ANSI_YELLOW + ANSI_ITALIC;
+    public String ANSI_Prim;
+    public String ANSI_WARN;
+    public String ANSI_Macro;
 
-    public String ANSI_UnitSymbol = ANSI_PURPLE;
-    public String ANSI_B = ANSI_PURPLE + ANSI_BOLD;
-    public String ANSI_C = ANSI_PURPLE + ANSI_ITALIC;
+    public String ANSI_UnitSymbol;
+    public String ANSI_B;
+    public String ANSI_C;
 
-    public String ANSI_Book = ANSI_CYAN;
-    public String ANSI_Bible = ANSI_CYAN + ANSI_BOLD;
-    public String ANSI_Safe = ANSI_CYAN + ANSI_ITALIC;
+    public String ANSI_Book;
+    public String ANSI_Bible;
+    public String ANSI_Safe;
 
     static final String[] reflect = {
         "Object", "ERR", "String",
@@ -832,6 +833,14 @@ public class Main {
         "Prim", "WARN", "Macro",
         "UnitSymbol", "", "",       //TODO set colors error on blanks
         "Book", "Bible", "Safe",
+    };
+
+    static final String[] colors = {
+        "RED", "GREEN", "BLUE", "YELLOW", "PURPLE", "CYAN",
+    };
+
+    static final String[] modifiers = {
+        "RESET", "BOLD", "ITALIC",
     };
 
     public void printColor(Object object) {
@@ -1048,12 +1057,39 @@ public class Main {
     public static Main setHTML() {
         Main m = getMain();
         m.html = true;
+        Class<? extends Object> c = m.getClass();
         for(String i: reflect) {
-            Class<? extends Object> c = m.getClass();
             try {
                 Field f = c.getField("ANSI_" + i);
                 f.setAccessible(true);
                 f.set(m, "</span><span class=\"" + i + "\">");
+            } catch (Exception e) {
+                m.err.println("Can't set color field");
+            }
+        }
+        return m;
+    }
+
+    /**
+     * Sets ANSI mode. This uses ANSI escapes for styling. This allows the
+     * code to be used for consoles.
+     * @return the main instance.
+     */
+    public static Main setANSI() {
+        Main m = getMain();
+        m.html = false;
+        Class<? extends Object> c = m.getClass();
+        for(int i = 0; i < reflect.length; i++) {
+            try {
+                Field f = c.getField("ANSI_" + reflect[i]);
+                Field mod = c.getField("ANSI_" + modifiers[i % modifiers.length]);
+                mod.setAccessible(true);
+                String s = (String)mod.get(m);
+                Field col = c.getField("ANSI_" + colors[i / modifiers.length]);
+                col.setAccessible(true);
+                s += (String)col.get(m);
+                f.setAccessible(true);
+                f.set(m, s);
             } catch (Exception e) {
                 m.err.println("Can't set color field");
             }

@@ -249,6 +249,13 @@ public class Bible extends Book {
                 m.printHTML("<span class=\"" + m.getName() + "\"><span>");
             }
         });
+        reg(new Prim("ansi") {
+            @Override
+            protected void def(Main m) {
+                Main.setANSI();//for tests
+                m.printHTML("</span></span>");
+            }
+        });
 
         //4. Control Structures
         //=====================
