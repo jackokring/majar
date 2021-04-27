@@ -13,11 +13,8 @@ public class Multex {
      */
     protected void run(Main m) {
         idx++;
-        if(basis == null) {
-            m.userAbort();//TODO
-        }
-        if(idx >= basis.length) {
-            m.ret.pop();//TODO locks after literal error
+        if(basis == null || idx >= basis.length) {
+            m.ret.pop();
             return;
         }
         if(firstString() == null) {

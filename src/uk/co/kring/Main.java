@@ -365,7 +365,8 @@ public class Main {
         boolean quote = false;
         int j = -1;
         if(s == null) return null;
-        if(s.equals("")) return singleton(null);//blank
+        if(s.equals("")) return null;//blank
+        //TODO ^D
         s = s.replace("\\\"", para);
         if(html) s = s.replace("&", htmlPara);//input render
         s = s.replace("\n", " ");

@@ -105,7 +105,11 @@ public class Bible extends Book {
         reg(new Macro("lit", delay) {
             @Override
             protected void def(Main m) {
-                m.dat.push(new Multex(m.literal()));
+                String s = m.literal();
+                if(s == null) {
+                    m.dat.push(null);
+                }
+                m.dat.push(new Multex(s));
             }
         });
         reg(new Macro("find", delay) {
@@ -211,7 +215,7 @@ public class Bible extends Book {
                 while(true) {
                     if(m.exitLoop) break;
                     m.println();//clean line
-                    in = m.readReader(m.getIn(), "");
+                    in = m.readReader(m.getIn(), null);
                     m.execute(new Multex(in));
                 };
                 m.exitLoop = false;
