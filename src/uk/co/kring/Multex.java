@@ -15,6 +15,7 @@ public class Multex {
         idx++;
         if(idx >= basis.length) {
             m.ret.pop();
+            return;
         }
         if(firstString() == null) {
             m.ret.push(null);//nothing
@@ -69,11 +70,14 @@ public class Multex {
     /**
      * Shift in a literal context.
      * @param m a context.
+     * @return ended with error.
      */
-    public void literalShift(Main m) {
+    public boolean literalShift(Main m) {
         idx++;
         if(idx >= basis.length) {
             m.setError(Main.ERR_LIT, this);
+            return true;
         }
+        return false;
     }
 }

@@ -44,6 +44,7 @@ public class Main {
     private boolean fast = false;
     private boolean html = false;
     private boolean abortClean = false;
+    private boolean showException = true;
 
     private InputStream in = System.in;
     private PrintStream out = System.out;
@@ -91,10 +92,11 @@ public class Main {
             m.println();//final clean
         } catch(Exception e) {
             m.putError(false);
-            if(!m.fast && !m.abortClean) {
+            if(!m.fast && !m.abortClean && m.showException) {
                 m.println();
                 m.print("Exception ...\n");
                 e.printStackTrace();
+                m.showException = true;//chain
             }
             if(!m.abortClean) {
                 if (!m.ret.empty()) {
@@ -104,7 +106,7 @@ public class Main {
         }
         m.exitFlusher();
         if(!m.abortClean) m.printErrorSummary();
-        m.abortClean = false;
+        m.abortClean = false;//chain
         if(m.html) {
             m.print("</span></span>");
             synchronized(m) {
@@ -342,7 +344,9 @@ public class Main {
             }
         }
         try {
-            return readString(br.readLine());
+            String[] s = readString(br.readLine());
+            printReset();//funny some italic reset thing in some console view
+            return s;
         } catch (Exception e) {
             setError(ERR_IO, br);//Input
             return readString(alternate);
@@ -441,31 +445,25 @@ public class Main {
         return sa;
     }
 
-    String dollar(String s) {//TODO maybe no intern needed
+    String dollar(String s) {
         if(s == null) return null;
         s = s.replace("\\$", para);
         int i;
         while((i = s.indexOf("$")) != -1) {
-            String j = topMost(dat).replace("$", para);//recursive
+            String j = join(dat.pop().basis);//TODO maybe no intern and classes???
+            j = j.replace("$", para);//recursive
             s = s.substring(0, i) + j + s.substring(i + 1);
         }
         return s.replace(para, "$");
     }
 
-    String topMost(Stack<Multex> sm) {//null at end
-        if(sm.empty()) return null;//end//TODO error
-        Multex m = sm.peek();
-        while(m == null || m.firstString() == null) {
-            if(m == null) {
-                sm.pop();//pop null
-                if(sm.empty()) return null;//end//TODO error
-                m = sm.peek();
-            } else {
-                m.literalShift(this);
+    String firstString(Multex m) {
+        while(m.firstString() == null) {
+            if(m.literalShift(this)) {
+                return null;
             }
         }
-        String s = m.firstString();
-        return s;
+        return m.firstString();
     }
 
     String literal() {
@@ -474,9 +472,11 @@ public class Main {
         if(f != null && f.shiftSkip) {
             //special so skip shift to absorb next macro as literal
         } else {
-            ret.peek().literalShift(this);//as no shift in run(), and called before shift()
+            if(ret.peek().literalShift(this)) {
+                return null;
+            }
         }
-        String s = topMost(ret);//obtain a literal
+        String s = firstString(ret.peek());
         //after word execution the final shift is done by runNext()
         if(f != null) f.shiftSkip = false;//cancel literal macro for reabsorption
         if(!fast) {
@@ -687,6 +687,7 @@ public class Main {
                 //apply the composite and reduce
             }
         }
+        showException = false;
         if(e > Integer.MAX_VALUE) throw new RuntimeException();//now baulk
         errorExit = (int)e;
     }
@@ -845,8 +846,7 @@ public class Main {
                 //try next
                 c = c.getSuperclass();
             } catch (IllegalAccessException f) {
-                //
-                throw new RuntimeException();
+                //and shouldn't happen
             }
         }
     }
@@ -975,9 +975,18 @@ public class Main {
         }
     }
 
+    synchronized void printReset() {
+        if (html) {
+            put.print("</span><span>");//quick!!
+        } else {
+            put.print(ANSI_RESET);
+        }
+    }
+
     //allows transaction completion by ignorance of errors until a start transaction is needed
     void startTransaction() {
         if(out.checkError() || err.checkError()) {
+            abortClean = true;//as don't trace
             throw new RuntimeException();//baulk
         }
     }

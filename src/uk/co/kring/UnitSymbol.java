@@ -21,7 +21,8 @@ public abstract class UnitSymbol extends Symbol {
         return null;
     }
 
-    public void literalShift(Main m) {
+    public boolean literalShift(Main m) {
         m.setError(Main.ERR_LIT, this);
+        return true;
     }
 }
