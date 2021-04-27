@@ -364,7 +364,8 @@ public class Main {
     String[] readString(String s) {
         boolean quote = false;
         int j = -1;
-        if(s == null || s.equals("")) return null;//blank
+        if(s == null) return null;
+        if(s.equals("")) return singleton(null);//blank
         s = s.replace("\\\"", para);
         if(html) s = s.replace("&", htmlPara);//input render
         s = s.replace("\n", " ");

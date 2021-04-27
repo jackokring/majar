@@ -211,7 +211,7 @@ public class Bible extends Book {
                 while(true) {
                     if(m.exitLoop) break;
                     m.println();//clean line
-                    in = m.readReader(m.getIn(), null);
+                    in = m.readReader(m.getIn(), "");
                     m.execute(new Multex(in));
                 };
                 m.exitLoop = false;
