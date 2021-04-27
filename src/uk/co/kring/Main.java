@@ -727,11 +727,12 @@ public class Main {
                 if(first == 1) first = 0;//no error
                 //keep first in summary
             }
-            for(int i = 0; i < errorFact.keySet().size(); i++) {
-                if(errorExit == 1) break;
-                if(errorExit % errorCode[i] == 0) {
-                    errorPlump(c, i, null, false);//already newline
-                    errorExit /= errorCode[i];
+            while(errorExit != 1) {
+                for (int i = 0; i < errorCode.length; i++) {
+                    if (errorExit % errorCode[i] == 0) {
+                        errorPlump(c, i, null, false);//already newline
+                        errorExit /= errorCode[i];
+                    }
                 }
             }
             putError(false);
@@ -746,7 +747,7 @@ public class Main {
     void errorPlump(String prefix, int code, Object o, boolean newline) {
         if(newline) println();
         print(prefix);
-        print("[" + errorCode[code] + "]");
+        print("[" + errorCode[code] + "] ");
         printLiteral(errorFact.getString(String.valueOf(code)));//indexed by code
         if(o != null) {
             print(". ");
@@ -770,11 +771,12 @@ public class Main {
     void stackTrace(Stack<Multex> s) {
         putError(true);
         while(!s.empty()) {
+            println();
             //trace
             Multex m = s.pop();
             if(m != null) {
                 print(ANSI_ERR + "@ ");
-                list(m, true);
+                list(m, false);
             } else {
                 print(ANSI_ERR + "@@");//a void on the stack
             }
@@ -894,7 +896,6 @@ public class Main {
             context = (Book)m;//set self to view
         }
         if(!(m instanceof UnitSymbol) || m instanceof Book) {
-            println();
             for (int i = 0; i < m.basis.length; i++) {
                 if (i == m.idx && !(m instanceof UnitSymbol)) {
                     //cursor
