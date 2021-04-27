@@ -79,7 +79,8 @@ public class Main {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             //interrupted by system
             synchronized(m) {
-                m.err.println("\nSystem abort due to shutdown.");
+                m.err.println();
+                m.err.println(errorFact.getString("system"));
             }
         }));
         try {
@@ -614,7 +615,7 @@ public class Main {
 
     //================================================== ERRORS
 
-    static ResourceBundle errorFact =
+    public final static ResourceBundle errorFact =
             ResourceBundle.getBundle(Main.class.getPackage().getName()
                     + ".lang.Errors", Locale.getDefault());
 

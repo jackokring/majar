@@ -40,6 +40,7 @@ public class Errors_zh extends ListResourceBundle {
 
                 { "abort", "用户中止的过程." },
                 { "summary", "错误摘要如下："},
+                { "system", "由于关机导致系统中止。" },
         };
     }
 }

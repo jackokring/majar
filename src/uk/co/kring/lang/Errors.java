@@ -40,6 +40,7 @@ public class Errors extends ListResourceBundle {
 
                 { "abort", "User aborted process." },
                 { "summary", "Error summary follows:" },
+                { "system", "System abort due to shutdown." },
         };
     }
 }
