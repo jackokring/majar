@@ -18,10 +18,10 @@ public abstract class UnitSymbol extends Symbol {
     }
 
     public String firstString() {
-        return named;
+        return null;
     }
 
     public void literalShift(Main m) {
-        m.ret.pop();//not in para as don't nest on stack
+        m.setError(Main.ERR_LIT, this);
     }
 }

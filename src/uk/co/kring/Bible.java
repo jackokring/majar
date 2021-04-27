@@ -19,6 +19,12 @@ public class Bible extends Book {
             "task",
     };
 
+    protected void run(Main m) {
+        m.current = this;
+        //this.in.executeIn = this;//cache NO!!
+        m.ret.pop();
+    }
+
     void fix() {
         Main m = Main.getMain();
         for(String s: reserved) {

@@ -82,21 +82,17 @@ public class Main {
             if(m.chaining) {
                 m.chaining = false;
             } else {
-                if(!m.fast) m.print("Initializing ...\n");
                 m.clearErrors();
                 m.reg(m.bible);
                 ((Bible) m.bible).build().fix();
             }
-            if(!m.fast) m.print("Starting ...\n");
             m.startFlusher();
             m.execute(new Multex(args));
-            if(!m.fast) {
-                m.println();
-                m.print("Completed ...\n");
-            }
+            m.println();//final clean
         } catch(Exception e) {
             m.putError(false);
             if(!m.fast && !m.abortClean) {
+                m.println();
                 m.print("Exception ...\n");
                 e.printStackTrace();
             }
@@ -106,7 +102,6 @@ public class Main {
                 }
             }
         }
-        if(!m.fast) m.print("Exiting ...\n");
         m.exitFlusher();
         if(!m.abortClean) m.printErrorSummary();
         m.abortClean = false;
@@ -160,7 +155,7 @@ public class Main {
 
     Book switchContext(Book b) {
         if(b == null) return context;
-        if(b.in == null) {
+        if(b.in == b) {
             if(!(b instanceof Bible)) {
                 setError(ERR_CON_BAD, b);
                 b = bible;
@@ -202,8 +197,9 @@ public class Main {
     void reg(Symbol s, Book current) {
         if(s == null) return;
         List<Symbol> ls = unReg(s, current);
-        if(ls == null) return;
+        if(ls == null) return;//bible?
         s.in = current;
+        s.idx++;//step to 0 for profiling
         s.in.basis = Arrays.copyOf(s.in.basis, s.in.basis.length + 1);
         s.in.basis[s.in.basis.length - 1] = s.named;
         s.executeIn = context;//keep context
@@ -258,10 +254,10 @@ public class Main {
         }
     }
 
-    Symbol find(String t, Book b, boolean error) {
+    Symbol find(String t, Book b) {
         if(b == null) b = context;
         Book c = switchContext(b);
-        Symbol s = find(t, error);//default
+        Symbol s = find(t, true);//default
         switchContext(c);//restore
         return s;
     }
@@ -272,6 +268,7 @@ public class Main {
         }
         List<Symbol> s = dict.get(t);
         Book b, c;
+        boolean exists = true;
         if(s != null) {
             c = context;
             do {
@@ -283,16 +280,15 @@ public class Main {
                 b = c;
                 c = c.in;//next higher context
             } while(c != b);//terminal self
+        } else {
+            //no hash entry so defiantly not there
+            exists = false;
         }
         if(error) {//if finding for errors then try class any lazy context too
             //class loading bootstrap of Class named as method camelCase
             String p = Character.toUpperCase(t.charAt(0)) + t.substring(1);//make run method!!
             p = p.intern();//make findable
             String name = Main.class.getPackage().getName() + ".plug." + p;
-            if(!fast) {
-                print("Plug load: " + name);
-                println();
-            }
             try {
                 Class<?> clazz = Class.forName(name);
                 //Constructor<?> constructor = clazz.getConstructor(String.class);
@@ -310,15 +306,15 @@ public class Main {
                     return null;
                 }
             } catch (Exception e) {
-                if(!fast) {
-                    print("Lazy mode: " + t);
-                    println();
-                }
                 //lazy mode
                 if (context.executeIn != null) {//try recent used books
-                    return find(t, context.executeIn, true);
+                    return find(t, context.executeIn);
                 } else {
-                    setError(Main.ERR_FIND, t);
+                    if(exists) {
+                        setError(ERR_CONTEXT, t);
+                    } else {
+                        setError(ERR_FIND, t);
+                    }
                     return null;
                 }
             }
@@ -331,17 +327,21 @@ public class Main {
     static final String htmlPara = "\u0018E";//technically NEL, but ... quirk of usage for compaction
 
     String[] readReader(InputStream input, String alternate) {
-        try {
-            if(input == null) {
-                return readString(alternate);
-            } else {
-                if(input != toClose) {
-                    //yes a different stream
+        if (input == null) {
+            return readString(alternate);
+        } else {
+            if (input != toClose) {
+                //yes a different stream
+                try {
                     br.close();
-                    br = new BufferedReader(new InputStreamReader(input));//open on demand
-                    toClose = input;
+                } catch(Exception e) {
+                    //some for utility don't?
                 }
+                br = new BufferedReader(new InputStreamReader(input));//open on demand
+                toClose = input;
             }
+        }
+        try {
             return readString(br.readLine());
         } catch (Exception e) {
             setError(ERR_IO, br);//Input
@@ -456,7 +456,6 @@ public class Main {
         if(sm.empty()) return null;//end//TODO error
         Multex m = sm.peek();
         while(m == null || m.firstString() == null) {
-            //list(m, true);//TODO
             if(m == null) {
                 sm.pop();//pop null
                 if(sm.empty()) return null;//end//TODO error
@@ -620,7 +619,7 @@ public class Main {
     public static final int ERR_FIND = 5;
     public static final int ERR_BIBLE = 6;
     //7
-    public static final int ERR_CONTEXT = 8;//TODO not used
+    public static final int ERR_CONTEXT = 8;
     public static final int ERR_PLUG = 9;
     //10
     public static final int ERR_ESCAPE = 11;
@@ -635,6 +634,7 @@ public class Main {
     public static final int ERR_NUL = 20;
     //21
     public static final int ERR_BEGIN = 22;
+    public static final int ERR_LIT = 23;
 
     /**
      * The error code primes for indexing.
@@ -711,7 +711,6 @@ public class Main {
             }
             put = out;
         }
-        put.flush();
     }
 
     void printErrorSummary() {

@@ -13,10 +13,13 @@ public class Multex {
      */
     protected void run(Main m) {
         idx++;
+        if(idx >= basis.length) {
+            m.ret.pop();
+        }
         if(firstString() == null) {
             m.ret.push(null);//nothing
         }
-        Symbol s = m.find(firstString(), executeIn, true);
+        Symbol s = m.find(firstString(), executeIn);
         if(s != null) {
             if(!m.runningFast()) {
                 m.printSymbolName(s);//ok
@@ -26,11 +29,6 @@ public class Multex {
             s.idx++;//Simple profiling of things which got cloned if important to clone
         } else {
             m.ret.push(null);//nothing
-        }
-        if(idx >= basis.length - 1) {
-            Multex x = m.ret.pop();//in para
-            m.ret.pop();//as the run word is placed atop it!!
-            m.ret.push(x);
         }
     }
 
@@ -75,7 +73,7 @@ public class Multex {
     public void literalShift(Main m) {
         idx++;
         if(idx >= basis.length) {
-            m.ret.pop();//as the run word is placed atop it!!
+            m.setError(Main.ERR_LIT, this);
         }
     }
 }
