@@ -927,7 +927,7 @@ public class Main {
             }
             return;//efficient exit
         }
-        if(m instanceof UnitSymbol) {
+        if(m instanceof Prim) {
             try {
                 String help = helpString.getString(((UnitSymbol) m).named);
                 printSymbolized(help);//in quotes
