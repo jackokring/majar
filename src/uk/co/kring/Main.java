@@ -826,11 +826,11 @@ public class Main {
 
     public String ANSI_NewRaNetPrim;
     public String ANSI_Time;
-    public String ANSI_Nul;
+    public String ANSI_Macro;
 
     public String ANSI_Prim;
     public String ANSI_WARN;
-    public String ANSI_Macro;
+    public String ANSI_Nul;
 
     public String ANSI_UnitSymbol;
     public String ANSI_AbstractMultex;
@@ -841,12 +841,12 @@ public class Main {
     public String ANSI_Safe;
 
     static final String[] reflect = {
-        "Object", "ERR", "String",
-        "Symbol", "Space", "Ref",
-        "NewRaNetPrim", "Time", "Nul",
-        "Prim", "WARN", "Macro",
-        "UnitSymbol", "AbstractMultex", "Uber",
-        "Book", "Bible", "Safe",
+        "Object", "ERR", "String",//RED
+        "Symbol", "Space", "Ref",//GREEN
+        "NewRaNetPrim", "Time", "Macro",//BLUE
+        "Prim", "WARN", "Nul",//YELLOW
+        "UnitSymbol", "AbstractMultex", "Uber",//PURPLE
+        "Book", "Bible", "Safe",//CYAN
     };
 
     static final String[] colors = {

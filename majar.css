@@ -30,7 +30,7 @@ span.majar {
         color: blue;
         font-weight: bold;
     }
-    span.Nul {
+    span.Macro {
         color: blue;
         font-style: italic;
     }
@@ -42,7 +42,7 @@ span.majar {
         color: yellow;
         font-weight: bold;
     }
-    span.Macro {
+    span.Nul {
         color: yellow;
         font-style: italic;
     }
