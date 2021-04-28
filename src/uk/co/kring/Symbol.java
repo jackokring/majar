@@ -5,7 +5,7 @@ import static uk.co.kring.Main.nul;
 /**
  * A named multex to store in books.
  */
-public class Symbol extends Multex {
+public class Symbol extends AbstractMultex {
 
     String named;
     Book in;

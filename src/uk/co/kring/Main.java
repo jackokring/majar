@@ -830,8 +830,8 @@ public class Main {
     public String ANSI_Macro;
 
     public String ANSI_UnitSymbol;
-    public String ANSI_B;
-    public String ANSI_C;
+    public String ANSI_AbstractMultex;
+    public String ANSI_Uber;
 
     public String ANSI_Book;
     public String ANSI_Bible;
@@ -842,7 +842,7 @@ public class Main {
         "Symbol", "Space", "Ref",
         "NewRaNetPrim", "Time", "Nul",
         "Prim", "WARN", "Macro",
-        "UnitSymbol", "", "",       //TODO set colors error on blanks
+        "UnitSymbol", "AbstractMultex", "Uber",
         "Book", "Bible", "Safe",
     };
 

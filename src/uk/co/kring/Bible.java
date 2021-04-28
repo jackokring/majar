@@ -172,7 +172,7 @@ public class Bible extends Book {
                 Multex x = m.dat.pop();
                 String name = m.literal();
                 Symbol s;
-                if(!(x instanceof Symbol)) {
+                if(!(x instanceof AbstractMultex)) {
                     s = new Symbol(name, x.basis);
                 } else {
                     s = new Ref(name, x);//by object reference

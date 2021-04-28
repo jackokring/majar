@@ -28,8 +28,7 @@ public class Multex {
             }
             m.stackForRun(s);//Threading ...
             s.idx++;//Simple profiling of things which got cloned if important to clone
-        }
-    }
+        }    }
 
     /**
      * Returns an effective clone under executive speed conditions. Some classes return singleton instances.
