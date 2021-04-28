@@ -919,9 +919,7 @@ public class Main {
         if(m == null) return;
         if(newline) println();
         if(m instanceof Symbol) printSymbolName((Symbol)m);
-        Book c = context;
         if(m instanceof Book) {
-            context = (Book)m;//set self to view
             for(Symbol s: ((Book) m).within) {
                 printSymbolName(s);
             }
@@ -952,7 +950,6 @@ public class Main {
         } else {
             //not ok for direct basis
         }
-        context = c;
     }
 
     void printSymbolized(String s) {
