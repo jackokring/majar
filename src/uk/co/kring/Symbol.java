@@ -25,4 +25,12 @@ public class Symbol extends AbstractMultex {
         s.executeIn = executeIn;
         return s;
     }
+
+    public boolean listBasis() {
+        return true;
+    }
+
+    protected void run(Main m) {
+        proxyRun(m);//still behave normally in context
+    }
 }
