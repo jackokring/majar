@@ -56,6 +56,7 @@ public class Main {
     protected Stack<Frame> macroEscape = new ProtectedStack<>(null);
     protected boolean chaining = false;
     protected boolean exitLoop = false;
+    protected boolean sysAbort = true;
 
     private String givenName = "majar";
     protected Symbol truth;//a hook link not to be used for other purposes. See definition of true in Bible
@@ -69,6 +70,7 @@ public class Main {
      */
     public static void main(String[] args) {
         Main m = getMain();
+        m.sysAbort = true;//running
         intern(args);//first
         if(args.length > 0) {
             m.givenName = args[0];
@@ -79,8 +81,7 @@ public class Main {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             //interrupted by system
             synchronized(m) {
-                m.err.println();
-                m.err.println(errorFact.getString("system"));
+                if(m.sysAbort) m.errorPlump(m.ANSI_ERR, 24, m, true);
             }
         }));
         try {
@@ -98,6 +99,7 @@ public class Main {
             m.startFlusher();
             m.execute(new Multex(args));
             m.println();//final clean
+            m.sysAbort = false;//as clean exit
         } catch(Exception e) {
             m.putError(false);
             if(!m.fast && !m.abortClean && m.showException) {
@@ -336,14 +338,15 @@ public class Main {
     static final String para = "\u009B";//quirk of the shell unused representation of "\[["
     static final String htmlPara = "\u0018E";//technically NEL, but ... quirk of usage for compaction
 
-    String[] readReader(InputStream input, String alternate) {
+    String readReader(InputStream input) {
         if (input == null) {
-            return readString(alternate);
+            return null;
         } else {
             if (input != toClose) {
                 //yes a different stream
                 try {
                     br.close();
+                    setError(ERR_IO, br);
                 } catch(Exception e) {
                     //some for utility don't?
                 }
@@ -352,21 +355,19 @@ public class Main {
             }
         }
         try {
-            String[] s = readString(br.readLine());
+            String s = br.readLine();
             printReset();//funny some italic reset thing in some console view
             return s;
         } catch (Exception e) {
             setError(ERR_IO, br);//Input
-            return readString(alternate);
+            return null;
         }
     }
 
     String[] readString(String s) {
+        if(s == null) return null;
         boolean quote = false;
         int j = -1;
-        if(s == null) return null;
-        if(s.equals("")) return null;//blank
-        //TODO ^D
         s = s.replace("\\\"", para);
         if(html) s = s.replace("&", htmlPara);//input render
         s = s.replace("\n", " ");
@@ -402,10 +403,6 @@ public class Main {
         return args;
     }
 
-    String[] readInput() {
-        return readReader(in, null);
-    }
-
     //================================================== STRING UTIL
 
     /**
@@ -415,6 +412,7 @@ public class Main {
     public static void intern(String[] s) {
         if(s == null) return;
         for(int i = 0; i < s.length; i++) {
+            if(s[i].equals("")) s[i] = null;//blank
             if(s[i] == null) continue;
             s[i] = s[i].intern();//pointers??
         }
@@ -645,6 +643,7 @@ public class Main {
     //21
     public static final int ERR_BEGIN = 22;
     public static final int ERR_LIT = 23;
+    public static final int ERR_SHUTDOWN = 24;
 
     /**
      * The error code primes for indexing.
@@ -865,6 +864,7 @@ public class Main {
             } catch(NoSuchFieldException e) {
                 //try next
                 c = c.getSuperclass();
+                n = c.getSimpleName();
             } catch (IllegalAccessException f) {
                 //and shouldn't happen
             }

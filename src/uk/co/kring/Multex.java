@@ -18,7 +18,7 @@ public class Multex {
             return;
         }
         if(firstString() == null) {
-            m.ret.push(null);//nothing
+            return;
         }
         Symbol s = m.find(firstString(), executeIn);
         if(s != null) {
@@ -28,8 +28,6 @@ public class Multex {
             }
             m.stackForRun(s);//Threading ...
             s.idx++;//Simple profiling of things which got cloned if important to clone
-        } else {
-            m.ret.push(null);//nothing
         }
     }
 

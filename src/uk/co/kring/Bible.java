@@ -188,10 +188,13 @@ public class Bible extends Book {
         reg(new Prim("input") {
             @Override
             protected void def(Main m) {
-                Multex x = new Multex(m.readReader(m.getIn(), null));
-                if(x.basis == null) {
-                    x = null;
+                String in = m.readReader(m.getIn());
+                if(in == null) {
+                    m.setError(Main.ERR_IO, m.getIn());
+                    m.dat.push(null);
+                    return;
                 }
+                Multex x = new Multex(in);
                 m.dat.push(x);
             }
         });
@@ -199,23 +202,29 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 String s = m.literal();
-                Multex x = new Multex(m.readReader(m.getIn(), s));
-                if(x.basis == null) {
-                    x = null;
+                String in = m.readReader(m.getIn());
+                if(in == null) {
+                    in = s;
                 }
+                Multex x = new Multex(in);
                 m.dat.push(x);
             }
         });
         reg(new Prim("direct") {
             @Override
             protected void def(Main m) {
-                String[] in;
+                String in;
                 Stack<Multex> r = m.ret;
                 m.ret = new ProtectedStack<>(Main.nul);
                 while(true) {
                     if(m.exitLoop) break;
                     m.println();//clean line
-                    in = m.readReader(m.getIn(), null);
+                    in = m.readReader(m.getIn());
+                    if(in == null) {
+                        m.setError(Main.ERR_IO, m.getIn());
+                        m.dat.push(null);
+                        break;
+                    }
                     m.execute(new Multex(in));
                 };
                 m.exitLoop = false;

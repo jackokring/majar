@@ -37,10 +37,10 @@ public class Errors extends ListResourceBundle {
                 { "21", "Chaos in progress. Given your fancy for using nul, here goes .."}, //21
                 { "22", "Data must begin. Fetch aligned data only"}, //22
                 { "23", "Literally nothing. There is no following literal"}, //23
+                { "24", "System abort due to shutdown" },   //24
 
                 { "abort", "User aborted process." },
                 { "summary", "Error summary follows:" },
-                { "system", "System abort due to shutdown." },
         };
     }
 }
