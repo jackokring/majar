@@ -194,7 +194,10 @@ public class Main {
 
     void runNext() {//fetch and execute
         Multex m = ret.peek();
-        if(m == null) return;//end of code
+        if(m == null) {
+            ret.pop();//the null execution contract
+            return;//end of code
+        }
         m.run(this);//definite no shift in execution planned
     }
 
