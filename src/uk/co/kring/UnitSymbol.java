@@ -25,4 +25,8 @@ public abstract class UnitSymbol extends Symbol {
         m.setError(Main.ERR_LIT, this);
         return true;
     }
+
+    public boolean listBasis() {
+        return false;
+    }
 }

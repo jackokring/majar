@@ -34,4 +34,8 @@ public class Time extends UnitSymbol {
     public Time(String name, String[] s) {
         super(name, s);
     }
+
+    public boolean listBasis() {
+        return true;
+    }
 }

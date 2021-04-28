@@ -1,12 +1,17 @@
 package uk.co.kring;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * A book class to store symbols in to have a context and multex associations to words.
  */
 public class Book extends UnitSymbol {
 
+    List<Symbol> within = new LinkedList<>();//efficiency and ease of delete
+
     public Book(String name) {
-        super(name, new String[0]);//empty to start
+        super(name, null);//empty to start
     }
 
     protected void run(Main m) {

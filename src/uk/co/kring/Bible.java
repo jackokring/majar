@@ -72,6 +72,7 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 m.list(m.find(m.literal(), true), true);
+                m.println();//neat
             }
         });
         reg(new Macro("book", delay) {

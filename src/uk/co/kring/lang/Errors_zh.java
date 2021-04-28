@@ -41,6 +41,7 @@ public class Errors_zh extends ListResourceBundle {
 
                 { "abort", "用户中止的过程." },
                 { "summary", "错误摘要如下："},
+                { "help", "没有可用的帮助" },
         };
     }
 }

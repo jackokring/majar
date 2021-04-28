@@ -77,4 +77,12 @@ public class Multex {
         }
         return false;
     }
+
+    /**
+     * Decides if the string array has direct meaning.
+     * @return true if direct ok.
+     */
+    public boolean listBasis() {
+        return true;
+    }
 }

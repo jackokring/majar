@@ -211,12 +211,14 @@ public class Main {
 
     void reg(Symbol s, Book current) {
         if(s == null) return;
+        if(s.named == null) {
+            setError(ERR_NAME, s);
+        }
         List<Symbol> ls = unReg(s, current);
         if(ls == null) return;//bible?
         s.in = current;
         s.idx++;//step to 0 for profiling
-        s.in.basis = Arrays.copyOf(s.in.basis, s.in.basis.length + 1);
-        s.in.basis[s.in.basis.length - 1] = s.named;
+        current.within.add(s);
         s.executeIn = context;//keep context
         if(s instanceof Book) {
             s.executeIn = null;//clear recent cache
@@ -243,6 +245,7 @@ public class Main {
                         deleteBook((Book)i);
                     }
                     ls.remove(i);
+                    current.within.remove(s);//remove within book
                 }
             }
             return ls;
@@ -252,8 +255,8 @@ public class Main {
 
     void deleteBook(Book b) {
         setError(ERR_BOOK, b);
-        for(String i: b.basis) {
-            unReg(find(i, false), b);
+        for(Symbol i: b.within) {
+            unReg(i, b);
         }
         if(b.in.executeIn == b) {
             b.in.executeIn = null;//clear lazy eval
@@ -908,6 +911,10 @@ public class Main {
         println();
     }
 
+    public final static ResourceBundle helpString =
+            ResourceBundle.getBundle(Main.class.getPackage().getName()
+                    + ".lang.Help", Locale.getDefault());
+
     void list(Multex m, boolean newline) {
         if(m == null) return;
         if(newline) println();
@@ -915,10 +922,23 @@ public class Main {
         Book c = context;
         if(m instanceof Book) {
             context = (Book)m;//set self to view
+            for(Symbol s: ((Book) m).within) {
+                printSymbolName(s);
+            }
+            return;//efficient exit
         }
-        if(!(m instanceof UnitSymbol) || m instanceof Book) {
+        if(m instanceof UnitSymbol) {
+            try {
+                String help = helpString.getString(((UnitSymbol) m).named);
+                printSymbolized(help);//in quotes
+            } catch(Exception e) {
+                printSymbolized(errorFact.getString("help"));
+            }
+            return;
+        }
+        if(m.listBasis()) {//ok to print basis direct meaning?
             for (int i = 0; i < m.basis.length; i++) {
-                if (i == m.idx && !(m instanceof UnitSymbol)) {
+                if (i == m.idx) {
                     //cursor
                     printSymbolized("@");
                 }
@@ -930,8 +950,7 @@ public class Main {
                 }
             }
         } else {
-            //unit symbol specials
-            if(m instanceof Time) list(new Multex(m.basis), false);
+            //not ok for direct basis
         }
         context = c;
     }

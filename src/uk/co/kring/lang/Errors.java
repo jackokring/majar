@@ -41,6 +41,7 @@ public class Errors extends ListResourceBundle {
 
                 { "abort", "User aborted process." },
                 { "summary", "Error summary follows:" },
+                { "help", "No help available" },
         };
     }
 }
