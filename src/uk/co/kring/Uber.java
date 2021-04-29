@@ -18,7 +18,7 @@ public abstract class Uber extends AbstractMultex {
      * @param clazz the kind of class to convert into.
      * @return another uber of the required class or a fail null.
      */
-    public abstract Uber convert(Class<? extends Uber> clazz);
+    protected abstract Uber convert(Class<? extends Uber> clazz);
 
     protected boolean listBasis() {
         return false;
