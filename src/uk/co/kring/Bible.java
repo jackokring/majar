@@ -37,27 +37,35 @@ public class Bible extends Book {
         //this allows many words with a fixed literal intake to be embedded in escaped literals
         //of an unknown size. If not made into macros the strange condition of "word macro rest"
         //has the interpretation of "word rest" with a macro performed in the escaped literal.
-        Prim delay = new Prim("delay") {
+        Prim delay = new Prim("lit-delay") {
             @Override
             protected void def(Main m) {
                 m.setMacroLiteral(2);
             }
         };
-        Prim singleOpen = new Macro("begin", null) {
+        Prim singleOpen = new Prim("lit-open") {
             @Override
             protected void def(Main m) {
                 m.setMacroLiteral(1);
                 m.setMacroEscape(-1, this);//open
             }
         };
-        Prim delayOpen = new Macro("def", null) {
+        Prim specialOpen = new Prim("lit-open-nest") {
+            @Override
+            protected void def(Main m) {
+                m.setMacroLiteral(1);
+                m.setMacroEscape(-1, this);//open
+                m.setMacroPickUp(m.join(m.multiLiteral(m)));
+            }
+        };
+        Prim delayOpen = new Prim("lit-open-delay") {
             @Override
             protected void def(Main m) {
                 m.setMacroLiteral(2);
                 m.setMacroEscape(-1, this);//open
             }
         };
-        Prim singleClose = new Macro("end", null) {
+        Prim singleClose = new Prim("lit-close") {
             @Override
             protected void def(Main m) {
                 m.setMacroLiteral(1);
@@ -407,6 +415,13 @@ public class Bible extends Book {
                 m.checkMacro(this);//real execution checks macro state
             }
         });
+        reg(new Macro("nest", specialOpen) {
+            @Override
+            protected void def(Main m) {
+                //behave as a begin, but be conscious it's really about \" elimination
+                m.dat.push(new Multex(m.multiLiteral(m)));//get a balanced multex
+            }
+        });
         reg(new Macro("def", delayOpen) {
             @Override
             protected void def(Main m) {
@@ -487,6 +502,18 @@ public class Bible extends Book {
                     m.ret.push(new Multex(x));//the loop
                     m.ret.push(self);//for exit
                 }
+            }
+        });
+        reg(new Prim("fast") {
+            @Override
+            protected void def(Main m) {
+                m.fast = true;
+            }
+        });
+        reg(new Prim("slow") {
+            @Override
+            protected void def(Main m) {
+                m.fast = false;
             }
         });
 

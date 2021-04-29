@@ -306,7 +306,7 @@ public class Main {
         return s;
     }
 
-    synchronized Symbol find(String t, boolean error) {
+    Symbol find(String t, boolean error) {
         if(t == null) {
             return null;
         }
@@ -530,7 +530,7 @@ public class Main {
         chaining = true;
     }
 
-    void setMacroEscape(int escape, Macro m) {
+    void setMacroEscape(int escape, Prim m) {
         if(macroEscape.empty()) {
             setError(ERR_BRACKET, m);
         } else {
@@ -546,6 +546,10 @@ public class Main {
         }
     }
 
+    void setMacroPickUp(String s) {
+        macroEscape.peek().pickUp = s;
+    }
+
     void setMacroLiteral(int forLength) {
         macroEscape.peek().shiftSkip = true;//reinterpret as literal
         macroEscape.peek().cancelFor = forLength;//macro and following
@@ -559,6 +563,7 @@ public class Main {
         boolean shiftSkip = false;
         int cancelFor = 0;
         int open = 1;
+        String pickUp;
     }
 
     String[] multiLiteral(Main m) {
@@ -573,6 +578,12 @@ public class Main {
                     printSymbolName(f);
                 }
                 ((Macro) f).macroExecute(m);//the macro must potentially set macro escape
+                if(!macroEscape.empty()) {
+                    String x = macroEscape.peek().pickUp;
+                    if(x != null) {
+                        ls.addLast(x);
+                    }
+                }
             } else {
                 if(f instanceof Safe) {
                     setMacroLiteral(2);//an implicit safe macro for variable names
