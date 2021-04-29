@@ -490,7 +490,20 @@ public class Main {
         s = s.replace("\\$", para);
         int i;
         while((i = s.indexOf("$")) != -1) {
-            String j = join(dat.pop().basis);//TODO maybe no intern and classes???
+            Multex x = dat.pop();
+            String j;
+            if(x == null) {
+                x = nul;
+            }
+            if(x.listBasis()) {
+                j = join(x.basis);//TODO maybe no intern and classes???
+            } else {
+                if(x instanceof Uber) {
+                    j = join(((Uber)x).getBasis());
+                } else {
+                    j = para;//a dollar sign?
+                }
+            }
             j = j.replace("$", para);//recursive
             s = s.substring(0, i) + j + s.substring(i + 1);
         }
