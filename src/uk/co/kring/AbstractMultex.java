@@ -13,7 +13,7 @@ public abstract class AbstractMultex extends Multex {
         super(s);
     }
 
-    public abstract boolean listBasis();
+    protected abstract boolean listBasis();
 
     protected abstract void run(Main m);
 
@@ -22,7 +22,7 @@ public abstract class AbstractMultex extends Multex {
      * need to override this behaviour. It could be part of the new behaviour.
      * @param m an execution context.
      */
-    public void proxyRun(Main m) {
+    protected void proxyRun(Main m) {
         super.run(m);//proxy run for super.super
     }
 }

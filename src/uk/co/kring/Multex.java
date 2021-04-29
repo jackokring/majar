@@ -45,7 +45,7 @@ public class Multex {
     int idx;
     Book executeIn;
 
-    public Multex(String[] s) {
+    protected Multex(String[] s) {
         idx = -1;
         basis = s;
         //executeIn = Main.getMain().context;
@@ -59,7 +59,7 @@ public class Multex {
      * Gets the first executive string available.
      * @return the executive string.
      */
-    public String firstString() {
+    protected String firstString() {
         if(idx >= basis.length) return null;
         return basis[idx];
     }
@@ -69,7 +69,7 @@ public class Multex {
      * @param m a context.
      * @return ended with error.
      */
-    public boolean literalShift(Main m) {
+    protected boolean literalShift(Main m) {
         idx++;
         if(idx >= basis.length) {
             m.setError(Main.ERR_LIT, this);
@@ -82,7 +82,7 @@ public class Multex {
      * Decides if the string array has direct meaning.
      * @return true if direct ok.
      */
-    public boolean listBasis() {
+    protected boolean listBasis() {
         return true;
     }
 }

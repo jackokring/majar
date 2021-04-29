@@ -13,7 +13,9 @@ public abstract class Uber extends AbstractMultex {
         super(s);
     }
 
-    public boolean listBasis() {
+    protected boolean listBasis() {
         return false;
     }
+
+    protected abstract String[] getBasis();
 }

@@ -81,7 +81,15 @@ public class Main {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             //interrupted by system
             synchronized(m) {
-                if(m.sysAbort) m.errorPlump(m.ANSI_ERR, 24, m, true);
+                if(m.html) {
+                    m.print("<span class=\"" + m.givenName + "\"><span>");
+                }
+                if(m.sysAbort) {
+                    m.errorPlump(m.ANSI_ERR, 24, m, true);
+                }
+                if(m.html) {
+                    m.print("</span></span>");
+                }
             }
         }));
         try {
@@ -105,8 +113,8 @@ public class Main {
             if(!m.fast && !m.abortClean && m.showException) {
                 m.println();
                 m.print("Exception ...\n");
+                m.printColor(e);
                 e.printStackTrace();
-                m.showException = true;//chain
             }
             if(!m.abortClean) {
                 if (!m.ret.empty()) {
@@ -117,6 +125,7 @@ public class Main {
         m.exitFlusher();
         if(!m.abortClean) m.printErrorSummary();
         m.abortClean = false;//chain
+        m.showException = true;
         if(m.html) {
             m.print("</span></span>");
             synchronized(m) {
@@ -156,6 +165,7 @@ public class Main {
         println();
         first = a?1:0;//bash polarity
         abortClean = true;
+        sysAbort = false;
         throw new RuntimeException();
     }
 
@@ -702,8 +712,11 @@ public class Main {
                 //apply the composite and reduce
             }
         }
-        showException = false;
-        if(e > Integer.MAX_VALUE) throw new RuntimeException();//now baulk
+        if(e > Integer.MAX_VALUE) {
+            showException = false;
+            sysAbort = false;
+            throw new RuntimeException();//now baulk
+        }
         errorExit = (int)e;
     }
 
@@ -729,7 +742,7 @@ public class Main {
         }
     }
 
-    void printErrorSummary() {
+    private void printErrorSummary() {
         if(last != -1) {
             putError(true);
             print(ANSI_ERR);
@@ -759,7 +772,7 @@ public class Main {
         //TODO
     }
 
-    void errorPlump(String prefix, int code, Object o, boolean newline) {
+    private void errorPlump(String prefix, int code, Object o, boolean newline) {
         if(newline) println();
         print(prefix);
         print("[" + errorCode[code] + "] ");
@@ -772,9 +785,7 @@ public class Main {
                 if(o instanceof String) {
                     printSymbolized((String)o);
                 } else {
-                    printColor(o);
-                    print(o.getClass().getCanonicalName());
-                    print(" ");//consistent
+                    printClass(o);
                 }
             }
         }
@@ -783,7 +794,7 @@ public class Main {
         println();//final align
     }
 
-    void stackTrace(Stack<Multex> s) {
+    private void stackTrace(Stack<Multex> s) {
         putError(true);
         while(!s.empty()) {
             println();
@@ -885,7 +896,7 @@ public class Main {
         if(s == null) return;
         if(s.named != null) {
             printColor(s);
-            printLiteral(s.named);
+            printLiteral(join(singleton(s.named)));//for quotes if necessary
             print(" ");
         }
     }
@@ -935,6 +946,7 @@ public class Main {
             return;
         }
         if(m.listBasis()) {//ok to print basis direct meaning?
+            if(m.basis == null) return;
             for (int i = 0; i < m.basis.length; i++) {
                 if (i == m.idx) {
                     //cursor
@@ -949,7 +961,28 @@ public class Main {
             }
         } else {
             //not ok for direct basis
+            if(m instanceof Uber) {
+                for(String i: ((Uber)m).getBasis()) {
+                    Symbol x = find(i, false);
+                    if (x != null) {
+                        printSymbolName(x);
+                    } else {
+                        printSymbolized(i);//not found in context
+                    }
+                }
+            } else {
+                if (!(m instanceof Symbol)) {//user abstract multex
+                    printClass(m);
+                }
+            }
         }
+    }
+
+    void printClass(Object o) {
+        if(o == null) return;
+        printColor(o);
+        print(o.getClass().getCanonicalName());
+        print(" ");
     }
 
     void printSymbolized(String s) {
@@ -968,41 +1001,13 @@ public class Main {
         }
     }
 
-    void printHTML(String s) {
+    void printMarked(String s) {
         if(s == null) return;
         if(html) {
             print(s.replace(htmlPara, "&"));//fix up HTML
         } else {
             print(s);
         }
-    }
-
-    void printTag(String name, String classOpen, Symbol nameValue) {//else close
-        if(name == null) return;
-        print("</span><");
-        if(classOpen == null) print("/");
-        printLiteral(name);
-        if(classOpen != null) {
-            print(" class=\"");
-            printLiteral(classOpen);
-            print("\"");
-        }
-        if(nameValue != null) {
-            print(" name=\"");
-            printLiteral(nameValue.named);
-            print("\" ");
-            print(" value=\"");
-            printLiteral(join(nameValue.basis));
-            print("\"");
-        }
-        print("><span>");
-    }
-
-    void printSpecialTag(String name) {
-        if(name == null) return;
-        print("</span><");
-        printLiteral(name);
-        print(" /><span>");
     }
 
     synchronized void println() {
@@ -1025,9 +1030,12 @@ public class Main {
     void startTransaction() {
         if(out.checkError() || err.checkError()) {
             abortClean = true;//as don't trace
+            sysAbort = false;
             throw new RuntimeException();//baulk
         }
     }
+
+    //========================================= OUTPUT STREAM FLUSHER
 
     void startFlusher() {
         Main m = this;

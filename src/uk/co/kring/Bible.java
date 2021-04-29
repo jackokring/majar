@@ -256,18 +256,18 @@ public class Bible extends Book {
                 m.list(m.dat.pop(), false);//print encoded form
             }
         });
-        reg(new Prim("markup") {
+        reg(new Prim("html") {
             @Override
             protected void def(Main m) {
                 Main.setHTML();//for tests
-                m.printHTML("<span class=\"" + m.getName() + "\"><span>");
+                m.printMarked("<span class=\"" + m.getName() + "\"><span>");
             }
         });
         reg(new Prim("ansi") {
             @Override
             protected void def(Main m) {
                 Main.setANSI();//for tests
-                m.printHTML("</span></span>");
+                m.printMarked("</span></span>");
             }
         });
 
