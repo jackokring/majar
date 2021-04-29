@@ -351,6 +351,38 @@ public class Bible extends Book {
                 m.dat.push(null);//push false
             }
         });
+        reg(new Prim("same") {
+            @Override
+            protected void def(Main m) {
+                Multex q = m.dat.pop();
+                Multex p = m.dat.pop();
+                if(q != null && p == q) {//on p then q eval
+                    m.dat.push(q);
+                    return;
+                }
+                if(p == null && q == null) {//on not p truth
+                    m.dat.push(m.truth);
+                    return;
+                }
+                m.dat.push(null);//push false
+            }
+        });
+        reg(new Prim("binequal") {
+            @Override
+            protected void def(Main m) {
+                Multex q = m.dat.pop();
+                Multex p = m.dat.pop();
+                if(q != null && p != null) {//on p then q eval
+                    m.dat.push(q);
+                    return;
+                }
+                if(p == null && q == null) {//on not p truth
+                    m.dat.push(m.truth);
+                    return;
+                }
+                m.dat.push(null);//push false
+            }
+        });
         Macro begin;
         reg(begin = new Macro("begin", singleOpen) {
             @Override

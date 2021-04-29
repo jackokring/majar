@@ -41,7 +41,7 @@ public class Main {
     protected Book context = bible;
     protected Book current = context;
 
-    private boolean fast = false;
+    boolean fast = false;
     private boolean html = false;
     private boolean abortClean = false;
     private boolean showException = true;
@@ -170,10 +170,6 @@ public class Main {
     }
 
     //========================================== INTERPRETER
-
-    boolean runningFast() {
-        return fast;
-    }
 
     Book switchContext(Book b) {
         if(b == null) return context;
