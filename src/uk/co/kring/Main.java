@@ -193,6 +193,7 @@ public class Main {
             setError(ERR_FOR_CON, b);
             return context;
         }
+        b.in.executeIn = b;//cache
         c = context;
         context = b;
         return c;
@@ -286,7 +287,7 @@ public class Main {
         if(b.in.executeIn == b) {
             b.in.executeIn = null;//clear lazy eval
         }
-        b.in = null;//hide context chain for future
+        b.in = b;//hide context chain for future
         if(b == current) {
             setError(ERR_CUR_DEL, b);
             current = bible;
@@ -305,7 +306,7 @@ public class Main {
         return s;
     }
 
-    Symbol find(String t, boolean error) {
+    synchronized Symbol find(String t, boolean error) {
         if(t == null) {
             return null;
         }
