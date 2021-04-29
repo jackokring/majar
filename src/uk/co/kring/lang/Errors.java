@@ -38,6 +38,9 @@ public class Errors extends ListResourceBundle {
                 { "22", "Data must begin. Fetch aligned data only"}, //22
                 { "23", "Literally nothing. There is no following literal"}, //23
                 { "24", "System abort due to shutdown" },   //24
+                { "25", "Already registered. You can't register a symbol more than once" },   //25
+                { "26", "Foreign context. Multithreading is complex" },   //26
+                { "27", "Foreign safe. Multithreading is complex" },   //26
 
                 { "abort", "User aborted process." },
                 { "summary", "Error summary follows:" },

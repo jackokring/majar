@@ -22,7 +22,7 @@ public class Multex {
         }
         Symbol s = m.find(firstString(), executeIn);
         if(s != null) {
-            if(!m.runningFast()) {
+            if(!m.fast) {
                 m.printSymbolName(s);//ok
                 m.profile(s);
             }

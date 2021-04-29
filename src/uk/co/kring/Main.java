@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  */
 public class Main {
 
-    protected static final HashMap<Thread, Main> threads = new HashMap<>();
+    private static final HashMap<Thread, Main> threads = new HashMap<>();
 
     static synchronized Main getMain() {//multi threading maker
         Main t = threads.get(Thread.currentThread());
@@ -21,10 +21,18 @@ public class Main {
         return t;
     }
 
+    static synchronized Main getMain(Thread t) {
+        return threads.get(t);
+    }
+
     static synchronized Main newMain() {
         Main t = new Main();
         threads.put(Thread.currentThread(), t);
         return t;
+    }
+
+    static synchronized void deleteMain(Thread t) {
+        threads.remove(t);
     }
 
     private Thread flusher;//flusher counter
@@ -37,7 +45,7 @@ public class Main {
 
     protected HashMap<String, List<Symbol>> dict =
             new HashMap<>();
-    private final Book bible = new Bible();
+    final Book bible = new Bible();
     protected Book context = bible;
     protected Book current = context;
 
@@ -60,6 +68,7 @@ public class Main {
 
     private String givenName = "majar";
     protected Symbol truth;//a hook link not to be used for other purposes. See definition of true in Bible
+    //it's a process truth
     protected Safe lastSafe = new Safe("env");//the environmental safe
 
     //========================================== ENTRY / EXIT
@@ -81,14 +90,14 @@ public class Main {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             //interrupted by system
             synchronized(m) {
-                if(m.html) {
-                    m.print("<span class=\"" + m.givenName + "\"><span>");
-                }
                 if(m.sysAbort) {
-                    m.errorPlump(m.ANSI_ERR, 24, m, true);
-                }
-                if(m.html) {
-                    m.print("</span></span>");
+                    if(m.html) {
+                        m.print("<span class=\"" + m.givenName + "\"><span>");
+                    }
+                    m.errorPlump(m.ANSI_ERR, ERR_SHUTDOWN, m, true);
+                    if(m.html) {
+                        m.print("</span></span>");
+                    }
                 }
             }
         }));
@@ -131,10 +140,10 @@ public class Main {
             synchronized(m) {
                 m.out.flush();
             }
-            if(!m.chaining) threads.remove(Thread.currentThread());
         } else {
             System.exit(m.first);//a nice ... exit on first finished thread?
         }
+        if(!m.chaining) deleteMain(Thread.currentThread());
     }
 
     /**
@@ -146,7 +155,6 @@ public class Main {
         Main m = newMain();
         main(m.readString(s));
         int first = m.first;
-        if(!m.chaining) threads.remove(Thread.currentThread());//possible saving but sequential reinitialization
         return first;
     }
 
@@ -176,10 +184,16 @@ public class Main {
         if(b.in == b) {
             if(!(b instanceof Bible)) {
                 setError(ERR_CON_BAD, b);
-                b = bible;
+                return context;
             }
         }
         Book c = context;
+        while(c.in != c) c = c.in;
+        if(c != bible) {
+            setError(ERR_FOR_CON, b);
+            return context;
+        }
+        c = context;
         context = b;
         return c;
     }
@@ -219,6 +233,11 @@ public class Main {
         if(s == null) return;
         if(s.named == null) {
             setError(ERR_NAME, s);
+            return;
+        }
+        if(s.in != null) {
+            setError(ERR_ALREADY, s);
+            return;
         }
         List<Symbol> ls = unReg(s, current);
         if(ls == null) return;//bible?
@@ -656,6 +675,9 @@ public class Main {
     public static final int ERR_BEGIN = 22;
     public static final int ERR_LIT = 23;
     public static final int ERR_SHUTDOWN = 24;
+    public static final int ERR_ALREADY = 25;
+    public static final int ERR_FOR_CON = 26;
+    public static final int ERR_FOR_SAFE = 27;
 
     /**
      * The error code primes for indexing.

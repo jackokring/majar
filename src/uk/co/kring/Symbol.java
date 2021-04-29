@@ -26,7 +26,7 @@ public class Symbol extends AbstractMultex {
         return s;
     }
 
-    public boolean listBasis() {
+    protected boolean listBasis() {
         return true;
     }
 

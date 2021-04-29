@@ -28,7 +28,7 @@ public class Waiter {
         try {
             t.join();
             synchronized (Waiter.class) {
-                Main.threads.remove(t);//helps with gc
+                Main.deleteMain(t);//helps with gc
                 //t = Thread.currentThread();//re-lock on current thread
                 t = null;//self managed sequentially then on
             }

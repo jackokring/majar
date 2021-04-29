@@ -19,7 +19,13 @@ public class Safe extends Book {
         Symbol s = m.find(m.literal(), false);
         m.dat.push(s);//blank
         m.switchContext(c);
-        m.lastSafe = this;
+        c = this;
+        while(c.in != c) c = c.in;
+        if(c != m.bible) {
+            m.setError(Main.ERR_FOR_SAFE, this);
+        } else {
+            m.lastSafe = this;
+        }
         m.ret.pop();
     }
 }

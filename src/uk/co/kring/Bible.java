@@ -75,6 +75,17 @@ public class Bible extends Book {
                 m.println();//neat
             }
         });
+        reg(new Prim("reg") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.pop();
+                if(x instanceof Symbol) {
+                    m.reg((Symbol) x);
+                    return;
+                }
+                m.setError(Main.ERR_NAME, x);
+            }
+        });
         reg(new Macro("book", delay) {
             @Override
             protected void def(Main m) {

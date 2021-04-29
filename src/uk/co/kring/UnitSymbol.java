@@ -26,7 +26,7 @@ public abstract class UnitSymbol extends Symbol {
         return true;
     }
 
-    public boolean listBasis() {
+    protected boolean listBasis() {
         return false;
     }
 }

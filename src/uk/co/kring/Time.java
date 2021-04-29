@@ -20,9 +20,9 @@ public class Time extends UnitSymbol {
             protected void run(Main m) {
                 try {
                     t.join();
-                    Main ml = Main.threads.get(t);
+                    Main ml = Main.getMain(t);
                     m.dat.push(ml.dat.pop());//output
-                    Main.threads.remove(t);//clean
+                    Main.deleteMain(t);//clean
                 } catch(Exception e) {
                     //no worries
                 }
@@ -35,7 +35,7 @@ public class Time extends UnitSymbol {
         super(name, s);
     }
 
-    public boolean listBasis() {
+    protected boolean listBasis() {
         return true;
     }
 }
