@@ -402,6 +402,7 @@ public class Main {
         boolean quote = false;
         int j = -1;
         s = s.replace("\\\"", para);
+        s = s.replace("\\\\", "\\");
         if(html) s = s.replace("&", htmlPara);//input render
         s = s.replace("\n", " ");
         s = s.replace("\t", " ");
@@ -635,6 +636,7 @@ public class Main {
             }
             if(i.contains(" ")) {
                 t.append("\"");
+                i = i.replace("\\", "\\\\");
                 t.append(i.replace("\"", "\\\""));//input form
                 t.append("\"");
             } else {
