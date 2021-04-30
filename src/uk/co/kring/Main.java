@@ -69,6 +69,7 @@ public class Main {
     private String givenName = "majar";
     protected Symbol truth;//a hook link not to be used for other purposes. See definition of true in Bible
     //it's a process truth
+    protected Symbol falsely;//ironically true, but evaluating to false
     protected Safe lastSafe = new Safe("env");//the environmental safe
 
     //========================================== ENTRY / EXIT
@@ -549,13 +550,6 @@ public class Main {
         } else {
             Frame f = macroEscape.peek();
             f.open -= escape;
-        }
-    }
-
-    void checkMacro(Macro m) {
-        Frame f = macroEscape.pop();
-        if(f == null || f.open != 0) {
-            setError(ERR_BRACKET, m);
         }
     }
 

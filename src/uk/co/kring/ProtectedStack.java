@@ -17,7 +17,7 @@ public class ProtectedStack<T> extends Stack<T> {
     }
 
     @Override
-    public T push(T t) {
+    public synchronized T push(T t) {
         //null is fine
         if(t == under) {
             Main.getMain().setError(Main.ERR_NUL, under);
@@ -40,7 +40,7 @@ public class ProtectedStack<T> extends Stack<T> {
         return super.pop();
     }
 
-    public T peek() {
+    public synchronized T peek() {
         if(empty()) {
             return under;
         }

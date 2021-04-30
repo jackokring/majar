@@ -15,7 +15,7 @@ public class Time extends UnitSymbol {
             ml.execute(new Multex(basis));
         });
         t.start();
-        m.dat.push(new UnitSymbol(named, null) {
+        m.dat.push(new UnitSymbol("time-future", null) {
             @Override
             protected void run(Main m) {
                 try {

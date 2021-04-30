@@ -147,7 +147,7 @@ public class Bible extends Book {
         reg(new Prim("eval") {
             @Override
             protected void def(Main m) {
-                if(m.dat.peek() == null) return;//the null eval
+                //the null eval contract evel false is pushed to do nothing
                 Multex x = m.ret.pop();//pop self
                 m.stackForRun(m.dat.pop());
                 m.ret.push(x);
@@ -292,16 +292,26 @@ public class Bible extends Book {
 
         //4. Control Structures
         //=====================
-        reg(new Prim("false") {
-            @Override
-            protected void def(Main m) {
-                m.dat.push(null);//push false
-            }
-        });
         reg(Main.getMain().truth = new Prim("true") {
             @Override
             protected void def(Main m) {
                 m.dat.push(m.truth);//push true terminal
+            }
+        });
+        reg(Main.getMain().falsely = new Prim("false") {
+            @Override
+            protected void def(Main m) {
+                m.dat.push(null);//push false terminal
+            }
+        });
+        reg(new Prim("elucidate") {
+            @Override
+            protected void def(Main m) {
+                if(m.dat.pop() == null) {
+                    m.dat.push(m.falsely);
+                    return;
+                }
+                m.dat.push(m.truth);
             }
         });
         reg(new Prim("not") {
@@ -412,7 +422,8 @@ public class Bible extends Book {
         reg(new Macro("end", singleClose) {
             @Override
             protected void def(Main m) {
-                m.checkMacro(this);//real execution checks macro state
+                m.setError(Main.ERR_BRACKET, this);
+                //real execution checks macro state
             }
         });
         reg(new Macro("nest", specialOpen) {
@@ -435,16 +446,6 @@ public class Bible extends Book {
             protected void def(Main m) {
                 Multex x = m.ret.pop();
                 m.dat.push(new Multex(m.literal()));
-                m.ret.push(x);
-            }
-        });
-        reg(new Prim("meta") {//consider how a while loop is implemented
-            @Override
-            protected void def(Main m) {
-                Multex x = m.ret.pop();
-                Multex y = m.ret.pop();
-                m.dat.push(new Multex(m.literal()));
-                m.ret.push(y);
                 m.ret.push(x);
             }
         });
@@ -488,7 +489,7 @@ public class Bible extends Book {
                 String[] x = m.multiLiteral(m);
                 if(m.dat.pop() != null) {
                     Multex self = m.ret.pop();
-                    m.ret.push(new UnitSymbol("while", x) {//creates a non literal while iterator
+                    m.ret.push(new UnitSymbol("while-loop", x) {//creates a non literal while iterator
                         @Override
                         protected void run(Main m) {
                             if(m.dat.pop() != null) {
