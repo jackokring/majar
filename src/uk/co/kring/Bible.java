@@ -55,7 +55,7 @@ public class Bible extends Book {
             protected void def(Main m) {
                 m.setMacroLiteral(1);
                 m.setMacroEscape(-1, this);//open
-                m.setMacroPickUp(m.join(m.multiLiteral(m)));
+                m.setMacroPickUp(Main.join(m.multiLiteral(m)));
             }
         };
         Prim delayOpen = new Prim("lit-open-delay") {
@@ -129,7 +129,7 @@ public class Bible extends Book {
                 if(s == null) {
                     m.dat.push(null);
                 }
-                m.dat.push(new Multex(s));
+                m.dat.push(new Multex(m.readString(s)));
             }
         });
         reg(new Macro("find", delay) {
@@ -147,7 +147,7 @@ public class Bible extends Book {
         reg(new Prim("eval") {
             @Override
             protected void def(Main m) {
-                //the null eval contract evel false is pushed to do nothing
+                //the null eval contract eval false is pushed to do nothing
                 Multex x = m.ret.pop();//pop self
                 m.stackForRun(m.dat.pop());
                 m.ret.push(x);
@@ -214,7 +214,7 @@ public class Bible extends Book {
                     m.dat.push(null);
                     return;
                 }
-                Multex x = new Multex(in);
+                Multex x = new Multex(m.readString(in));
                 m.dat.push(x);
             }
         });
@@ -226,7 +226,7 @@ public class Bible extends Book {
                 if(in == null) {
                     in = s;
                 }
-                Multex x = new Multex(in);
+                Multex x = new Multex(m.readString(in));
                 m.dat.push(x);
             }
         });
@@ -245,8 +245,8 @@ public class Bible extends Book {
                         m.dat.push(null);
                         break;
                     }
-                    m.execute(new Multex(in));
-                };
+                    m.execute(new Multex(m.readString(in)));
+                }
                 m.exitLoop = false;
                 m.ret = r;
             }
@@ -445,7 +445,8 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 Multex x = m.ret.pop();
-                m.dat.push(new Multex(m.literal()));
+                //undo any literal quotes
+                m.dat.push(new Multex(m.readString(m.literal())));
                 m.ret.push(x);
             }
         });

@@ -20,6 +20,11 @@ while the `false` value has a null execution contract. Built around the word
 coding ease features like `space` to make new stacks and remember old ones, along
 with `time` to make threads. Multi-threading was a big part of the goal.
 
+The logic bit could be confusing as `false` is actually true, until it evaluates
+to null and is then false. The word `elucidate` turns null back into `false` and
+anything else into `true` and so always returns something true, but useful for
+printing with `print` though.
+
 Influences
 -
 * `forth` but with late binding and some nicer data structuring.
@@ -28,6 +33,7 @@ Influences
 * `lisp` but it doesn't use lists directly.
 * `lua` a nice little gem.
 * `java` an easy workhorse to do the backend connection to JNI C.
+* `algol/pascal` it was good. Everything from the triple ref to the structure.
 
 Dedications
 -

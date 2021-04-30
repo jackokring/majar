@@ -9,10 +9,6 @@ public abstract class Uber extends AbstractMultex {
         super(s);
     }
 
-    public Uber(String s) {
-        super(s);
-    }
-
     /**
      * Obtain an uber of the correct class conversion.
      * @param clazz the kind of class to convert into.

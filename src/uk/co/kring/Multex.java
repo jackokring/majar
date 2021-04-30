@@ -51,9 +51,9 @@ public class Multex {
         //executeIn = Main.getMain().context;
     }
 
-    public Multex(String s) {
+    /* public Multex(String s) {
         this(Main.getMain().readString(s));
-    }
+    } */
 
     /**
      * Gets the first executive string available.

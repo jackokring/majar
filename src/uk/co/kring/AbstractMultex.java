@@ -9,10 +9,6 @@ public abstract class AbstractMultex extends Multex {
         super(s);
     }
 
-    public AbstractMultex(String s) {
-        super(s);
-    }
-
     protected abstract boolean listBasis();
 
     protected abstract void run(Main m);

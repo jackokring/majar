@@ -15,7 +15,16 @@ public class Book extends UnitSymbol {
     }
 
     protected void run(Main m) {
-        m.switchContext(this);
+        Book c = m.context;
+        while(c.in != c) c = c.in;
+        if(c != m.bible) {
+            //placed here things are faster but a not found error replaces
+            //other errors and has an increased risk of running a word in a namespace collision
+            //a better compromise
+            m.setError(Main.ERR_FOR_CON, this);
+        } else {
+            m.switchContext(this);
+        }
         m.ret.pop();
     }
 

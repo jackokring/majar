@@ -4,6 +4,7 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -155,8 +156,7 @@ public class Main {
     public static int run(String s) {//per thread running from text
         Main m = newMain();
         main(m.readString(s));
-        int first = m.first;
-        return first;
+        return m.first;
     }
 
     //========================================== USER ABORT
@@ -188,14 +188,8 @@ public class Main {
                 return context;
             }
         }
-        Book c = context;
-        while(c.in != c) c = c.in;
-        if(c != bible) {
-            setError(ERR_FOR_CON, b);
-            return context;
-        }
         b.in.executeIn = b;//cache
-        c = context;
+        Book c = context;
         context = b;
         return c;
     }
@@ -524,9 +518,8 @@ public class Main {
     String literal() {
         Multex m = ret.pop();//executive context
         Frame f = macroEscape.peek();
-        if(f != null && f.shiftSkip) {
+        if(!(f != null && f.shiftSkip)) {
             //special so skip shift to absorb next macro as literal
-        } else {
             if(ret.peek().literalShift(this)) {
                 return null;
             }
@@ -539,10 +532,6 @@ public class Main {
         }
         ret.push(m);//restore
         return s;
-    }
-
-    void setChaining() {
-        chaining = true;
     }
 
     void setMacroEscape(int escape, Prim m) {
@@ -734,7 +723,6 @@ public class Main {
     }
 
     void setError(int t, Object o) {
-        String s;
         long e = errorExit;
         if(first < 1) first = t;
         last = t;
@@ -908,7 +896,7 @@ public class Main {
     };
 
     public void printColor(Object object) {
-        Class<? extends Object> c = object.getClass();
+        Class<?> c = object.getClass();
         while(c.isAnonymousClass()) c = c.getSuperclass();
         String n = c.getSimpleName();
         while(true) {
@@ -1084,7 +1072,7 @@ public class Main {
                     out.flush();
                 }
                 try {
-                    Thread.sleep(5000);
+                    TimeUnit.MILLISECONDS.sleep(5000);
                 } catch (Exception e) {
                     //loop
                 }
@@ -1132,7 +1120,7 @@ public class Main {
     public static Main setHTML() {
         Main m = getMain();
         m.html = true;
-        Class<? extends Object> c = m.getClass();
+        Class<?> c = m.getClass();
         for(String i: reflect) {
             try {
                 Field f = c.getField("ANSI_" + i);
@@ -1153,7 +1141,7 @@ public class Main {
     public static Main setANSI() {
         Main m = getMain();
         m.html = false;
-        Class<? extends Object> c = m.getClass();
+        Class<?> c = m.getClass();
         for(int i = 0; i < reflect.length; i++) {
             try {
                 Field f = c.getField("ANSI_" + reflect[i]);
@@ -1261,7 +1249,7 @@ public class Main {
             Main.setIO(what, out.getPrintStream());
             Main.setHTML();//as it needs this for no system exit
             Main m = Main.makeSafe(params);
-            m.reg(new Ref("task", new Multex(String.valueOf(idx))));
+            m.reg(new Ref("task", new Multex(singleton(String.valueOf(idx)))));
             Main.run(with);//may not exhaustively use input what
             Waiter.drainAndClose(what);
         }), idx);
@@ -1294,7 +1282,7 @@ public class Main {
                                     new ByteArrayInputStream(sb.toString().getBytes()),
                                     out.getPrintStream()).getPrintStream());//insert
                             if (i == -1) break;
-                            out = Waiter.stream(atSpecialTag(what, tag, run, params, id++), out.getPrintStream());//nest insert
+                            Waiter.stream(atSpecialTag(what, tag, run, params, ++id), out.getPrintStream());//nest insert
                             break;
                         }
                     }
@@ -1332,7 +1320,7 @@ public class Main {
                                     run, params, id);//start
                             out = Waiter.stream(insert, out.getPrintStream());
                             if (i == -1) break;
-                            out = Waiter.stream(printSpliterator(what, tag, run, params, id++), out.getPrintStream());//nest
+                            Waiter.stream(printSpliterator(what, tag, run, params, ++id), out.getPrintStream());//nest
                             break;
                         }
                     }
@@ -1360,7 +1348,7 @@ public class Main {
             try {
                 Constructor<?> constructor = clazz.getConstructor(OutputStream.class);
                 Object instance = constructor.newInstance(w.getPrintStream());
-                w = Waiter.stream(input, new PrintStream((OutputStream) instance));
+                Waiter.stream(input, new PrintStream((OutputStream) instance));
                 ((OutputStream) instance).flush();//don't close as that's the waiter's job.
                 //that would close the waiter stream as a cascade.
                 Waiter.drainAndClose(input);
