@@ -25,6 +25,15 @@ to null and is then false. The word `elucidate` turns null back into `false` and
 anything else into `true` and so always returns something true, but useful for
 printing with `print` though.
 
+Errors are accumulated and only throw on a critical amount of them. This can
+place the stack trace into the future, but maybe the errors show what happened bad
+as it accumulates. A more logical reason is the algorithmic generation of
+code by an AI, as it investigates a search space. It is better that more than
+just the non-immediate fail space is searched as a recovered success is
+perhaps more effective than a lesser search. The word `ok` clears errors. Consider
+this to be some kind of genetic algorithm intron-extron mechanism improving
+search space efficiency, and perhaps leading to correction reduction theorems.
+
 Influences
 -
 * `forth` but with late binding and some nicer data structuring.
