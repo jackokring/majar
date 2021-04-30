@@ -34,6 +34,13 @@ perhaps more effective than a lesser search. The word `ok` clears errors. Consid
 this to be some kind of genetic algorithm intron-extron mechanism improving
 search space efficiency, and perhaps leading to correction reduction theorems.
 
+The perfection of logic starts with a pedantic perfect logic machine. The
+expanse of logic ends with a fast imperfect logic machine subject to insertion
+replacement and all down tidy. Born of the clan of vision, creation was taken
+seriously without a thought for the current best known. The future as they
+said was everything. A dream was imperfect but through some relative effect
+faster, and correctable with a great efficiency enough of the time.
+
 Influences
 -
 * `forth` but with late binding and some nicer data structuring.
