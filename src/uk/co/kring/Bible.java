@@ -189,10 +189,10 @@ public class Bible extends Book {
         reg(new Macro("store", delay) {
             @Override
             protected void def(Main m) {
-                Book c = m.switchContext(m.lastSafe);
                 Multex x = m.dat.pop();
                 String name = m.literal();
                 Symbol s;
+                Book c = m.switchContext(m.lastSafe);
                 if(!(x instanceof AbstractMultex)) {
                     s = new Symbol(name, x.basis);
                 } else {
@@ -203,6 +203,19 @@ public class Bible extends Book {
             }
         });
         reg(Main.getMain().lastSafe);//and the environmental safe
+        reg(new Macro("mean", delay) {
+            @Override
+            protected void def(Main m) {
+                Symbol s = m.find(m.literal(), true);
+                m.ret.pop();
+                if(s.listBasis()) {
+                    m.ret.push(new Multex(s.basis));
+                } else {
+                    m.ret.push(s);//has its own meaning in context
+                }
+                m.ret.push(this);
+            }
+        });
 
         //3. Input and Output
         //===================
