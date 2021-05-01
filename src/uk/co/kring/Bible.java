@@ -518,6 +518,12 @@ public class Bible extends Book {
                 m.fast = false;
             }
         });
+        reg(new Prim("force") {
+            @Override
+            protected void def(Main m) {
+                m.setError(Main.ERR_FORCE, this);//force next error to fail
+            }
+        });
 
         //5. Numerics
         //===========

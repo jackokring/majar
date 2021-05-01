@@ -688,6 +688,7 @@ public class Main {
     public static final int ERR_ALREADY = 25;
     public static final int ERR_FOR_CON = 26;
     public static final int ERR_FOR_SAFE = 27;
+    public static final int ERR_FORCE = 28;
 
     /**
      * The error code primes for indexing.
@@ -699,7 +700,12 @@ public class Main {
         41, 43, 47, 53,                 //12
         59, 61, 67, 71,                 //16
         73, 79, 83, 89,                 //20
-        97                              //24
+        2147483629, 97, 101, 103,       //24 - a special as a shutdown seems to want to issue its own code
+        2147483629, 107, 109, 113,      //28 - a special for max int auto on next error
+        127, 131, 137, 139,             //32
+        149, 151, 157, 163,             //36
+        167, 173, 179, 181,             //40
+        191, 193, 197, 199,             //44
     };
 
     static final int[] errorComposites = {
