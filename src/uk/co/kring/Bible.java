@@ -72,6 +72,7 @@ public class Bible extends Book {
                 m.setMacroEscape(1, this);//close
             }
         };
+
         //TODO main bible hook point
 
         //1. Word Management
@@ -538,49 +539,49 @@ public class Bible extends Book {
         reg(new Prim("later") {
             @Override
             protected void def(Main m) {
-                Multex x = m.ret.pop();//self
+                m.ret.pop();//self
                 Multex y = m.ret.pop();
                 Multex z = m.ret.pop();
                 m.ret.push(y);//save rest of code to do later after return finished
                 m.ret.push(z);
-                m.ret.push(x);
+                m.ret.push(this);
             }
         });
         reg(new Prim("continue") {
             @Override
             protected void def(Main m) {
-                Multex x = m.ret.pop();//self
+                m.ret.pop();//self
                 m.ret.pop();//drop loop
-                m.ret.push(x);
+                m.ret.push(this);
             }
         });
         reg(new Prim("break") {
             @Override
             protected void def(Main m) {
-                Multex x = m.ret.pop();//self
+                m.ret.pop();//self
                 m.ret.pop();//drop loop
                 m.ret.pop();//drop iterator
-                m.ret.push(x);
+                m.ret.push(this);
             }
         });
         reg(new Prim("after") {
             @Override
             protected void def(Main m) {
-                Multex x = m.ret.pop();//self
+                m.ret.pop();//self
                 Multex y = m.ret.pop();
                 m.ret.push(m.dat.pop());// >R
                 m.ret.push(y);
-                m.ret.push(x);
+                m.ret.push(this);
             }
         });
         reg(new Prim("outer") {
             @Override
             protected void def(Main m) {
-                Multex x = m.ret.pop();//self
+                m.ret.pop();//self
                 Multex y = m.ret.pop();
                 m.dat.push(m.ret.pop());// R>
                 m.ret.push(y);
-                m.ret.push(x);
+                m.ret.push(this);
             }
         });
         reg(new Macro("until", singleOpen) {
@@ -659,6 +660,42 @@ public class Bible extends Book {
                 m.dat.push(x);
                 m.dat.push(y);
                 m.dat.push(x);
+            }
+        });
+        reg(new Macro("if", singleOpen) {
+            @Override
+            protected void def(Main m) {
+                String[] x = m.multiLiteral(m);//get a balanced multex
+                if(m.dat.pop() != null) {
+                    m.ret.pop();
+                    m.ret.push(new Multex(x));
+                    m.ret.push(this);
+                }
+            }
+        });
+        reg(new Macro("either", singleOpen) {
+            @Override
+            protected void def(Main m) {
+                String[] x = m.multiLiteral(m);//get a balanced multex
+                if(m.dat.pop() != null) {
+                    m.ret.pop();
+                    m.ret.push(new Multex(x));
+                    m.ret.push(this);
+                    m.dat.push(null);//false
+                } else {
+                    m.dat.push(m.truth);//true
+                }
+            }
+        });
+        reg(new Macro("else", singleOpen) {
+            @Override
+            protected void def(Main m) {
+                String[] x = m.multiLiteral(m);//get a balanced multex
+                if(m.dat.pop() == null) {
+                    m.ret.pop();
+                    m.ret.push(new Multex(x));
+                    m.ret.push(this);
+                }
             }
         });
 
