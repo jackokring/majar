@@ -7,9 +7,9 @@ package uk.co.kring;
 public abstract class Prim extends UnitSymbol {
 
     protected final void run(Main m) {
-        Book b = m.switchContext(executeIn);
+        //Book b = m.switchContext(executeIn);
         def(m);
-        m.switchContext(b);
+        //m.switchContext(b);
         m.ret.pop();
     }
 
