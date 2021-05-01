@@ -489,20 +489,18 @@ public class Bible extends Book {
             protected void def(Main m) {
                 String[] x = m.multiLiteral(m);
                 if(m.dat.pop() != null) {
-                    Multex self = m.ret.pop();
+                    m.ret.pop();
                     m.ret.push(new UnitSymbol("while-loop", x) {//creates a non literal while iterator
                         @Override
                         protected void run(Main m) {
                             if(m.dat.pop() != null) {
-                                Multex self = m.ret.pop();
-                                m.ret.push(this);//recursive
                                 m.ret.push(new Multex(x));//the loop
-                                m.ret.push(self);
+                                m.ret.push(this);//recursive
                             }
                         }
                     });
                     m.ret.push(new Multex(x));//the loop
-                    m.ret.push(self);//for exit
+                    m.ret.push(this);//for exit
                 }
             }
         });
@@ -522,6 +520,132 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 m.setError(Main.ERR_FORCE, this);//force next error to fail
+            }
+        });
+        reg(new Prim("later") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.ret.pop();//self
+                Multex y = m.ret.pop();
+                Multex z = m.ret.pop();
+                m.ret.push(y);//save rest of code to do later after return finished
+                m.ret.push(z);
+                m.ret.push(x);
+            }
+        });
+        reg(new Prim("continue") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.ret.pop();//self
+                m.ret.pop();//drop loop
+                m.ret.push(x);
+            }
+        });
+        reg(new Prim("break") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.ret.pop();//self
+                m.ret.pop();//drop loop
+                m.ret.pop();//drop iterator
+                m.ret.push(x);
+            }
+        });
+        reg(new Prim("after") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.ret.pop();//self
+                Multex y = m.ret.pop();
+                m.ret.push(m.dat.pop());// >R
+                m.ret.push(y);
+                m.ret.push(x);
+            }
+        });
+        reg(new Prim("outer") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.ret.pop();//self
+                Multex y = m.ret.pop();
+                m.dat.push(m.ret.pop());// R>
+                m.ret.push(y);
+                m.ret.push(x);
+            }
+        });
+        reg(new Macro("until", singleOpen) {
+            @Override
+            protected void def(Main m) {
+                String[] x = m.multiLiteral(m);
+                m.ret.pop();
+                m.ret.push(new UnitSymbol("until-loop", x) {//creates a non literal until iterator
+                    @Override
+                    protected void run(Main m) {
+                        Multex t = m.dat.pop();
+                        if(t == null) {
+                            m.ret.push(new Multex(x));//the loop
+                            m.ret.push(this);
+                        } else {
+                            m.dat.push(t);//return the ending truth
+                            //opposite of while which consumes a truth to start
+                        }
+                    }
+                });
+                m.ret.push(new Multex(x));//the loop
+                m.ret.push(this);//for exit
+            }
+        });
+        reg(new Macro("ignore", singleOpen) {
+            @Override
+            protected void def(Main m) {
+                m.multiLiteral(m);//get a balanced multex and ignore it -- comments?
+            }
+        });
+        reg(new Prim("dup") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.peek();
+                m.dat.push(x);
+            }
+        });
+        reg(new Prim("drop") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.pop();
+            }
+        });
+        reg(new Prim("over") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.pop();
+                Multex y = m.dat.pop();
+                m.dat.push(y);
+                m.dat.push(x);
+                m.dat.push(y);
+            }
+        });
+        reg(new Prim("swap") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.pop();
+                Multex y = m.dat.pop();
+                m.dat.push(x);
+                m.dat.push(y);
+            }
+        });
+        reg(new Prim("nip") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.pop();
+                m.dat.pop();
+                m.dat.push(x);
+            }
+        });
+        reg(new Prim("tuck") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.pop();
+                Multex y = m.dat.pop();
+                m.dat.push(x);
+                m.dat.push(y);
+                m.dat.push(x);
             }
         });
 
