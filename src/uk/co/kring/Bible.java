@@ -289,6 +289,19 @@ public class Bible extends Book {
                 m.printMarked("</span></span>");
             }
         });
+        reg(new Prim("show") {//stack show
+            @Override
+            protected void def(Main m) {
+                Stack<Multex> tmp = new ProtectedStack<>(nul);
+                while(!m.dat.empty()) {
+                    Multex x = m.dat.pop();
+                    tmp.push(x);//save
+                    m.list(x, true);
+                }
+                m.println();
+                while(!tmp.empty()) m.dat.push(tmp.pop());//restore
+            }
+        });
 
         //4. Control Structures
         //=====================
@@ -608,7 +621,7 @@ public class Bible extends Book {
         reg(new Prim("drop") {
             @Override
             protected void def(Main m) {
-                Multex x = m.dat.pop();
+                m.dat.pop();
             }
         });
         reg(new Prim("over") {

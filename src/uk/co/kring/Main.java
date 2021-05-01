@@ -960,8 +960,8 @@ public class Main {
                     + ".lang.Help", Locale.getDefault());
 
     void list(Multex m, boolean newline) {
+        if(newline) println();//a special for null
         if(m == null) return;
-        if(newline) println();
         if(m instanceof Symbol) printSymbolName((Symbol)m);
         if(m instanceof Book) {
             for(Symbol s: ((Book) m).within) {
