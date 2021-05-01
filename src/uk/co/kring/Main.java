@@ -700,8 +700,8 @@ public class Main {
         41, 43, 47, 53,                 //12
         59, 61, 67, 71,                 //16
         73, 79, 83, 89,                 //20
-        2147483629, 97, 101, 103,       //24 - a special as a shutdown seems to want to issue its own code
-        2147483629, 107, 109, 113,      //28 - a special for max int auto on next error
+        211, 97, 101, 103,              //24 - a special as a shutdown seems to want to issue its own code
+        2147483629, 107, 109, 113,      //28 - a special for max int auto on error
         127, 131, 137, 139,             //32
         149, 151, 157, 163,             //36
         167, 173, 179, 181,             //40
@@ -782,11 +782,9 @@ public class Main {
             print(errorFact.getString("summary"));
             println();
             String c = ANSI_WARN;
-            if(errOver()) c = ANSI_ERR;//many errors
-            else {
-                first = errorExit;//return all if no over
-                if(first == 1) first = 0;//no error
-                //keep first in summary
+            first = errorExit;//return all if no over
+            if(errOver()) {
+                c = ANSI_ERR;//many errors
             }
             while(errorExit != 1) {
                 for (int i = 0; i < errorCode.length; i++) {
@@ -983,7 +981,7 @@ public class Main {
             for (int i = 0; i < m.basis.length; i++) {
                 if (i == m.idx) {
                     //cursor
-                    printSymbolized("@");
+                    printSymbolized(">");
                 }
                 Symbol x = find(m.basis[i], false);
                 if (x != null) {

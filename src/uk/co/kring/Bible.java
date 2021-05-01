@@ -235,14 +235,13 @@ public class Bible extends Book {
             protected void def(Main m) {
                 String in;
                 Stack<Multex> r = m.ret;
-                m.ret = new ProtectedStack<>(Main.nul);
                 while(true) {
+                    m.ret = new ProtectedStack<>(Main.nul);
                     if(m.exitLoop) break;
                     m.println();//clean line
                     in = m.readReader(m.getIn());
                     if(in == null) {
                         m.setError(Main.ERR_IO, m.getIn());
-                        m.dat.push(null);
                         break;
                     }
                     m.execute(new Multex(m.readString(in)));
@@ -532,7 +531,8 @@ public class Bible extends Book {
         reg(new Prim("force") {
             @Override
             protected void def(Main m) {
-                m.setError(Main.ERR_FORCE, this);//force next error to fail
+                m.setError(Main.ERR_FORCE, this);//force error to fail
+                m.clearErrors();//no error so ok
             }
         });
         reg(new Prim("later") {

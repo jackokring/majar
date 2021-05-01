@@ -40,7 +40,8 @@ public class Errors extends ListResourceBundle {
                 { "24", "System abort due to shutdown" },   //24
                 { "25", "Already registered. You can't register a symbol more than once" },   //25
                 { "26", "Foreign context. Multithreading is complex" },   //26
-                { "27", "Foreign safe. Multithreading is complex" },   //26
+                { "27", "Foreign safe. Multithreading is complex" },   //27
+                { "28", "Error forced. Have a stack trace" },   //28
 
                 { "abort", "User aborted process." },
                 { "summary", "Error summary follows:" },
