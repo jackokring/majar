@@ -442,7 +442,8 @@ public class Bible extends Book {
         reg(begin = new Macro("begin", singleOpen) {
             @Override
             protected void def(Main m) {
-                m.dat.push(new Multex(m.multiLiteral(m)));//get a balanced multex
+                m.dat.push(new Multex(m.multiLiteral(m),
+                        m.context));//get a balanced multex
             }
         });
         reg(new Macro("end", singleClose) {
@@ -456,7 +457,7 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 //behave as a begin, but be conscious it's really about \" elimination
-                m.dat.push(new Multex(m.multiLiteral(m)));//get a balanced multex
+                m.dat.push(new Multex(m.multiLiteral(m), m.context));//get a balanced multex
             }
         });
         reg(new Macro("def", delayOpen) {
@@ -472,7 +473,7 @@ public class Bible extends Book {
             protected void def(Main m) {
                 Multex x = m.ret.pop();
                 //undo any literal quotes
-                m.dat.push(new Multex(m.readString(m.literal())));
+                m.dat.push(new Multex(m.readString(m.literal()), m.context));
                 m.ret.push(x);
             }
         });
@@ -488,7 +489,7 @@ public class Bible extends Book {
                     m.dat.push(null);
                     m.ret.push(x);
                 }
-                m.dat.push(new Multex(m.multiLiteral(m)));//get a balanced multex
+                m.dat.push(new Multex(m.multiLiteral(m), m.context));//get a balanced multex
                 m.ret.push(x);
             }
         });
@@ -520,12 +521,12 @@ public class Bible extends Book {
                         @Override
                         protected void run(Main m) {
                             if(m.dat.pop() != null) {
-                                m.ret.push(new Multex(x));//the loop
+                                m.ret.push(new Multex(x, m.context));//the loop
                                 m.ret.push(this);//recursive
                             }
                         }
                     });
-                    m.ret.push(new Multex(x));//the loop
+                    m.ret.push(new Multex(x, m.context));//the loop
                     m.ret.push(this);//for exit
                 }
             }
@@ -607,7 +608,7 @@ public class Bible extends Book {
                     protected void run(Main m) {
                         Multex t = m.dat.pop();
                         if(t == null) {
-                            m.ret.push(new Multex(x));//the loop
+                            m.ret.push(new Multex(x, m.context));//the loop
                             m.ret.push(this);
                         } else {
                             m.dat.push(t);//return the ending truth
@@ -615,7 +616,7 @@ public class Bible extends Book {
                         }
                     }
                 });
-                m.ret.push(new Multex(x));//the loop
+                m.ret.push(new Multex(x, m.context));//the loop
                 m.ret.push(this);//for exit
             }
         });
@@ -681,7 +682,7 @@ public class Bible extends Book {
                 String[] x = m.multiLiteral(m);//get a balanced multex
                 if(m.dat.pop() != null) {
                     m.ret.pop();
-                    m.ret.push(new Multex(x));
+                    m.ret.push(new Multex(x, m.context));
                     m.ret.push(this);
                 }
             }
@@ -692,7 +693,7 @@ public class Bible extends Book {
                 String[] x = m.multiLiteral(m);//get a balanced multex
                 if(m.dat.peek() != null) {
                     m.ret.pop();
-                    m.ret.push(new Multex(x));
+                    m.ret.push(new Multex(x, m.context));
                     m.ret.push(this);
                 }
             }
@@ -703,7 +704,7 @@ public class Bible extends Book {
                 String[] x = m.multiLiteral(m);//get a balanced multex
                 if(m.dat.pop() == null) {
                     m.ret.pop();
-                    m.ret.push(new Multex(x));
+                    m.ret.push(new Multex(x, m.context));
                     m.ret.push(this);
                 }
             }

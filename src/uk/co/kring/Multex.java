@@ -51,9 +51,10 @@ public class Multex {
         //executeIn = Main.getMain().context;
     }
 
-    /* public Multex(String s) {
-        this(Main.getMain().readString(s));
-    } */
+    Multex(String[] s, Book in) {
+        this(s);
+        executeIn = in;//for meaning
+    }
 
     /**
      * Gets the first executive string available.
