@@ -194,6 +194,13 @@ public class Main {
         return c;
     }
 
+    Book getOuterContext() {
+        Multex s = ret.pop();
+        Book b = ret.peek().executeIn;
+        ret.push(s);
+        return b;
+    }
+
     void execute(Multex s) {
         if(s == null) return;
         stackForRun(s);
