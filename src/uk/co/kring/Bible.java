@@ -677,13 +677,11 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 String[] x = m.multiLiteral(m);//get a balanced multex
-                if(m.dat.pop() != null) {
+                if(m.dat.peek() != null) {
                     m.ret.pop();
                     m.ret.push(new Multex(x));
                     m.ret.push(this);
                     m.dat.push(null);//false
-                } else {
-                    m.dat.push(m.truth);//true
                 }
             }
         });
