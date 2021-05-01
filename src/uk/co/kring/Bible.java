@@ -681,7 +681,6 @@ public class Bible extends Book {
                     m.ret.pop();
                     m.ret.push(new Multex(x));
                     m.ret.push(this);
-                    m.dat.push(null);//false
                 }
             }
         });
