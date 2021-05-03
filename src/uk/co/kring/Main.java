@@ -3,6 +3,11 @@ package uk.co.kring;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -395,6 +400,28 @@ public class Main {
             return s;
         } catch (Exception e) {
             setError(ERR_IO, br);//Input
+            return null;
+        }
+    }
+
+    String getFile(String file) {
+        URL url = this.getClass().getProtectionDomain().getCodeSource().getLocation();
+        File f;
+        try {
+            f = new File(url.toURI().getPath());
+        } catch(Exception e) {
+            return null;
+        }
+        f = new File(f.getParentFile().toURI());
+        f = new File(f, file);//get path within jar directory
+        try {
+            if(!fast) {
+                println();
+                printSymbolized(f.getCanonicalPath());
+                println();
+            }
+            return Arrays.toString(Files.readAllBytes(Paths.get(f.toURI())));
+        } catch(Exception e) {
             return null;
         }
     }

@@ -2,6 +2,7 @@ package uk.co.kring;
 
 import java.util.Stack;
 
+import static uk.co.kring.Main.ERR_IO;
 import static uk.co.kring.Main.nul;
 
 /**
@@ -342,6 +343,19 @@ public class Bible extends Book {
                 if(x instanceof Symbol) {
                     m.printSymbolName((Symbol)x);
                 }
+            }
+        });
+        reg(new Macro("source", delay) {
+            @Override
+            protected void def(Main m) {
+                String x = m.getFile(m.literal());
+                if(x != null) {
+                    m.ret.pop();
+                    m.ret.push(new Multex(m.readString(x)));
+                    m.ret.push(this);
+                    return;
+                }
+                m.setError(ERR_IO, this);
             }
         });
 
