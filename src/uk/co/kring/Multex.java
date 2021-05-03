@@ -1,7 +1,5 @@
 package uk.co.kring;
 
-import java.util.Stack;
-
 /**
  * A class to contain an array of strings with some connection to an execution efficiency concept.
  */

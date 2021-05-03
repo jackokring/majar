@@ -72,6 +72,7 @@ public class Main {
     //it's a process truth
     protected Symbol falsely;//ironically true, but evaluating to false
     protected Safe lastSafe = new Safe("env");//the environmental safe
+    protected Space lastMadeSpace;
 
     //========================================== ENTRY / EXIT
 
@@ -596,7 +597,7 @@ public class Main {
                 }
             }
         } while(!macroEscape.empty() && macroEscape.peek().open > 0);
-        //macroEscape.pop(); -- do in check
+        macroEscape.pop();
         return fromList(ls);
     }
 
@@ -696,6 +697,7 @@ public class Main {
     public static final int ERR_FOR_CON = 26;
     public static final int ERR_FOR_SAFE = 27;
     public static final int ERR_FORCE = 28;
+    public static final int ERR_SPACE = 29;
 
     /**
      * The error code primes for indexing.

@@ -42,6 +42,7 @@ public class Errors extends ListResourceBundle {
                 { "26", "Foreign context. Multithreading is complex" },   //26
                 { "27", "Foreign safe. Multithreading is complex" },   //27
                 { "28", "Error forced. Have a stack trace" },   //28
+                { "29", "No space made. Can't import or export" },   //29
 
                 { "abort", "User aborted process." },
                 { "summary", "Error summary follows:" },

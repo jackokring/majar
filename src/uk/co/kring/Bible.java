@@ -77,13 +77,6 @@ public class Bible extends Book {
 
         //1. Word Management
         //==================
-        reg(new Macro("list", delay) {
-            @Override
-            protected void def(Main m) {
-                m.list(m.find(m.literal(), true), true);
-                m.println();//neat
-            }
-        });
         reg(new Prim("reg") {
             @Override
             protected void def(Main m) {
@@ -167,7 +160,27 @@ public class Bible extends Book {
         reg(new Macro("space", delay) {
             @Override
             protected void def(Main m) {
-                m.reg(new Space(m.literal()));
+                m.reg(m.lastMadeSpace = new Space(m.literal()));
+            }
+        });
+        reg(new Prim("import") {
+            @Override
+            protected void def(Main m) {
+                if(m.lastMadeSpace != null) {
+                    m.dat.push(m.lastMadeSpace.ref.pop());
+                    return;
+                }
+                m.setError(Main.ERR_SPACE, null);
+            }
+        });
+        reg(new Prim("export") {
+            @Override
+            protected void def(Main m) {
+                if(m.lastMadeSpace != null) {
+                    m.lastMadeSpace.ref.push(m.dat.pop());
+                    return;
+                }
+                m.setError(Main.ERR_SPACE, null);
             }
         });
         reg(new Macro("time", delayOpen) {
@@ -313,6 +326,22 @@ public class Bible extends Book {
                 }
                 m.println();
                 while(!tmp.empty()) m.dat.push(tmp.pop());//restore
+            }
+        });
+        reg(new Macro("list", delay) {
+            @Override
+            protected void def(Main m) {
+                m.list(m.find(m.literal(), true), true);
+                m.println();//neat
+            }
+        });
+        reg(new Prim("name") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.pop();
+                if(x instanceof Symbol) {
+                    m.printSymbolName((Symbol)x);
+                }
             }
         });
 
@@ -707,6 +736,12 @@ public class Bible extends Book {
                     m.ret.push(new Multex(x, m.getOuterContext()));
                     m.ret.push(this);
                 }
+            }
+        });
+        reg(new Prim("yield") {
+            @Override
+            protected void def(Main m) {
+                Thread.yield();
             }
         });
 
