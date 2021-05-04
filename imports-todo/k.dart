@@ -1,34 +1,3 @@
-
-import 'dart:math';
-import 'dart:convert';
-import 'package:flutter/material.dart';//flutter part too
-
-part 'kwidgets.dart';
-
-class PseudoRandom {
-  int _a;
-  int _c;
-  int _m = 1 << 32;
-  int _s;
-  int _i;
-
-  PseudoRandom([int prod = 1664525, int add = 1013904223]) {
-    _a = prod;
-    _c = add;
-    _s = Random().nextInt(_m) * 2 + 1;//odd
-    next();// a fast round
-    _i = _a.modInverse(_m);//4276115653 as inverse of 1664525
-  }
-
-  int next() {
-    return _s = (_a * _s + _c) % _m;
-  }
-
-  int prev() {
-    return _s = (_s - _c) * _i % _m;
-  }
-}
-
 class _RingNick {
   //alternate strategy of using least and most and lower window
   static bool alt = true;

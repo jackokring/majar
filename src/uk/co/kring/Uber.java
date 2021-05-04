@@ -20,6 +20,8 @@ public abstract class Uber extends AbstractMultex {
         return false;
     }
 
+    protected abstract Multex optionReplace();
+
     /**
      * Gets the multex representation if listing of the basis makes no sense without
      * manufacturing it. This maybe because it is inefficient to keep converting it.

@@ -13,6 +13,8 @@ public abstract class AbstractMultex extends Multex {
 
     protected abstract void run(Main m);
 
+    protected abstract Multex optionReplace();
+
     /**
      * Provides for running the multex under this class. This is provided as not all subclasses
      * need to override this behaviour. It could be part of the new behaviour.
