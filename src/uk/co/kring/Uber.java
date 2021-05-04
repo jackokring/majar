@@ -16,6 +16,10 @@ public abstract class Uber extends AbstractMultex {
      */
     protected abstract Uber convert(Class<? extends Uber> clazz);
 
+    /**
+     * Uber does basis display a different way due to lazy generation cast.
+     * @return false.
+     */
     protected final boolean listBasis() {
         return false;
     }
@@ -31,8 +35,18 @@ public abstract class Uber extends AbstractMultex {
     protected abstract String[] getBasis();
 
     protected String firstString() {
-        if(!listBasis() || idx >= basis.length) return null;
-        basis = getBasis();
+        if(basis == null) basis = getBasis();
+        if(idx >= basis.length) return null;
         return basis[idx];
+    }
+
+    protected boolean literalShift(Main m) {
+        if(basis == null) basis = getBasis();//template length
+        idx++;
+        if(idx >= basis.length) {
+            m.setError(Main.ERR_LIT, this);
+            return true;
+        }
+        return false;
     }
 }
