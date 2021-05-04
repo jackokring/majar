@@ -155,7 +155,7 @@ public class Bible extends Book {
         reg(new Macro("ref", delay) {
             @Override
             protected void def(Main m) {
-                m.reg(new Ref(m.literal(), m.dat.peek()));
+                m.reg(new Ref(m.literal(), m.dat.pop()));
             }
         });
         reg(new Macro("space", delay) {
@@ -378,11 +378,12 @@ public class Bible extends Book {
         reg(new Prim("elucidate") {
             @Override
             protected void def(Main m) {
-                if(m.dat.pop() == null) {
+                Multex x = m.dat.pop();
+                if(x == null) {
                     m.dat.push(m.falsely);
                     return;
                 }
-                m.dat.push(m.truth);
+                m.dat.push(x);
             }
         });
         reg(new Prim("not") {
@@ -428,7 +429,7 @@ public class Bible extends Book {
             protected void def(Main m) {
                 Multex q = m.dat.pop();
                 Multex p = m.dat.pop();
-                if(q != null && p != null) {//on p true then q eval
+                if(q != null && p != null) {
                     m.dat.push(q);
                     return;
                 }
@@ -690,7 +691,7 @@ public class Bible extends Book {
                 Multex y = m.dat.pop();
                 m.dat.push(y);
                 m.dat.push(x);
-                m.dat.push(y);
+                m.dat.push(y.optionReplace());
             }
         });
         reg(new Prim("swap") {
@@ -715,7 +716,7 @@ public class Bible extends Book {
             protected void def(Main m) {
                 Multex x = m.dat.pop();
                 Multex y = m.dat.pop();
-                m.dat.push(x);
+                m.dat.push(x.optionReplace());
                 m.dat.push(y);
                 m.dat.push(x);
             }
