@@ -19,7 +19,6 @@ public abstract class Macro extends Prim {
      */
     protected final void macroExecute(Main m) {
         if(onLiteral == null) onLiteral = this;//default sensible
-        onLiteral.executeIn = executeIn;
         onLiteral.run(m);//run macro in same context
     }
 

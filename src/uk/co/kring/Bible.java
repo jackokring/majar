@@ -124,7 +124,7 @@ public class Bible extends Book {
                 if(s == null) {
                     m.dat.push(null);
                 }
-                m.dat.push(new Multex(m.readString(s), m.context));
+                m.dat.push(new Multex(m.readString(s)));
             }
         });
         reg(new Macro("find", delay) {
@@ -217,19 +217,6 @@ public class Bible extends Book {
             }
         });
         reg(Main.getMain().lastSafe);//and the environmental safe
-        reg(new Macro("mean", delay) {
-            @Override
-            protected void def(Main m) {
-                Symbol s = m.find(m.literal(), true);
-                m.ret.pop();
-                if(s.listBasis()) {
-                    m.ret.push(new Multex(s.basis, m.context));
-                } else {
-                    m.ret.push(s);//has its own meaning in context
-                }
-                m.ret.push(this);
-            }
-        });
 
         //3. Input and Output
         //===================
@@ -242,7 +229,7 @@ public class Bible extends Book {
                     m.dat.push(null);
                     return;
                 }
-                Multex x = new Multex(m.readString(in), m.context);
+                Multex x = new Multex(m.readString(in));
                 m.dat.push(x);
             }
         });
@@ -254,7 +241,7 @@ public class Bible extends Book {
                 if(in == null) {
                     in = s;
                 }
-                Multex x = new Multex(m.readString(in), m.context);
+                Multex x = new Multex(m.readString(in));
                 m.dat.push(x);
             }
         });
@@ -272,7 +259,7 @@ public class Bible extends Book {
                         m.setError(Main.ERR_IO, m.getIn());
                         break;
                     }
-                    m.execute(new Multex(m.readString(in), m.context));
+                    m.execute(new Multex(m.readString(in)));
                 }
                 m.exitLoop = false;
                 m.ret = r;
@@ -342,6 +329,21 @@ public class Bible extends Book {
                 Multex x = m.dat.pop();
                 if(x instanceof Symbol) {
                     m.printSymbolName((Symbol)x);
+                }
+            }
+        });
+        reg(new Prim("dollar") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.pop();
+                if(x.listBasis()) {
+                    m.dat.push(new Multex(m.readString(m.dollar(Main.join(x.basis)))));
+                } else {
+                    if(x instanceof Uber) {
+                        m.dat.push(new Multex(m.readString(m.dollar(Main.join(((Uber) x).getBasis())))));
+                    } else {
+                        m.dat.push(null);
+                    }
                 }
             }
         });
@@ -485,8 +487,7 @@ public class Bible extends Book {
         reg(begin = new Macro("begin", singleOpen) {
             @Override
             protected void def(Main m) {
-                m.dat.push(new Multex(m.multiLiteral(m),
-                        m.getOuterContext()));//get a balanced multex
+                m.dat.push(new Multex(m.multiLiteral(m)));//get a balanced multex
             }
         });
         reg(new Macro("end", singleClose) {
@@ -500,7 +501,7 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 //behave as a begin, but be conscious it's really about \" elimination
-                m.dat.push(new Multex(m.multiLiteral(m), m.getOuterContext()));//get a balanced multex
+                m.dat.push(new Multex(m.multiLiteral(m)));//get a balanced multex
             }
         });
         reg(new Macro("def", delayOpen) {
@@ -516,7 +517,7 @@ public class Bible extends Book {
             protected void def(Main m) {
                 Multex x = m.ret.pop();
                 //undo any literal quotes
-                m.dat.push(new Multex(m.readString(m.literal()), m.getOuterContext()));
+                m.dat.push(new Multex(m.readString(m.literal())));
                 m.ret.push(x);
             }
         });
@@ -532,7 +533,7 @@ public class Bible extends Book {
                     m.dat.push(null);
                     m.ret.push(x);
                 }
-                m.dat.push(new Multex(m.multiLiteral(m), m.getOuterContext()));//get a balanced multex
+                m.dat.push(new Multex(m.multiLiteral(m)));//get a balanced multex
                 m.ret.push(x);
             }
         });
@@ -564,12 +565,12 @@ public class Bible extends Book {
                         @Override
                         protected void run(Main m) {
                             if(m.dat.pop() != null) {
-                                m.ret.push(new Multex(x, m.getOuterContext()));//the loop
+                                m.ret.push(new Multex(x));//the loop
                                 m.ret.push(this);//recursive
                             }
                         }
                     });
-                    m.ret.push(new Multex(x, m.getOuterContext()));//the loop
+                    m.ret.push(new Multex(x));//the loop
                     m.ret.push(this);//for exit
                 }
             }
@@ -651,7 +652,7 @@ public class Bible extends Book {
                     protected void run(Main m) {
                         Multex t = m.dat.pop();
                         if(t == null) {
-                            m.ret.push(new Multex(x, m.getOuterContext()));//the loop
+                            m.ret.push(new Multex(x));//the loop
                             m.ret.push(this);
                         } else {
                             m.dat.push(t);//return the ending truth
@@ -659,7 +660,7 @@ public class Bible extends Book {
                         }
                     }
                 });
-                m.ret.push(new Multex(x, m.getOuterContext()));//the loop
+                m.ret.push(new Multex(x));//the loop
                 m.ret.push(this);//for exit
             }
         });
@@ -725,7 +726,7 @@ public class Bible extends Book {
                 String[] x = m.multiLiteral(m);//get a balanced multex
                 if(m.dat.pop() != null) {
                     m.ret.pop();
-                    m.ret.push(new Multex(x, m.getOuterContext()));
+                    m.ret.push(new Multex(x));
                     m.ret.push(this);
                 }
             }
@@ -736,7 +737,7 @@ public class Bible extends Book {
                 String[] x = m.multiLiteral(m);//get a balanced multex
                 if(m.dat.peek() != null) {
                     m.ret.pop();
-                    m.ret.push(new Multex(x, m.getOuterContext()));
+                    m.ret.push(new Multex(x));
                     m.ret.push(this);
                 }
             }
@@ -747,7 +748,7 @@ public class Bible extends Book {
                 String[] x = m.multiLiteral(m);//get a balanced multex
                 if(m.dat.pop() == null) {
                     m.ret.pop();
-                    m.ret.push(new Multex(x, m.getOuterContext()));
+                    m.ret.push(new Multex(x));
                     m.ret.push(this);
                 }
             }
@@ -756,6 +757,29 @@ public class Bible extends Book {
             @Override
             protected void def(Main m) {
                 Thread.yield();
+            }
+        });
+        reg(new Prim("empty") {
+            @Override
+            protected void def(Main m) {
+                if(m.dat.empty()) {
+                    m.dat.push(m.truth);
+                } else {
+                    m.dat.push(null);
+                }
+            }
+        });
+        reg(new Prim("exec") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.pop();
+                if(x.listBasis()) {
+                    m.silentExec(x.basis);
+                } else {
+                    if(x instanceof Uber) {
+                        m.silentExec(((Uber) x).getBasis());
+                    }
+                }
             }
         });
 

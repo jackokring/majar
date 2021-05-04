@@ -16,7 +16,7 @@ public abstract class Uber extends AbstractMultex {
      */
     protected abstract Uber convert(Class<? extends Uber> clazz);
 
-    protected boolean listBasis() {
+    protected final boolean listBasis() {
         return false;
     }
 

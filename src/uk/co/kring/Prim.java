@@ -44,7 +44,6 @@ public abstract class Prim extends UnitSymbol {
             Prim instance = (Prim)clazz.newInstance();
             instance.named = named;
             instance.in = in;
-            instance.executeIn = executeIn;
             return instance;//yes
         } catch(Exception e) {
             Main.getMain().setError(Main.ERR_THREAD, this);

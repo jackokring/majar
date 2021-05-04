@@ -9,6 +9,7 @@ import java.util.List;
 public class Book extends UnitSymbol {
 
     List<Symbol> within = new LinkedList<>();//efficiency and ease of delete
+    Book cache;
 
     public Book(String name) {
         super(name, null);//empty to start

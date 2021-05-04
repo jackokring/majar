@@ -22,7 +22,6 @@ public class Symbol extends AbstractMultex {
     protected Multex optionReplace() {
         Symbol s = new Symbol(named, basis);
         s.in = in;
-        s.executeIn = executeIn;
         return s;
     }
 

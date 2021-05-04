@@ -18,7 +18,7 @@ public class Multex {
         if(firstString() == null) {
             return;
         }
-        Symbol s = m.find(firstString(), executeIn);
+        Symbol s = m.find(firstString(), true);
         if(s != null) {
             if(!m.fast) {
                 m.printSymbolName(s);//ok
@@ -26,7 +26,8 @@ public class Multex {
             }
             m.stackForRun(s);//Threading ...
             s.idx++;//Simple profiling of things which got cloned if important to clone
-        }    }
+        }
+    }
 
     /**
      * Returns an effective clone under executive speed conditions. Some classes return singleton instances.
@@ -35,23 +36,15 @@ public class Multex {
      */
     protected Multex optionReplace() {
         Multex m = new Multex(this.basis);
-        m.executeIn = executeIn;
         return m;
     }
 
     String[] basis;
     int idx;
-    Book executeIn;
 
     protected Multex(String[] s) {
         idx = -1;
         basis = s;
-        //executeIn = Main.getMain().context;
-    }
-
-    Multex(String[] s, Book in) {
-        this(s);
-        executeIn = in;//for meaning
     }
 
     /**

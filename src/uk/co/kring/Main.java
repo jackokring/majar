@@ -194,17 +194,10 @@ public class Main {
                 return context;
             }
         }
-        b.in.executeIn = b;//cache
+        b.in.cache = b;//cache
         Book c = context;
         context = b;
         return c;
-    }
-
-    Book getOuterContext() {
-        Multex s = ret.pop();
-        Book b = ret.peek().executeIn;
-        ret.push(s);
-        return b;
     }
 
     void execute(Multex s) {
@@ -253,9 +246,8 @@ public class Main {
         s.in = current;
         s.idx++;//step to 0 for profiling
         current.within.add(s);
-        s.executeIn = context;//keep context
         if(s instanceof Book) {
-            s.executeIn = null;//clear recent cache
+            ((Book)s).cache = null;//clear recent cache
         }
         ls.add(s);//new
     }
@@ -292,8 +284,8 @@ public class Main {
         for(Symbol i: b.within) {
             unReg(i, b);
         }
-        if(b.in.executeIn == b) {
-            b.in.executeIn = null;//clear lazy eval
+        if(b.in.cache == b) {
+            b.in.cache = null;//clear lazy eval
         }
         b.in = b;//hide context chain for future
         if(b == current) {
@@ -359,8 +351,8 @@ public class Main {
                 }
             } catch (Exception e) {
                 //lazy mode
-                if (context.executeIn != null) {//try recent used books
-                    return find(t, context.executeIn);
+                if (context.cache != null) {//try recent used books
+                    return find(t, context.cache);
                 } else {
                     if(exists) {
                         setError(ERR_CONTEXT, t);
@@ -972,17 +964,18 @@ public class Main {
         println();
         print(ANSI_RESET + "[ ");
         printSymbolName(current);
-        print(ANSI_RESET + "] ");
         printSymbolName(lastSafe);
+        printSymbolName(lastMadeSpace);
+        print(ANSI_RESET + "] ");
         Book c = context;
         do {
             printSymbolName(c);
             c = c.in;
-        } while(c.in != null);
+        } while(c.in != c);
         print(ANSI_RESET + "[ ");
         c = context;
-        while(c.executeIn != null) {
-            c = c.executeIn;
+        while(c.cache != null) {
+            c = c.cache;
             printSymbolName(c);
         }
         print(ANSI_RESET + "]");
