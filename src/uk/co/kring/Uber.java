@@ -29,4 +29,10 @@ public abstract class Uber extends AbstractMultex {
      * @return an effective conversion. Must not return null.
      */
     protected abstract String[] getBasis();
+
+    protected String firstString() {
+        if(!listBasis() || idx >= basis.length) return null;
+        basis = getBasis();
+        return basis[idx];
+    }
 }

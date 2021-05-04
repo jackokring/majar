@@ -52,7 +52,7 @@ public class Multex {
      * @return the executive string.
      */
     protected String firstString() {
-        if(idx >= basis.length) return null;
+        if(!listBasis() || idx >= basis.length) return null;
         return basis[idx];
     }
 
@@ -63,7 +63,7 @@ public class Multex {
      */
     protected boolean literalShift(Main m) {
         idx++;
-        if(idx >= basis.length) {
+        if(!listBasis() || idx >= basis.length) {
             m.setError(Main.ERR_LIT, this);
             return true;
         }
