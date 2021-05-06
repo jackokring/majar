@@ -109,16 +109,43 @@ public class Generator {
         return true;//value OK
     }
 
-    boolean prePrev() {
+    void prePrev() {
         gen.next();
         if(randomNotSample) {
             boolean rand = (gen.prev() & 1) != 0;//randomize
             clockwise ^= rand;
             reflectionParity ^= !rand;//align to same start polarity
-            gen.prev();//for return
-            return false;
         }
         gen.prev();
+    }
+
+    boolean postPrev() {
+        if(randomNotSample) {
+            return false;
+        }
         return true;//value OK
+    }
+
+    void modulate() {
+        clockwise = !clockwise;
+    }
+
+    boolean forward() {
+        boolean test;
+        do {
+            next();
+            test = postNext();
+        } while(!test);
+        return value();
+    }
+
+    boolean reverse() {
+        boolean test;
+        do {
+            prePrev();
+            prev();
+            test = postPrev();
+        } while(!test);
+        return value();
     }
 }
