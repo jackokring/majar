@@ -37,6 +37,7 @@ public class Generator {
             } else {
                 if(q < gen.next()) {
                     randomNotSample = !randomNotSample;//anti-clockwise motion
+                    reflectionParity = !reflectionParity;//q jump parity
                 } else {
                     clockwise = !clockwise;//reflection
                     reflectionParity = !reflectionParity;//parity
@@ -46,6 +47,7 @@ public class Generator {
             if(clockwise) {
                 if(q < gen.next()) {
                     randomNotSample = !randomNotSample;//clockwise motion
+                    reflectionParity = !reflectionParity;//q jump parity
                 } else {
                     clockwise = !clockwise;//reflection
                     reflectionParity = !reflectionParity;//parity
@@ -74,6 +76,7 @@ public class Generator {
             } else {
                 if(q < gen.prev()) {
                     randomNotSample = !randomNotSample;//anti-clockwise motion
+                    reflectionParity = !reflectionParity;//q jump parity
                 } else {
                     clockwise = !clockwise;//reflection
                     reflectionParity = !reflectionParity;//parity
@@ -83,6 +86,7 @@ public class Generator {
             if(!clockwise) {
                 if(q < gen.prev()) {
                     randomNotSample = !randomNotSample;//clockwise motion
+                    reflectionParity = !reflectionParity;//q jump parity
                 } else {
                     clockwise = !clockwise;//reflection
                     reflectionParity = !reflectionParity;//parity
