@@ -145,6 +145,8 @@ public class Generator {
         return value();
     }
 
+    //this should be the logical time reversal of the forward() method.
+    //implying a stack storage on the magnified bias.
     boolean reverse() {
         boolean test;
         do {
