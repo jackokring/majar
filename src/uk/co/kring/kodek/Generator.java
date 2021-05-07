@@ -8,7 +8,6 @@ public class Generator {
     boolean randomNotSample = true;
     boolean reflectionParity = false;
     boolean clockwise = true;
-    boolean invert = false;
 
     final int max = Integer.MAX_VALUE;
     int p;
@@ -23,7 +22,7 @@ public class Generator {
     }
 
     boolean value() {
-        return clockwise ^ reflectionParity;
+        return clockwise;// ^ reflectionParity;
     }
 
     void next() {
@@ -31,7 +30,6 @@ public class Generator {
             if(clockwise) {
                 if(p < gen.next()) {
                     randomNotSample = !randomNotSample;//clockwise motion
-                    invert = !invert;
                 } else {
                     clockwise = !clockwise;//reflection
                     reflectionParity = !reflectionParity;//parity
@@ -55,7 +53,6 @@ public class Generator {
             } else {
                 if(p < gen.next()) {
                     randomNotSample = !randomNotSample;//anti-clockwise motion
-                    invert = !invert;
                 } else {
                     clockwise = !clockwise;//reflection
                     reflectionParity = !reflectionParity;//parity
@@ -70,7 +67,6 @@ public class Generator {
             if(!clockwise) {
                 if(p < gen.prev()) {
                     randomNotSample = !randomNotSample;//clockwise motion
-                    invert = !invert;
                 } else {
                     clockwise = !clockwise;//reflection
                     reflectionParity = !reflectionParity;//parity
@@ -94,7 +90,6 @@ public class Generator {
             } else {
                 if(p < gen.prev()) {
                     randomNotSample = !randomNotSample;//anti-clockwise motion
-                    invert = !invert;
                 } else {
                     clockwise = !clockwise;//reflection
                     reflectionParity = !reflectionParity;//parity
@@ -107,9 +102,10 @@ public class Generator {
     boolean postNext() {
         if(randomNotSample) {
             boolean rand = (gen.next() & 1) != 0;//randomize
+            boolean rand2 = (gen.next() & 1) != 0;//randomize
             clockwise ^= rand;
-            reflectionParity ^= !rand;//align to same start polarity
-            return false;
+            reflectionParity ^= rand2;//align to same start polarity
+            return reflectionParity;//false;
         }
         return true;//value OK
     }
@@ -117,9 +113,10 @@ public class Generator {
     void prePrev() {
         gen.next();
         if(randomNotSample) {
+            boolean rand2 = (gen.next() & 1) != 0;//randomize
             boolean rand = (gen.prev() & 1) != 0;//randomize
             clockwise ^= rand;
-            reflectionParity ^= !rand;//align to same start polarity
+            reflectionParity ^= rand2;//align to same start polarity
         }
         gen.prev();
     }
@@ -128,7 +125,7 @@ public class Generator {
         if(randomNotSample) {
             return false;
         }
-        return true;//value OK
+        return reflectionParity;//true;//value OK
     }
 
     void modulate() {
