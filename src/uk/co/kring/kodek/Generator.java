@@ -128,10 +128,14 @@ public class Generator {
         return reflectionParity;//true;//value OK
     }
 
+    //there is a coding if the entropy exceeds a 33:66-ish bias
+    //as like 3 dice with 1,2:3,4,5,6 and a majority count increases bias
+    //then a set of generators implies enough bias given enough speed or silicon area.
     void modulate() {
         clockwise = !clockwise;
     }
 
+    //the entropy of this stream should not be 50:50 or 1 bit per bit
     boolean forward() {
         boolean test;
         do {
