@@ -6,7 +6,7 @@ package uk.co.kring.kodek;
 public class Generator {
 
     boolean randomNotSample = true;
-    boolean reflectionParity = false;
+    //boolean reflectionParity = false;
     boolean clockwise = true;
 
     final int max = Integer.MAX_VALUE;
@@ -32,14 +32,14 @@ public class Generator {
                     randomNotSample = !randomNotSample;//clockwise motion
                 } else {
                     clockwise = !clockwise;//reflection
-                    reflectionParity = !reflectionParity;//parity
+                    //reflectionParity = !reflectionParity;//parity
                 }
             } else {
                 if(q < gen.next()) {
                     randomNotSample = !randomNotSample;//anti-clockwise motion
                 } else {
                     clockwise = !clockwise;//reflection
-                    reflectionParity = !reflectionParity;//parity
+                    //reflectionParity = !reflectionParity;//parity
                 }
             }
         } else {
@@ -48,14 +48,14 @@ public class Generator {
                     randomNotSample = !randomNotSample;//clockwise motion
                 } else {
                     clockwise = !clockwise;//reflection
-                    reflectionParity = !reflectionParity;//parity
+                    //reflectionParity = !reflectionParity;//parity
                 }
             } else {
                 if(p < gen.next()) {
                     randomNotSample = !randomNotSample;//anti-clockwise motion
                 } else {
                     clockwise = !clockwise;//reflection
-                    reflectionParity = !reflectionParity;//parity
+                    //reflectionParity = !reflectionParity;//parity
                 }
             }
         }
@@ -69,14 +69,14 @@ public class Generator {
                     randomNotSample = !randomNotSample;//clockwise motion
                 } else {
                     clockwise = !clockwise;//reflection
-                    reflectionParity = !reflectionParity;//parity
+                    //reflectionParity = !reflectionParity;//parity
                 }
             } else {
                 if(q < gen.prev()) {
                     randomNotSample = !randomNotSample;//anti-clockwise motion
                 } else {
                     clockwise = !clockwise;//reflection
-                    reflectionParity = !reflectionParity;//parity
+                    //reflectionParity = !reflectionParity;//parity
                 }
             }
         } else {
@@ -85,14 +85,14 @@ public class Generator {
                     randomNotSample = !randomNotSample;//clockwise motion
                 } else {
                     clockwise = !clockwise;//reflection
-                    reflectionParity = !reflectionParity;//parity
+                    //reflectionParity = !reflectionParity;//parity
                 }
             } else {
                 if(p < gen.prev()) {
                     randomNotSample = !randomNotSample;//anti-clockwise motion
                 } else {
                     clockwise = !clockwise;//reflection
-                    reflectionParity = !reflectionParity;//parity
+                    //reflectionParity = !reflectionParity;//parity
                 }
             }
         }
@@ -102,10 +102,10 @@ public class Generator {
     boolean postNext() {
         if(randomNotSample) {
             boolean rand = (gen.next() & 1) != 0;//randomize
-            boolean rand2 = (gen.next() & 1) != 0;//randomize
+            //boolean rand2 = (gen.next() & 1) != 0;//randomize
             clockwise ^= rand;
-            reflectionParity ^= rand2;//align to same start polarity
-            return reflectionParity;//false;
+            //reflectionParity ^= rand2;//align to same start polarity
+            return false;//reflectionParity;//false;
         }
         return true;//value OK
     }
@@ -113,10 +113,10 @@ public class Generator {
     void prePrev() {
         gen.next();
         if(randomNotSample) {
-            boolean rand2 = (gen.next() & 1) != 0;//randomize
+            //boolean rand2 = (gen.next() & 1) != 0;//randomize
             boolean rand = (gen.prev() & 1) != 0;//randomize
             clockwise ^= rand;
-            reflectionParity ^= rand2;//align to same start polarity
+            //reflectionParity ^= rand2;//align to same start polarity
         }
         gen.prev();
     }
@@ -125,7 +125,7 @@ public class Generator {
         if(randomNotSample) {
             return false;
         }
-        return reflectionParity;//true;//value OK
+        return true;//reflectionParity;//true;//value OK
     }
 
     //there is a coding if the entropy exceeds a 33:66-ish bias
