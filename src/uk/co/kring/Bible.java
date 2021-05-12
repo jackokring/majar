@@ -364,13 +364,69 @@ public class Bible extends Book {
                         return;
                     }
                 }
-                if(b.length > 0) {
+                if(b != null && b.length > 0) {
                     String s = b[0];
                     b[0] = null;
                     m.dat.push(new Multex(b));//null first
                     m.dat.push(new Multex(m.readString(s)));//first
                 } else {
                     m.dat.push(null);
+                    m.dat.push(x);//self first
+                }
+            }
+        });
+        reg(new Prim("atoms") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.pop();
+                String[] b;
+                if(x.listBasis()) {
+                    b = x.basis;
+                } else {
+                    if(x instanceof Uber) {
+                        b = ((Uber) x).getBasis();
+                    } else {
+                        m.dat.push(x);//self first
+                        return;
+                    }
+                }
+                if(b != null) {
+                    String s = Main.join(b);
+                    char[] ch = s.toCharArray();
+                    b = new String[ch.length];
+                    for(int i = 0; i < ch.length; i++) {
+                        b[i] = String.valueOf(ch[i]);
+                    }
+                    Main.intern(b);//intern
+                    m.dat.push(new Multex(b));//chars
+                } else {
+                    m.dat.push(x);//self first
+                }
+            }
+        });
+        reg(new Prim("glue") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.pop();
+                String[] b;
+                if(x.listBasis()) {
+                    b = x.basis;
+                } else {
+                    if(x instanceof Uber) {
+                        b = ((Uber) x).getBasis();
+                    } else {
+                        m.dat.push(x);//self first
+                        return;
+                    }
+                }
+                if(b != null) {
+                    StringBuilder s = new StringBuilder();
+                    for(String i: b) {
+                        s.append(i);//concat
+                    }
+                    b = Main.singleton(s.toString().intern());//and make singleton
+                    m.dat.push(new Multex(b));//chars
+                } else {
                     m.dat.push(x);//self first
                 }
             }

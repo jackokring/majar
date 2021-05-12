@@ -89,6 +89,8 @@ public class Help extends ListResourceBundle {
                 { "exec", "Perform a quiet system exec call with the top of stack" },
                 { "split", "Split off the first part of stacked literal, leaving the rest below" },
                 { "join", "Join the top of stack as the first literal prefixing the second on stack" },
+                { "atoms", "Split individual characters for a literal" },
+                { "glue", "Stick all the parts together as a single literal" },
         };
     }
 }

@@ -530,7 +530,7 @@ public class Main {
             j = j.replace("$", para);//recursive
             s = s.substring(0, i) + j + s.substring(i + 1);
         }
-        return s.replace(para, "$");
+        return s.replace(para, "$").intern();
     }
 
     String firstString(Multex m) {
@@ -659,7 +659,7 @@ public class Main {
                 t.append(i);
             }
         }
-        return t.toString();
+        return t.toString().intern();
     }
 
     //========================================== CMD UTIL
