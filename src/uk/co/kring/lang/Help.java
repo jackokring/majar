@@ -88,6 +88,7 @@ public class Help extends ListResourceBundle {
                 { "empty", "Get a boolean to test if the stack is empty" },
                 { "exec", "Perform a quiet system exec call with the top of stack" },
                 { "split", "Split off the first part of stacked literal, leaving the rest below" },
+                { "join", "Join the top of stack as the first literal prefixing the second on stack" },
         };
     }
 }

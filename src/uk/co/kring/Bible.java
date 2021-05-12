@@ -1,5 +1,6 @@
 package uk.co.kring;
 
+import java.util.Arrays;
 import java.util.Stack;
 
 import static uk.co.kring.Main.ERR_IO;
@@ -371,6 +372,42 @@ public class Bible extends Book {
                 } else {
                     m.dat.push(null);
                     m.dat.push(x);//self first
+                }
+            }
+        });
+        reg(new Prim("join") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.pop();
+                Multex y = m.dat.pop();
+                String[] b;
+                if(x.listBasis()) {
+                    b = x.basis;
+                } else {
+                    if(x instanceof Uber) {
+                        b = ((Uber) x).getBasis();
+                    } else {
+                        b = null;
+                    }
+                }
+                String s = Main.join(b);//make first
+                if(y.listBasis()) {
+                    b = y.basis;
+                } else {
+                    if(x instanceof Uber) {
+                        b = ((Uber) y).getBasis();
+                    } else {
+                        b = null;
+                    }
+                }
+                if(b == null) {
+                    m.dat.push(new Multex(Main.singleton(s)));
+                } else {
+                    x = new Multex(b);//make rest as multex
+                    b = new String[x.basis.length + 1];
+                    System.arraycopy(x.basis, 0, b, 1, x.basis.length);//copy
+                    b[0] = s;//first
+                    m.dat.push(new Multex(b));
                 }
             }
         });
