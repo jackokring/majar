@@ -347,6 +347,33 @@ public class Bible extends Book {
                 }
             }
         });
+        reg(new Prim("split") {
+            @Override
+            protected void def(Main m) {
+                Multex x = m.dat.pop();
+                String[] b;
+                if(x.listBasis()) {
+                    b = x.basis;
+                } else {
+                    if(x instanceof Uber) {
+                        b = ((Uber) x).getBasis();
+                    } else {
+                        m.dat.push(null);
+                        m.dat.push(x);//self first
+                        return;
+                    }
+                }
+                if(b.length > 0) {
+                    String s = b[0];
+                    b[0] = null;
+                    m.dat.push(new Multex(b));//null first
+                    m.dat.push(new Multex(m.readString(s)));//first
+                } else {
+                    m.dat.push(null);
+                    m.dat.push(x);//self first
+                }
+            }
+        });
         reg(new Macro("source", delay) {
             @Override
             protected void def(Main m) {

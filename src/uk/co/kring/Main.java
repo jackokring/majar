@@ -461,7 +461,7 @@ public class Main {
     //================================================== STRING UTIL
 
     /**
-     * Internalize a sString[] so that the == operator works as a fast comparison.
+     * Internalize a String[] so that the == operator works as a fast comparison.
      * @param s array to internalize.
      */
     public static void intern(String[] s) {
